@@ -433,7 +433,8 @@ class ExternalNode(gpi.NodeAPI):
           if sval != 2: #Not Signed Data (Pass or Mag)
             # Show based on a color map
             if cmap == 0: # Grayscale
-              alpha = red = green = blue = np.uint8(data)
+              red = green = blue = np.uint8(data)
+              alpha = 255. * np.ones(blue.shape)
             else:
               rd = np.zeros(data.shape)
               gn = np.zeros(data.shape)
