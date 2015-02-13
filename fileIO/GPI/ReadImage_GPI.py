@@ -31,27 +31,29 @@
 # License along with the GPI core node library. If not, see
 # <http://www.gnu.org/licenses/>.
 
+
+# Author: Dallas Turley
+
+
 import os, sys
 import numpy as np
 import gpi
 
 class ExternalNode(gpi.NodeAPI):
-    """Read images into GPI as numpy arrays using the Python Image Library (PIL),
-    which supports a variety of file types, including PNG, JPG, TIF, and GIF.
-    The expected default channel order is RGBA, though BGRA images can be correctly 
-    read into GPI. 
+    """Read images into GPI as numpy arrays. Many image file types are supported by PIL (Python Imaging Library)
+    The file types specifically implemented in this node are PNG, JPEG, TIFF and BMP. PIL supports other image
+    file types, but the node's ability to read these types into GPI are not guaranteed. 
+    For more information on supported file types, see 
+    http://www.pythonware.com/products/pil
+    http://effbot.org/imagingbook/pil-index.htm
 
-    OUTPUT: Numpy array read from image file
+    OUTPUT: Numpy array read from image file. 
 
     WIDGETS: I/O Info - Gives info on data file and type
     File Browser - button to launch file browser, and typein widget if the pathway is known
-    Gray Scale - flattens the color band dimension, producing a gray scale image
-        If toggle is off (default), output is a uint8 array with the last dimension BGRA
+    Gray Scale - button to flatten the last dimension of jpg and png images. 
         If toggle is on, output is a grey-scale float32 array with the same dimensions as the original image
-    Swap Colors (RGB -> BGR)
-        If toggle is off (default), the reader expects RGB images
-        If toggle is on, the reader expects BGR images, and rearranges the color channels to output an RGB image
-
+        If toggle is off, output is a uint8 array with the last dimension BGRA
     """
     def execType(self):
         return gpi.GPI_PROCESS #this is safest
@@ -59,7 +61,7 @@ class ExternalNode(gpi.NodeAPI):
     def initUI(self):
         self.addWidget('TextBox', 'I/O Info:')
         self.addWidget('OpenFileBrowser', 'File Browser', button_title='Browse', caption='Open File', directory='~/', 
-            filter='png (*.png);;jpg (*.jpg);;tiff (*.tiff);;bmp (*.bmp);;gif (*.gif);;all (*)')
+            filter='png (*.png);;jpg (*.jpg);;tiff (*.tiff);;all (*)')
         self.addWidget('PushButton', 'Gray Scale', toggle=True)
         self.addWidget('PushButton', 'Swap Colors (RGB -> BGR)', toggle=True, val=0, button_title='RGB')
 

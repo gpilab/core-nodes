@@ -32,14 +32,14 @@
 # <http://www.gnu.org/licenses/>.
 
 
-# Author: Nick Zwart
-# Date: 2012sep02
+# Author: Dallas Turley
 
 import gpi
 import numpy as np
 
 class ExternalNode(gpi.NodeAPI):
-    """Uses the numpy save interface for writing arrays. File types are specified in the bottom of the file browser.
+    """Uses the numpy PIL interface for writing arrays. File types are specified in the bottom of the file browser
+    Currently lossless TIFF and compressed JPEG are fully supported.
 
     INPUT - Image array to write. This node is designed to write to file the output of the ImageDisplay node.
         Image can be MxNx3 or MxNx4
@@ -48,7 +48,7 @@ class ExternalNode(gpi.NodeAPI):
 
     WIDGETS:
     File Browser - button to launch file browser, and typein widget, to give pathname for output file
-      ***NOTE: If no extension (filetype) is specified, the input will be written as a .png file.
+      ***NOTE: If no extension (filetype) is specified, the input will be written as a .tiff file.
       Automatically appending the filetype based on the chosen file filter (in the Save File dialog box)
       has yet to be implemented. 
     Write Mode - write at any event, or write only with new filename
@@ -56,7 +56,7 @@ class ExternalNode(gpi.NodeAPI):
     """
     
     def execType(self):
-        return gpi.GPI_PROCESS
+        return gpi.GPI_THREAD
 
     def initUI(self):
 
@@ -64,7 +64,7 @@ class ExternalNode(gpi.NodeAPI):
         self.addWidget(
             'SaveFileBrowser', 'File Browser', button_title='Browse',
             caption='Save File (*.npy)', directory='~/',
-            filter='tiff (*.tiff);;jpg (*.jpg);;bmp (*.bmp);;gif (*.gif);;pdf (*.pdf);;all (*)'
+            filter='tiff (*.tiff);;jpg (*.jpg);;all (*)'
             )
         self.addWidget('PushButton', 'Write Mode', button_title='Write on New Filename', toggle=True)
         self.addWidget('PushButton', 'Write Now', button_title='Write Right Now', toggle=False)
@@ -109,11 +109,10 @@ class ExternalNode(gpi.NodeAPI):
                 return 0
 
             #the following are valid, supported image filetype extensions
-            ext_list = ('.jpg', '.bmp', '.tiff', '.gif', '.pdf')
+            ext_list = ('.jpg', '.tiff')
             if (fname.lower().endswith(ext_list)):
                 pass
             else:
-                self.log.warn(fname+"\n  Error:  unknown extension. Default filetype to write to is .tiff")
                 fname += '.tiff'
 
             data = self.getData('in')

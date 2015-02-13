@@ -31,7 +31,6 @@
 # License along with the GPI core node library. If not, see
 # <http://www.gnu.org/licenses/>.
 
-
 # Author: Jim Pipe / Nick Zwart
 # Date: 2013 Sep 01
 
@@ -598,9 +597,9 @@ class ExternalNode(gpi.NodeAPI):
 
         #send the RGB values to the output port
         imageTru = np.zeros((h, w, 4), dtype=np.uint8)
-        imageTru[:, :, 0] = red
+        imageTru[:, :, 2] = red
         imageTru[:, :, 1] = green
-        imageTru[:, :, 2] = blue
+        imageTru[:, :, 0] = blue
         imageTru[:, :, 3] = alpha
         image.ndarray = imageTru
         if image.isNull():
