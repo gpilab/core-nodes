@@ -1,5 +1,6 @@
-## The Core [GPI](http://gpilab.com) Nodes
+[![GPI Core Node Library](http://gpilab.com/wp-content/uploads/2015/02/corenode_b-e1423509965692.jpg)](http://gpilab.com)
+=========================
 
-The core nodes (and source code) are packaged with the GPI distribution.  This repository holds the latest version of these nodes.
-
-[![](https://lh6.googleusercontent.com/-eC-QlklgkY0/VElZ2r0QlkI/AAAAAAAAAJ8/rIO_Ah6A7BQ/w1048-h590-no/spiralsamp.jpg)](http://gpilab.com)
+The core nodes are a collection of basic data manipulation and visualization
+algorithms.  This node library is the "default library" packaged with the
+[GPI Stack](http://gpilab.com).
