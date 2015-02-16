@@ -31,3 +31,5 @@
 # License along with the GPI core node library. If not, see
 # <http://www.gnu.org/licenses/>.
 
+VERSION = '0.5.0-n1'
+RELEASE_DATE = '2015Feb16'
