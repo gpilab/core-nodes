@@ -598,9 +598,9 @@ class ExternalNode(gpi.NodeAPI):
 
         #send the RGB values to the output port
         imageTru = np.zeros((h, w, 4), dtype=np.uint8)
-        imageTru[:, :, 2] = red
+        imageTru[:, :, 0] = red
         imageTru[:, :, 1] = green
-        imageTru[:, :, 0] = blue
+        imageTru[:, :, 2] = blue
         imageTru[:, :, 3] = alpha
         image.ndarray = imageTru
         if image.isNull():
