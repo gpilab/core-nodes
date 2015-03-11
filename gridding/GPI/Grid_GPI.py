@@ -260,8 +260,8 @@ class ExternalNode(gpi.NodeAPI):
         out = np.zeros(outshape,  dtype = in_dtype)
 
         # Grid it
-        for i in range(ndsets):
-          for j in range(ncsets):
+        for i in range(int(ndsets)):
+          for j in range(int(ncsets)):
             outset = gd.grid(crds[j,...],data[i,j,...],wghts[j,...],outdim,dx,dy,dz)
             out[i*ncsets+j,...] = outset.astype(in_dtype) 
 

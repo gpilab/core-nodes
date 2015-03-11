@@ -36,7 +36,7 @@
 # Date: 2012 Nov 02
 
 import gpi
-import cPickle as pic
+import pickle as pic
 
 class ExternalNode(gpi.NodeAPI):
     """Implements the python pickle (cPickle) module for serializing py-objects
@@ -77,7 +77,7 @@ class ExternalNode(gpi.NodeAPI):
 
     def compute(self):
 
-        import cPickle as pic
+        import pickle as pic
 
         if self.getVal('Write Mode') or self.getVal('Write Now') or ('File Browser' in self.widgetEvents()):
 

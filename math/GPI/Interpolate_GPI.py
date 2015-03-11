@@ -170,7 +170,7 @@ class ExternalNode(gpi.NodeAPI):
             data = self.getData('in')
            
             # visibility and bounds
-            for i in xrange(self.ndim):
+            for i in range(self.ndim):
                 if i < len(data.shape):
                     val = {'in_len': data.shape[i]}
                     self.setAttr(self.dim_base_name+str(i)+']', visible=True, val=val)

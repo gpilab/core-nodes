@@ -275,7 +275,7 @@ class ExternalNode(gpi.NodeAPI):
 
                 # Use the 'multiples' option to keep a list of points instead
                 # of full objects.
-                for i in xrange(crds.shape[0]):
+                for i in range(crds.shape[0]):
                     desc = glo.Cylinder()
                     desc.setMultiples(crds[i])
                     desc.setEndToEnd(True)
@@ -294,7 +294,7 @@ class ExternalNode(gpi.NodeAPI):
 
             crds = np.random.rand(10,3)*10-5
 
-            for i in xrange(crds.shape[0]-1):
+            for i in range(crds.shape[0]-1):
                 desc = glo.Cylinder()
                 desc.setP1P2(crds[i].tolist(), crds[i+1].tolist())
                 desc.setRadius(tuberad/2.0)
@@ -310,7 +310,7 @@ class ExternalNode(gpi.NodeAPI):
                             
                 # Use the 'multiples' option to keep a list of points instead
                 # of full objects.
-                for i in xrange(crds.shape[0]):
+                for i in range(crds.shape[0]):
                     posx = 360*crds[i,:,0]
                     posy = 360*crds[i,:,1]
                     posz = 360*crds[i,:,2]

@@ -116,62 +116,62 @@ class ExternalNode(gpi.NodeAPI):
 
             try:
                 if self.inputs is 2:
-		  
-		  if operation == 0:
-		    out = data1+data2
-		  if operation == 1:
-		    out = data1-data2 
-		  if operation == 2:
-		    out = data1*data2
-		  if operation == 3:
-		    out = data1/data2
-		  if operation == 4:
-		    out = data1%data2 
-		  if operation == 5:
-		    out = data1**data2  
-		    
+          
+                    if operation == 0:
+                        out = data1+data2
+                    if operation == 1:
+                        out = data1-data2 
+                    if operation == 2:
+                        out = data1*data2
+                    if operation == 3:
+                        out = data1/data2
+                    if operation == 4:
+                        out = data1%data2 
+                    if operation == 5:
+                        out = data1**data2  
+                        
                 elif data1 is not None:
-		  
-                  if operation == 0:
-		    out = data1+scalar
-		  if operation == 1:
-		    out = data1-scalar
-		  if operation == 2:
-		    out = data1*scalar
-		  if operation == 3:
-		    out = data1/scalar
-		  if operation == 4:
-		    out = data1%scalar 
-		  if operation == 5:
-		    out = data1**scalar 
-		  if operation == 6:
-		    out = abs(data1)  
-		  if operation == 7:
-		    out = exp(data1)
-		  if operation == 8:
-		    out = math.sqrt(data1)
-		  
-		    
+          
+                    if operation == 0:
+                        out = data1+scalar
+                    if operation == 1:
+                        out = data1-scalar
+                    if operation == 2:
+                        out = data1*scalar
+                    if operation == 3:
+                        out = data1/scalar
+                    if operation == 4:
+                        out = data1%scalar 
+                    if operation == 5:
+                        out = data1**scalar 
+                    if operation == 6:
+                        out = abs(data1)  
+                    if operation == 7:
+                        out = exp(data1)
+                    if operation == 8:
+                        out = math.sqrt(data1)
+                    
+            
                 elif data2 is not None:
-		  
-                  if operation == 0:
-		    out = data2+scalar
-		  if operation == 1:
-		    out = data2-scalar
-		  if operation == 2:
-		    out = data2*scalar
-		  if operation == 3:
-		    out = data2/scalar
-		  if operation == 4:
-		    out = data2%scalar 
-		  if operation == 5:
-		    out = data2**scalar 
-		  if operation == 6:
-		    out = abs(data2)
-		  if operation == 7:
-		    out = exp(data2)
-		  if operation == 8:
-		    out = math.sqrt(data2)  
+          
+                    if operation == 0:
+                        out = data2+scalar
+                    if operation == 1:
+                        out = data2-scalar
+                    if operation == 2:
+                        out = data2*scalar
+                    if operation == 3:
+                        out = data2/scalar
+                    if operation == 4:
+                        out = data2%scalar 
+                    if operation == 5:
+                        out = data2**scalar 
+                    if operation == 6:
+                        out = abs(data2)
+                    if operation == 7:
+                        out = exp(data2)
+                    if operation == 8:
+                        out = math.sqrt(data2)  
 
                 if self.inputs is not 0:
                     self.setData('out', out)

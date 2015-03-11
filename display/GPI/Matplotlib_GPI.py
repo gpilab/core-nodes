@@ -129,7 +129,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
             from matplotlib.backend_bases import key_press_handler
             key_press_handler(event, self.canvas, self.mpl_toolbar)
         except:
-            print "key_press_handler import failed. -old matplotlib version."
+            print("key_press_handler import failed. -old matplotlib version.")
 
 
 class ExternalNode(gpi.NodeAPI):
@@ -151,7 +151,7 @@ class ExternalNode(gpi.NodeAPI):
         self.addWidget('MatplotDisplay', 'Plot')
 
         # IO Ports
-        self.inport_range = range(0, 8)
+        self.inport_range = list(range(0, 8))
         for i in self.inport_range:
             self.addInPort('in' + str(i), 'NPYarray', obligation=gpi.OPTIONAL)
 

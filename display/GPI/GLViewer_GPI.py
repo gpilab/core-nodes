@@ -227,8 +227,8 @@ class GPIGLWidget(QtOpenGL.QGLWidget):
             mult = cnt * 2
             mult *= mult
             invmult = 1.0 / mult
-            for i in xrange(-cnt, cnt):
-                for j in xrange(-cnt, cnt):
+            for i in range(-cnt, cnt):
+                for j in range(-cnt, cnt):
                     # jitter and paint
                     GL.glPushMatrix()
                     GL.glTranslatef(i * 0.00511, j * 0.00511, 0.0)
@@ -311,7 +311,7 @@ class GPIGLWidget(QtOpenGL.QGLWidget):
         for desc in self._GPI_glList:
             desc.instantiateRefs()
             if type(desc) is glo.ClipPlane:
-                print "enable clipping", desc.getPlaneNumTr()
+                print("enable clipping", desc.getPlaneNumTr())
                 GL.glEnable(desc.getPlaneNumTr())
 
     def cacheGLCommands(self):
@@ -328,8 +328,8 @@ class GPIGLWidget(QtOpenGL.QGLWidget):
             desc.run()
 
         # special objects
-        for plane, desc in self._GPI_glList.getClipPlanes().iteritems():
-            print 'render: ' + plane
+        for plane, desc in self._GPI_glList.getClipPlanes().items():
+            print('render: ' + plane)
             desc.run()
 
         GL.glEndList()

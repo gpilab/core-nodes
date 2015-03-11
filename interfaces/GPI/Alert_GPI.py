@@ -84,6 +84,6 @@ class ExternalNode(gpi.NodeAPI):
 
         if self.getVal('Terminal Bell'):
             for i in range(self.getVal('Iterations')):
-                print '\a'
+                print('\a')
 
         return 0

@@ -75,7 +75,7 @@ class ExternalNode(gpi.NodeAPI):
         s = self.getVal('Slice #')-1
 
         xi = []
-        for i in xrange(len(data.shape)-1-userdim):
+        for i in range(len(data.shape)-1-userdim):
             xi += [slice(None)]
         outdim = [Ellipsis, s] + xi
         out = data[outdim]

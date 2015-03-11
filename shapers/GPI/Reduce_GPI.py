@@ -204,7 +204,7 @@ class ExternalNode(gpi.NodeAPI):
             dilen = len(data.shape)
 
             # visibility and bounds
-            for i in xrange(self.ndim):
+            for i in range(self.ndim):
                 if i < dilen:
                     self.setAttr(self.dim_base_name+str(-i-1)+']', 
                             visible=True, max=data.shape[-i-1])
@@ -232,7 +232,7 @@ class ExternalNode(gpi.NodeAPI):
 
             # setup slicer
             xi = []
-            for i in xrange(dilen-1, -1, -1):
+            for i in range(dilen-1, -1, -1):
                 w = self.getVal(self.dim_base_name+str(-i-1)+']')
                 if w['selection'] == 3:  # pass
                     xi.append(slice(None))

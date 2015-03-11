@@ -38,7 +38,7 @@
 import os
 import time
 import gpi
-import cPickle as pic
+import pickle as pic
 
 class ExternalNode(gpi.NodeAPI):
     """Provides an interface to the python pickle (cPickle) module for
@@ -73,7 +73,7 @@ class ExternalNode(gpi.NodeAPI):
 
         import os
         import time
-        import cPickle as pic
+        import pickle as pic
 
         # start file browser
         fname = self.URI(self.getVal('File Browser'))
@@ -99,7 +99,7 @@ class ExternalNode(gpi.NodeAPI):
         gid = fstats.st_gid
 
         # read the data
-        fptr = open(fname, "r")
+        fptr = open(fname, "rb")
         out = pic.load(fptr)
         fptr.close()
 

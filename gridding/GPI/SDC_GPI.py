@@ -128,7 +128,7 @@ class ExternalNode(gpi.NodeAPI):
         npts = 1
         for i in range(dps):
           npts *= sdshape[maxi-i]
-        nsets = crds[...,0].size/npts
+        nsets = int(crds[...,0].size/npts)
 
         # Reshape crds to be 3 dimensional - # sets, # pts/set, and dimensionality (1-3)
         crds = np.reshape(crds.astype(np.float64),(nsets,npts,crds.shape[-1]))

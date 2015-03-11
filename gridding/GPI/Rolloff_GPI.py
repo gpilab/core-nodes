@@ -125,7 +125,7 @@ class ExternalNode(gpi.NodeAPI):
         outshape1 = np.append([nsets], outdim1) 
         out = np.zeros(outshape1,  dtype = in_dtype)
 
-        for i in range(nsets):
+        for i in range(int(nsets)):
           # force single precision
           outset = gd.rolloff(data[i,...].astype(np.complex64),outdim,isofov)
           out[i,...] = outset.astype(in_dtype)

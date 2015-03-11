@@ -57,7 +57,7 @@ def read(fname, datatype, numelem, skipbytes):
     try:
         fil = open(fname, 'rb')
     except IOError:
-        print 'cannot open', fname
+        print('cannot open', fname)
         raise Exception("read(): cannot open file")
 
     # read into byte array
@@ -86,7 +86,7 @@ def read(fname, datatype, numelem, skipbytes):
         data = fil.read(numelem*np.dtype(np.complex128).itemsize)
         data = np.fromstring(data, dtype=np.complex128)
     else:
-        print "Error: read(): No valid datatype chosen: "+str(datatype)
+        print("Error: read(): No valid datatype chosen: "+str(datatype))
         raise Exception("read(): no valid datatype chosen.")
 
     # convert data
@@ -146,7 +146,7 @@ class ExternalNode(gpi.NodeAPI):
         cdim = self.getVal('ndim:')
         dims = []
         nelem = 1
-        for i in xrange(self.ndim):
+        for i in range(self.ndim):
             if i < cdim:
                 self.setAttr(self.dim_base_name+str(i), visible=True)
                 dims.append(self.getVal(self.dim_base_name+str(i)))
