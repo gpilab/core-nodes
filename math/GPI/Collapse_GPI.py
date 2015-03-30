@@ -225,7 +225,7 @@ class ExternalNode(gpi.NodeAPI):
                         collapse_all = np.sum(data)
             if op == 5:    # RMS
                 data_type = str(data.dtype)
-                if 'float' in data_type:
+                if ('float' in data_type) or ('int' in data_type):
                     temp = data
                     temp_nz = data[np.nonzero(data)]
                 elif 'complex' in data_type:
