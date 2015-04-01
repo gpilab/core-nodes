@@ -172,8 +172,8 @@ class ExternalNode(gpi.NodeAPI):
     WIDGETS
     Keys: comma-delimited list of dictionary elements to display
     Range: allows inspection of a subset of large data arrays
-	C/W - sliders control center/width of range 
-	B/E - sliders control begin/end of range 
+    C/W - sliders control center/width of range 
+    B/E - sliders control begin/end of range 
         Slice - slider gives element to inspect
         Pass - shows all elements
     """
@@ -185,6 +185,7 @@ class ExternalNode(gpi.NodeAPI):
 
         # Widgets
         self.addWidget('StringBox', 'Keys:')
+        self.addWidget('StringBox', 'Regex Key Search:')
         self.addWidget('ReduceSliders', 'Range')
         self.addWidget('TextBox', 'Info:')
 
@@ -241,6 +242,7 @@ class ExternalNode(gpi.NodeAPI):
 
         indat = self.getData('dq_in')
         keys = self.getVal('Keys:')
+        pattern = self.getVal('Regex Key Search:')
 
         w = self.getVal('Range')
         minl = w['floor']-1
@@ -280,12 +282,27 @@ class ExternalNode(gpi.NodeAPI):
                         else:
                             report = report + str(key) + ' = '\
                                     + str(dflat[key]) + "\n"
+
         else:
             for item in indat.items():
                 if ('list' in str(type(item[1])) or 'numpy' in str(type(item[1]))):
                     report = report + str(item[0]) + ' = ' + str(item[1][minl:maxl]) + "\n"
                 else:
                     report = report + str(item[0]) + ' = ' + str(item[1]) + "\n"
+
+        # add regex search results 
+        if pattern != '':
+            dflat = dict()
+            dflat = unwrap_dict(indat, dflat)
+            matching_keys = []
+            cpat = re.compile(pattern)
+            for key in dflat:
+                if cpat.search(key):
+                    matching_keys.append(key)
+            matching_keys = set(matching_keys)
+            report += '\nRegex Matches: \n'
+            for match in matching_keys:
+                report += '\t' + str(match) + '\n'
 
         self.setAttr('Info:', val = report)
 
