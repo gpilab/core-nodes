@@ -106,13 +106,55 @@ PYFI_FUNC(threed_sdc)
     PYFI_POSARG(Array<int64_t>, mtxdim);
     PYFI_POSARG(long, numiter);
     PYFI_POSARG(double, taper);
+    PYFI_POSARG(double, kradscale);
 
     Array<double> cmtx(mtxdim->size(), mtxdim->as_ULONG());
 
     PYFI_SETOUTPUT_ALLOC(Array<double>, sdc, wates->dims_object());
 
-    if (threedsdc(*crds,*wates,*sdc,cmtx, *numiter,*taper))
+    if (threedsdc(*crds,*wates,*sdc,cmtx, *numiter,*taper, *kradscale))
         PYFI_ERROR("threedsdc() has failed");
+
+    PYFI_END(); /* This must be the last line */
+} /* threed_sdc */
+
+/**************************/
+PYFI_FUNC(twod_sdcsp)
+/**************************/
+{
+    PYFI_START(); /* This must be the first line */
+
+    /* input */
+    PYFI_POSARG(Array<double>, crds);
+    PYFI_POSARG(long, numiter);
+    PYFI_POSARG(double, taper);
+    PYFI_POSARG(double, mtx_xy);
+
+    PYFI_SETOUTPUT_ALLOC(Array<double>, sdc, ArrayDimensions(crds->size(1),crds->size(2)));
+
+    if (twodsdcsp(*crds,*sdc,*numiter,*taper, *mtx_xy))
+        PYFI_ERROR("twodsdcsp() has failed");
+
+    PYFI_END(); /* This must be the last line */
+} /* twod_sdcsp */
+
+/**************************/
+PYFI_FUNC(threed_sdcsp)
+/**************************/
+{
+    PYFI_START(); /* This must be the first line */
+
+    /* input */
+    PYFI_POSARG(Array<double>, crds);
+    PYFI_POSARG(long, numiter);
+    PYFI_POSARG(double, taper);
+    PYFI_POSARG(double,mtx_xy);
+    PYFI_POSARG(double,mtx_z);
+
+    PYFI_SETOUTPUT_ALLOC(Array<double>, sdc, ArrayDimensions(crds->size(1),crds->size(2)) );
+
+    if (threedsdcsp(*crds,*sdc,*numiter,*taper, *mtx_xy, *mtx_z))
+        PYFI_ERROR("threedsdcsp() has failed");
 
     PYFI_END(); /* This must be the last line */
 } /* threed_sdc */
@@ -124,4 +166,6 @@ PYFI_LIST_START_
     PYFI_DESC(oned_sdc, "1D SDC calculation")
     PYFI_DESC(twod_sdc, "2D SDC calculation")
     PYFI_DESC(threed_sdc, "3D SDC calculation")
+    PYFI_DESC(twod_sdcsp, "2D SDC spiral calculation")
+    PYFI_DESC(threed_sdcsp, "3D SDC spiral calculation")
 PYFI_LIST_END_

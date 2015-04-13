@@ -59,7 +59,7 @@ class ExternalNode(gpi.NodeAPI):
             FLORET is FLORET...
     # of spiral arms - allows floating point entry
                        for ARCH this is rounded to integer
-                       for CYL and SPH DST and FLORET, which share arms across ky and kz, this is the effective arms per plane
+                       for CYL, SPH DST and FLORET, which share arms across ky and kz, this is the effective arms per plane
                        and can be a floating point number (giving greater flexibility in choosing the total number of arms vs.
                        readout duration)
     usamp st (0-1) - the relative value of kr at which undersampling begins (0 at the center, 1 at the edge of collected k-space)
@@ -135,6 +135,7 @@ class ExternalNode(gpi.NodeAPI):
 
         self.addWidget('ExclusivePushButtons', 'stype',
                        buttons=['ARCH', 'CYL DST', 'SPH DST', 'FLORET'], val=0)
+        self.addWidget('DoubleSpinBox', 'Taper', val=0.0, min=0.0, max = 1.0)
         self.addWidget('DoubleSpinBox', '# of Spiral Arms', val=16.0, min=0.0)
 
         self.addWidget('SpinBox', '# of Hubs', val=3, min=1, max=3)
@@ -254,6 +255,8 @@ class ExternalNode(gpi.NodeAPI):
                 self.setAttr('Alpha0', visible=False)
                 self.setAttr('FLORET Rebin', visible=False, val=0)
 
+        self.setAttr('Taper', visible=(self.getVal('stype') == 1)) # CDST
+
         if self.getVal('stype') == 3:
             rebin = self.getVal('FLORET Rebin')
             self.setAttr('# of Hubs', visible=True)
@@ -263,7 +266,6 @@ class ExternalNode(gpi.NodeAPI):
             self.setAttr('# of Hubs', visible=False)
             self.setAttr('Alpha0', visible=False)
             self.setAttr('FLORET Rebin', visible=False, val=0)
-
 
     def compute(self):
 
@@ -289,6 +291,7 @@ class ExternalNode(gpi.NodeAPI):
 
         stype = self.getVal('stype')
         narms = self.getVal('# of Spiral Arms')
+        taper = self.getVal('Taper')
 
         try:
             hubs = self.getVal('# of Hubs')
@@ -358,7 +361,7 @@ class ExternalNode(gpi.NodeAPI):
                         beta = -arm*goldangle
                         crds_out[0,arm,:,0] = np.cos(beta)*arm_0[:,0] - np.sin(beta)*arm_0[:,1]
                         crds_out[0,arm,:,1] = np.cos(beta)*arm_0[:,1] + np.sin(beta)*arm_0[:,0]
-                        crds_out[0,arm,:,2] = arm/narms - .5
+                        crds_out[0,arm,:,2] = -(2*arm/narms - 1)*arm_0[:,2]
 
                 elif stype == 2: # spherical distributed spirals
                     for arm in range(np.int(narms)):
@@ -395,7 +398,7 @@ class ExternalNode(gpi.NodeAPI):
             else:
                 grd_out, crds_out = sp.coords(
                     dwell, xdely, ydely, zdely, mslew, mgrad, gamma, fovxy, fovz,
-                    resxy, resz, stype, narms, hubs, alpha0, rebin, us_0, us_1, us_r,
+                    resxy, resz, stype, narms, taper, hubs, alpha0, rebin, us_0, us_1, us_r,
                     utype, mgfrq, t2mch, slper, gtype, spinout)
 
             # Report Back to User

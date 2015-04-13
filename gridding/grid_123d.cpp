@@ -84,9 +84,7 @@ int griddat(Array<float> &crds, Array<complex<float> > &data, Array<float> &wate
 /////////////
 
   if (crds.size(0) == 1) {
-    for (i=0;i<outdata.size(0);i++) {
-      outdata(i) = 0.;
-      }
+    outdata = complex<float> (0.);
 
     fmtx0 = mtx0 = outdata.size(0);
     for (d=0;d<data.size();d++) {
@@ -113,10 +111,7 @@ int griddat(Array<float> &crds, Array<complex<float> > &data, Array<float> &wate
 /////////////
 
   if (crds.size(0) == 2) {
-    for (j=0;j<outdata.size(1);j++) {
-      for (i=0;i<outdata.size(0);i++) {
-        outdata(i,j) = 0.;
-    } }
+    outdata = complex<float> (0.);
 
     fmtx0 = mtx0 = outdata.size(0);
     fmtx1 = mtx1 = outdata.size(1);
@@ -154,11 +149,7 @@ int griddat(Array<float> &crds, Array<complex<float> > &data, Array<float> &wate
 // 3D DATA //
 /////////////
   else if (crds.size(0) == 3) {
-    for (k=0;k<outdata.size(2);k++) {
-      for (j=0;j<outdata.size(1);j++) {
-        for (i=0;i<outdata.size(0);i++) {
-          outdata(i,j,k) = 0.;
-    } } }
+    outdata = complex<float> (0.);
 
     fmtx0 = mtx0 = outdata.size(0);
     fmtx1 = mtx1 = outdata.size(1);

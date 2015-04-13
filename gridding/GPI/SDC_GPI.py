@@ -72,6 +72,7 @@ class ExternalNode(gpi.NodeAPI):
         self.addWidget('DoubleSpinBox','Effective MTX XY',val=300.0, min=2.0)
         self.addWidget('DoubleSpinBox','Effective MTX Z',val=300.0, min=2.0)
         self.addWidget('DoubleSpinBox','Taper',val=0.0, min=0.0, max = 1.0, singlestep = 0.01)
+        self.addWidget('DoubleSpinBox','krad Scale',val=1.0, min=0.2, max = 2.0, singlestep = 0.1)
 
         # IO Ports
         self.addInPort('crds', 'NPYarray')
@@ -117,8 +118,9 @@ class ExternalNode(gpi.NodeAPI):
         mtx_z  = self.getVal('Effective MTX Z')
         numiter = self.getVal('Iterations')
         taper = self.getVal('Taper')
+        kradscale = self.getVal('krad Scale')
         crds   = self.getData('crds')
-        wates  = self.getData('wates')
+        inwates  = self.getData('wates')
 
         mtxsz_xy = (2.*mtx_xy)+6
         mtxsz_z  = (2.*mtx_z)+6
@@ -135,8 +137,8 @@ class ExternalNode(gpi.NodeAPI):
 
         if self.getVal('computenow'):
 
-          if wates is not None:
-            wates = np.copy(wates.reshape(nsets,npts).astype(np.float64))
+          if inwates is not None:
+            wates = np.copy(inwates.reshape(nsets,npts).astype(np.float64))
           else:
             wates = np.ones((nsets,npts), dtype=np.float64)
 
@@ -151,7 +153,7 @@ class ExternalNode(gpi.NodeAPI):
               sdcset = sd.twod_sdc(crds[set,:],wates[set,:],cmtxdim,numiter,taper)
             if crds.shape[-1] == 3:
               cmtxdim = np.array([mtxsz_xy,mtxsz_xy,mtxsz_z],dtype=np.int64)
-              sdcset = sd.threed_sdc(crds[set,:],wates[set,:],cmtxdim,numiter,taper)
+              sdcset = sd.threed_sdc(crds[set,:],wates[set,:],cmtxdim,numiter,taper,kradscale)
             if set == 0:
               sdc = np.expand_dims(sdcset,0)
             else:
