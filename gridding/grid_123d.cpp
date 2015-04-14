@@ -35,7 +35,7 @@
 
 
 /*   Standard Gridding Module */
-#define KERNSIZE 375
+#define KERNSIZE 250
 
 //========================================================================
 // GRIDDAT
@@ -60,14 +60,14 @@ int griddat(Array<float> &crds, Array<complex<float> > &data, Array<float> &wate
 ////////////
 // KERNEL //
 ////////////
-// Create separable kernel, which should have a radius of 2.5 Nyquist distances
-// With an oversampling factor of 1.5, this is 3.75 grid points
-// We will make the kernel 375 points to make this easy calculatin'
-// The kernel is a full Hanning window times exp(-4 x^2)
+// Create separable kernel, which has a radius-FOV product of 3.33
+// With an oversampling factor of 1.5, want the FOV to be 1.33, thus a radius of 2.5
+// We will make the kernel 250 points to make this easy calculatin'
+// The kernel is a full Hanning window times exp(-6 x^2)
 //   which is almost certainly not optimal but a lot easier to generate than a kaiser-bessel function
   for (i=0;i<KERNSIZE;i++) {
     x = (float)(i)/(float)(KERNSIZE); // goes from 0 to 1
-    kernel(i) = 0.5*(1.+cos(M_PI*x))*exp(-4.*x*x);
+    kernel(i) = 0.5*(1.+cos(M_PI*x))*exp(-6.*x*x);
     }
 
 //////////////////
@@ -95,8 +95,8 @@ int griddat(Array<float> &crds, Array<complex<float> > &data, Array<float> &wate
         else
           val0 = data(d)*wates(d)*exp(eye*theta);
         fi = (0.5+crds(0,d))*fmtx0;
-        mini = max(0,int(fi-3.75)+1);
-        maxi = min(mtx0-1,int(fi+3.75));
+        mini = max(0,int(fi-2.5)+1);
+        maxi = min(mtx0-1,int(fi+2.5));
         di = (floor)((100.*((float)(mini) - fi)) + 0.5);
         for (i=mini;i<=maxi;i++) {
           outdata(i) += kernel(abs(di))*val0;
@@ -125,10 +125,10 @@ int griddat(Array<float> &crds, Array<complex<float> > &data, Array<float> &wate
           val0 = data(d)*wates(d)*exp(eye*theta);
         fi = (0.5+crds(0,d))*fmtx0;
         fj = (0.5+crds(1,d))*fmtx1;
-        mini = max(0,int(fi-3.75)+1);
-        maxi = min(mtx0-1,int(fi+3.75));
-        minj = max(0,int(fj-3.75)+1);
-        maxj = min(mtx1-1,int(fj+3.75));
+        mini = max(0,int(fi-2.5)+1);
+        maxi = min(mtx0-1,int(fi+2.5));
+        minj = max(0,int(fj-2.5)+1);
+        maxj = min(mtx1-1,int(fj+2.5));
         di = (floor)((100.*((float)(mini) - fi)) + 0.5);
         // We are adding 100 to dj each step because the kernel size is 100 times the grid size
         dj0 = (floor)((100.*((float)(minj) - fj)) + 0.5);
@@ -166,12 +166,12 @@ int griddat(Array<float> &crds, Array<complex<float> > &data, Array<float> &wate
         fi = (0.5+crds(0,d))*fmtx0;
         fj = (0.5+crds(1,d))*fmtx1;
         fk = (0.5+crds(2,d))*fmtx2;
-        mini = max(0,int(fi-3.75)+1);
-        maxi = min(mtx0-1,int(fi+3.75));
-        minj = max(0,int(fj-3.75)+1);
-        maxj = min(mtx1-1,int(fj+3.75));
-        mink = max(0,int(fk-3.75)+1);
-        maxk = min(mtx2-1,int(fk+3.75));
+        mini = max(0,int(fi-2.5)+1);
+        maxi = min(mtx0-1,int(fi+2.5));
+        minj = max(0,int(fj-2.5)+1);
+        maxj = min(mtx1-1,int(fj+2.5));
+        mink = max(0,int(fk-2.5)+1);
+        maxk = min(mtx2-1,int(fk+2.5));
         di = (floor)((100.*((float)(mini) - fi)) + 0.5);
         // We are adding 100 to dj, dk each step because the kernel size is 100 times the grid size
         dj0 = (floor)((100.*((float)(minj) - fj)) + 0.5);
@@ -210,19 +210,19 @@ int rolloffdat(Array<complex<float> > &data, Array<complex<float> > &outdata, lo
   float rad0,rad1,rad2,sq1,sq2;
   float den0,den1,den2;
   complex<float> val;
-  Array<float> kernel(KERNSIZE);
+  Array<float> kernel(KERNSIZE+1);
 
 ////////////
 // KERNEL //
 ////////////
-// Create separable kernel, which should have a radius of 2.5 Nyquist distances
-// With an oversampling factor of 1.5, this is 3.75 grid points
-// We will make the kernel 375 points to make this easy calculatin'
-// The kernel is a full Hanning window times exp(-4 x^2)
+// Create separable kernel, which has a radius-FOV product of 3.33
+// With an oversampling factor of 1.5, want the FOV to be 1.33, thus a radius of 2.5
+// We will make the kernel 250 points to make this easy calculatin'
+// The kernel is a full Hanning window times exp(-6 x^2)
 //   which is almost certainly not optimal but a lot easier to generate than a kaiser-bessel function
   for (i=0;i<KERNSIZE;i++) {
     x = (float)(i)/(float)(KERNSIZE); // goes from 0 to 1
-    kernel(i) = 0.5*(1.+cos(M_PI*x))*exp(-4.*x*x);
+    kernel(i) = 0.5*(1.+cos(M_PI*x))*exp(-6.*x*x);
     }
 
 /////////////
