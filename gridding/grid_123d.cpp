@@ -206,6 +206,7 @@ int rolloffdat(Array<complex<float> > &data, Array<complex<float> > &outdata, lo
   int i, i0, i1, i2;
   int dmtx0, dmtx1, dmtx2, omtx0, omtx1, omtx2;
   int di0, di1, di2;
+  int kernwidth;
   float x;
   float rad0,rad1,rad2,sq1,sq2;
   float den0,den1,den2;
@@ -225,6 +226,8 @@ int rolloffdat(Array<complex<float> > &data, Array<complex<float> > &outdata, lo
     kernel(i) = 0.5*(1.+cos(M_PI*x))*exp(-6.*x*x);
     }
 
+  kernwidth = KERNSIZE/100;
+
 /////////////
 // 1D DATA //
 /////////////
@@ -243,7 +246,7 @@ int rolloffdat(Array<complex<float> > &data, Array<complex<float> > &outdata, lo
 
     for (i=0;i<dmtx0;i++)
       ro0(i) = 0.;
-    for (i = -3; i <= 3; i++) {
+    for (i = -kernwidth; i <= kernwidth; i++) {
       i0 = (dmtx0/2) + i;
       if (i0 > 0 && i0 < dmtx0)
         ro0(i0) = kernel(abs(100*i));
@@ -297,7 +300,7 @@ int rolloffdat(Array<complex<float> > &data, Array<complex<float> > &outdata, lo
       ro0(i) = 0.;
     for (i=0;i<dmtx1;i++)
       ro1(i) = 0.;
-    for (i = -3; i <= 3; i++) {
+    for (i = -kernwidth; i <= kernwidth; i++) {
       i0 = (dmtx0/2) + i;
       i1 = (dmtx1/2) + i;
       if (i0 > 0 && i0 < dmtx0)
@@ -385,7 +388,7 @@ int rolloffdat(Array<complex<float> > &data, Array<complex<float> > &outdata, lo
       ro1(i) = 0.;
     for (i=0;i<dmtx2;i++)
       ro2(i) = 0.;
-    for (i = -3; i <= 3; i++) {
+    for (i = -kernwidth; i <= kernwidth; i++) {
       i0 = (dmtx0/2) + i;
       i1 = (dmtx1/2) + i;
       i2 = (dmtx2/2) + i;
