@@ -79,6 +79,7 @@ PYFI_FUNC(coords)
 
     PYFI_POSARG(long,   stype);
     PYFI_POSARG(double, narms);
+    PYFI_POSARG(double, taper);
   
     PYFI_POSARG(long, hubs);
     PYFI_POSARG(double, alpha0);
@@ -144,6 +145,8 @@ PYFI_FUNC(coords)
     spparams[spFOVZ]  = *fovz;
     spparams[spRESXY] = *resxy;
     spparams[spRESZ]  = *resz;
+
+    spparams[spTAPER]  = *taper;
 
     /* Get variable density spiral type from user:
     *      0 = linear, 
@@ -228,30 +231,26 @@ PYFI_FUNC(coords)
 
     /* DHW change gxarray gyarray and gzarray for spiral in and spiral inout options */
     long i;
-    if (*spinout > 0)
-    {
-    /* first move the spiral out waveform spgrad_nd points forward */
-        for(i=0; i<spgrad_nd; i++)
-        {
-            gxarray[i+spgrad_nd] = gxarray[i];
-            gyarray[i+spgrad_nd] = gyarray[i];
-            gzarray[i+spgrad_nd] = gzarray[i]; 
+    if (*spinout > 0) {
+      /* first move the spiral out waveform spgrad_nd points forward */
+      for(i=0; i<spgrad_nd; i++) {
+        gxarray[i+spgrad_nd] = gxarray[i];
+        gyarray[i+spgrad_nd] = gyarray[i];
+        gzarray[i+spgrad_nd] = gzarray[i]; 
         }
-    /* second reverse the first half */
-       for(i=0; i<spgrad_nd; i++)
-       {
-           gxarray[i] = gxarray[2*spgrad_nd-1-i];
-           gyarray[i] = gyarray[2*spgrad_nd-1-i];
-           gzarray[i] = -gzarray[2*spgrad_nd-1-i];
-       }
+      /* second reverse the first half */
+      for(i=0; i<spgrad_nd; i++) {
+        gxarray[i] = gxarray[2*spgrad_nd-1-i];
+        gyarray[i] = gyarray[2*spgrad_nd-1-i];
+        gzarray[i] = -gzarray[2*spgrad_nd-1-i];
+        }
        
-       if(*spinout ==3) // same traj for spiral inout 
-           for(i=0; i<spgrad_nd; i++)
-           {
-               gxarray[i+spgrad_nd] = -gxarray[i+spgrad_nd];
-               gyarray[i+spgrad_nd] = -gyarray[i+spgrad_nd];
-           }
-    }
+      if (*spinout ==3) // same traj for spiral inout 
+        for(i=0; i<spgrad_nd; i++) {
+          gxarray[i+spgrad_nd] = -gxarray[i+spgrad_nd];
+          gyarray[i+spgrad_nd] = -gyarray[i+spgrad_nd];
+          }
+      }
    
 //********
 // STEP 3

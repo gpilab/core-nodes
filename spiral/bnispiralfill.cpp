@@ -159,23 +159,27 @@ void bnispiralfill(double* spparams, int maxarray, float* gxarray, float* gyarra
       beta = -(((double) j)-jc)*goldangle; //DHW
       cb = cos(beta);
       sb = sin(beta);
+      jscale = (2.*(double)(j)/(double)(garray.size(2)))-1.; 
       for(i=0;i<garray.size(1);i++) { // points
         garray(0,i,j) = cb*gxarray[i] - sb*gyarray[i];
         garray(1,i,j) = cb*gyarray[i] + sb*gxarray[i];
-        garray(2,i,j) = 0.;
+        garray(2,i,j) = jscale * gzarray[i];
         } // i
       } // j
 
 // Now integrate the gradients and scale to k-space
-    jstep = 1./(double)(ktmp.size(2));
-    for(j=0;j<ktmp.size(2);j++) { // arms
+    for(j=0;j<garray.size(2);j++) { // arms
+      jscale = (2.*(double)(j)/(double)(garray.size(2)))-1.; 
       ktmp(0,0,j,0) = kxyscale*garray(0,0,j);
       ktmp(1,0,j,0) = kxyscale*garray(1,0,j);
-      ktmp(2,0,j,0) = -0.5 + (double)(j)*jstep;
-      for(i=1;i<ktmp.size(1);i++) { // points
+      if(spinout == 0)
+        ktmp(2,0,j,0) = jscale*0.5;
+      else
+        ktmp(2,0,j,0) = jscale*0.5*(1.-spparams[spTAPER]);
+      for(i=1;i<garray.size(1);i++) { // points
         ktmp(0,i,j,0) = ktmp(0,i-1,j,0) + kxyscale*garray(0,i,j);
         ktmp(1,i,j,0) = ktmp(1,i-1,j,0) + kxyscale*garray(1,i,j);
-        ktmp(2,i,j,0) = -0.5 + (double)(j)*jstep;
+        ktmp(2,i,j,0) = ktmp(2,i-1,j,0) +  kzscale*garray(2,i,j);
         } // i
       } // j
 
@@ -203,8 +207,8 @@ void bnispiralfill(double* spparams, int maxarray, float* gxarray, float* gyarra
 // Now integrate the gradients and scale to k-space
     for(j=0;j<garray.size(2);j++) { // arms
       jscale = (2.*(double)(j)/(double)(garray.size(2)))-1.; 
-      ktmp(0,0,j,0) = kzscale*garray(0,0,j);
-      ktmp(1,0,j,0) = kzscale*garray(1,0,j);
+      ktmp(0,0,j,0) = kxyscale*garray(0,0,j);
+      ktmp(1,0,j,0) = kxyscale*garray(1,0,j);
       if(spinout == 0)
         ktmp(2,0,j,0) = jscale*0.5*(0.8*pow(6./M_PI,1./3.)); 
       else

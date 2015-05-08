@@ -90,7 +90,7 @@
 #define PHGRAST    0.0064 /* Philips' gradient raster time (ms) */
 #define subrast    8      /* number of numerical cycles per gradient raster time */ 
 
-#define spARRSIZE  20
+#define spARRSIZE  25
 
 /* these are used in the pulse sequence, the AVS module and the python reader */
 #define spGAMMA     0
@@ -104,6 +104,7 @@
 #define spRESXY     6
 #define spRESZ      7
 #define spARMS      8
+#define spTAPER    19
 
 #define spSTYPE     9
 #define spUSTYPE   10
@@ -195,10 +196,12 @@ int bnispiralgen(double* spparams, int maxarray, float *gxarray, float *gyarray,
   double fovz     = spparams[spFOVZ];    /* enter in m */ 
   double resz     = spparams[spRESZ];    /* enter in m : this should be true resolution */
   double arms     = spparams[spARMS];    /* number of spiral interleaves*/
+  double taper    = spparams[spTAPER];   /* taper for CDST */
   int   stype     = spparams[spSTYPE];   /* 0 = Archimedean
                                             1 = Cylinder DST 
                                             2 = Spherical DST
-                                            3 = Fermat:Floret */
+                                            3 = Hanning DST
+                                            4 = Fermat:Floret */
 
   /* the next 4 variables are for variable density spirals */
   /* they create a transition in the radial spacing as the k-space radius goes from 0 to 1, i.e.*/
@@ -242,6 +245,8 @@ int bnispiralgen(double* spparams, int maxarray, float *gxarray, float *gyarray,
   double gsum_ramp, gz_sum_ramp= 0;
   double gsum, gsum0, gradtweak, gxsum, gysum, gzsum;
   double krmax, kzmax, krmax2, kzmax2;
+  double kz0,kznorm,rdenom;
+  double krnorm;
   double krlim;
   double gm_center;
   int    end_rewinder_flat_top;
@@ -271,6 +276,11 @@ int bnispiralgen(double* spparams, int maxarray, float *gxarray, float *gyarray,
   krlim = krmax*(1.-(resxy/fovxy));
   theta = 0.;
 
+  if (stype == spSTYPE_CYL_DST) {
+    kz0 = (1.-taper)*kzmax;
+    kznorm = kzmax-kz0;
+    }
+
   /* Initialization */
   *spgrad_na = 0;
   *spgrad_nb = 0;
@@ -285,18 +295,23 @@ int bnispiralgen(double* spparams, int maxarray, float *gxarray, float *gyarray,
   kx[2] = 3.*gamrast*dgc;
   ky[2] = 0.;
 
-// IF SPHERE
   if (stype == spSTYPE_SPH_DST) {
     kz[0] = kzmax;
     kz[1] = sqrt(kzmax2*(1.-((kx[1]*kx[1]+ky[1]*ky[1])/krmax2))); // stay on surface of ellipsoid
     kz[2] = sqrt(kzmax2*(1.-((kx[2]*kx[2]+ky[2]*ky[2])/krmax2))); // stay on surface of ellipsoid
     }
-  else if (stype == spSTYPE_FLORET) /* RKR FLORET */
-  {
+  if (stype == spSTYPE_CYL_DST) {
+    kz[0] = kzmax;
+    krnorm = min(1.,sqrt(kx[1]*kx[1]+ky[1]*ky[1])/krmax); // 
+    kz[1] = kz0 + kznorm*(2./M_PI)*acos(krnorm);
+    krnorm = min(1.,sqrt(kx[2]*kx[2]+ky[2]*ky[2])/krmax); // 
+    kz[2] = kz0 + kznorm*(2./M_PI)*acos(krnorm);
+    }
+  else if (stype == spSTYPE_FLORET) { /* RKR FLORET */
     kz[0] = 0.0;
     kz[1] = sqrt(kx[1]*kx[1]+ky[1]*ky[1]);
     kz[2] = sqrt(kx[2]*kx[2]+ky[2]*ky[2]);
-  }
+    }
 
   i = 2;
   kr = kx[2];
@@ -349,6 +364,16 @@ int bnispiralgen(double* spparams, int maxarray, float *gxarray, float *gyarray,
         rad_spacing = fovz/resz;
       } // SDST
 
+/* Undersample spiral for Cyl-Distributed Spiral */
+    if (stype == spSTYPE_CYL_DST) {
+      if(rnorm < 1.0) {
+        rdenom = (kz0 + kznorm*((2./M_PI)*acos(rnorm)))/kzmax;
+        rad_spacing = MIN(fovz/resz, rad_spacing/rdenom);
+        }
+      else
+        rad_spacing = fovz/resz;
+      } // HDST
+
 /* MAKE FERMAT SPIRAL FOR FLORET*/
     if (stype == spSTYPE_FLORET && rnorm > 0.) rad_spacing *= 1./rnorm;
 
@@ -398,6 +423,28 @@ int bnispiralgen(double* spparams, int maxarray, float *gxarray, float *gyarray,
       gz = (kz[i] - kz[i-1])/gamrast;
       }
 
+// IF CYL DST with hanning taper
+// We need to find uz.
+// 1.  ur = gradient direction radially, which is cos(alpha)
+// 2.  ur/uz = dkr/dkz, or
+// 2.5 uz = ur / (dkr/dkz)
+// 3.  For Hanning, kr = krmax cos[((kz-kz0)/kznorm) (pi/2)], so
+// 4.  dkr/dkz = -(pi/2)(krmax/kznorm)sin[((kz-kz0)/kznorm) (pi/2)]
+//     giving:
+//   uz = -ur*(2./M_PI)*(kznorm/krmax)/sin(((kmz-kz0)/kznorm)*(M_PI/2.));
+    if (stype == spSTYPE_CYL_DST) {
+      kmz = 1.5*kz[i] - 0.5*kz[i-1];
+      if (kmz > kz0 + 0.001*kznorm)
+        uz = -cos(alpha)*(2./M_PI)*(kznorm/krmax)/sin(((kmz-kz0)/kznorm)*(M_PI/2.));
+      else // getting too close to divide by zero...
+        uz = -cos(alpha)*(2./M_PI)*(kznorm/krmax)/sin(0.001*(M_PI/2.));
+      umag = sqrt(ux*ux + uy*uy + uz*uz);
+      ux = ux/umag;
+      uy = uy/umag;
+      uz = uz/umag;
+      gz = (kz[i] - kz[i-1])/gamrast;
+      }
+
 /**************************/
 /*** STEP 2: Find largest gradient magnitude with available slew */
 /**************************/
@@ -435,10 +482,13 @@ int bnispiralgen(double* spparams, int maxarray, float *gxarray, float *gyarray,
       kx[i+1] = kx[i] + gx*gamrast;
       ky[i+1] = ky[i] + gy*gamrast;
 
-// If SPHERE
       if (stype == spSTYPE_SPH_DST)
         kz[i+1] = sqrt(kzmax2*(1.-((kx[i+1]*kx[i+1]+ky[i+1]*ky[i+1])/krmax2))); // stay on surface of ellipsoid
-      else if (stype == spSTYPE_FLORET) /* RKR FLORET */
+      if (stype == spSTYPE_CYL_DST) {
+        krnorm = min(1.,sqrt(kx[i+1]*kx[i+1]+ky[i+1]*ky[i+1])/krmax); // 
+        kz[i+1] = kz0+kznorm*(2./M_PI)*acos(krnorm);
+        }
+      if (stype == spSTYPE_FLORET) /* RKR FLORET */
         kz[i+1] = sqrt(kx[i+1]*kx[i+1]+ky[i+1]*ky[i+1]);
 
       i++;
@@ -578,6 +628,7 @@ int bnispiralgen(double* spparams, int maxarray, float *gxarray, float *gyarray,
 
     gsum = sqrt(gxsum*gxsum + gysum*gysum + gzsum*gzsum);
     if (stype == spSTYPE_SPH_DST) gzsum = gzsum + kzmax/sub_gamrast; /* DHW */
+    if (stype == spSTYPE_CYL_DST) gzsum = gzsum + kzmax/sub_gamrast; /* JGP just guessing, should check */
     gsum0 = gsum;
     ux = -gxsum/gsum;
     uy = -gysum/gsum;
