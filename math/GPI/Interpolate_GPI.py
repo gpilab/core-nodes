@@ -178,8 +178,13 @@ class ExternalNode(gpi.NodeAPI):
 
                     # assign output lengths based on optional input array
                     if out_shape is not None:
-                        if i < len(out_shape.shape):
-                            val['length'] = out_shape.shape[i]
+                        offset = len(data.shape)-len(out_shape.shape)
+                        if offset < 0:
+                            if i < len(out_shape.shape):
+                                val['length'] = out_shape.shape[i-offset]
+                        else:
+                            if i >= offset:
+                                val['length'] = out_shape.shape[i-offset]
 
                     self.setAttr(self.dim_base_name+str(i)+']', visible=True, val=val)
                 else:
