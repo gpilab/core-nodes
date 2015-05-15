@@ -163,16 +163,29 @@ class ExternalNode(gpi.NodeAPI):
 
         # IO Ports
         self.addInPort('in', 'NPYarray', obligation=gpi.REQUIRED)
+        self.addInPort('size', 'NPYarray', obligation=gpi.OPTIONAL)
         self.addOutPort('out1', 'NPYarray')
 
     def validate(self):
-        if 'in' in self.portEvents():
+        if 'in' in self.portEvents() or 'size' in self.portEvents():
             data = self.getData('in')
+            out_shape = self.getData('size')
            
             # visibility and bounds
             for i in xrange(self.ndim):
                 if i < len(data.shape):
                     val = {'in_len': data.shape[i]}
+
+                    # assign output lengths based on optional input array
+                    if out_shape is not None:
+                        offset = len(data.shape)-len(out_shape.shape)
+                        if offset < 0:
+                            if i < len(out_shape.shape):
+                                val['length'] = out_shape.shape[i-offset]
+                        else:
+                            if i >= offset:
+                                val['length'] = out_shape.shape[i-offset]
+
                     self.setAttr(self.dim_base_name+str(i)+']', visible=True, val=val)
                 else:
                     self.setAttr(self.dim_base_name+str(i)+']',visible=False)
@@ -217,7 +230,7 @@ class ExternalNode(gpi.NodeAPI):
         self.setData('out1', out1.astype(data_in.dtype))
       else:
         pass
-	    
+
       return(0)
 
 
