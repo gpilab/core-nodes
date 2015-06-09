@@ -186,7 +186,7 @@ class ExternalNode(gpi.NodeAPI):
                             if i >= offset:
                                 val['length'] = out_shape.shape[i-offset]
 
-                    self.setAttr(self.dim_base_name+str(i)+']', visible=True, val=val)
+                    self.setAttr(self.dim_base_name+str(i)+']', visible=True, quietval=val)
                 else:
                     self.setAttr(self.dim_base_name+str(i)+']',visible=False)
            
