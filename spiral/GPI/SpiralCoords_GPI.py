@@ -121,7 +121,7 @@ class ExternalNode(gpi.NodeAPI):
                        val=150.0, min=0.01, decimals=6)
         self.addWidget('DoubleSpinBox', 'MaxGrd (mT/m)',
                        val=40.0, min=0.01, decimals=6)
-        self.addWidget('DoubleSpinBox', 'Gam (kHz/mT/ms)',
+        self.addWidget('DoubleSpinBox', 'Gam (kHz/mT)',
                        val=42.577, min=0.01, decimals=6)
 
         self.addWidget('DoubleSpinBox', 'Fov X-Y (cm)',
@@ -282,7 +282,7 @@ class ExternalNode(gpi.NodeAPI):
 
         mslew = self.getVal('MaxSlw (mT/m/ms)')
         mgrad = self.getVal('MaxGrd (mT/m)')
-        gamma = self.getVal('Gam (kHz/mT/ms)')
+        gamma = self.getVal('Gam (kHz/mT)')
 
         fovxy = 0.01 * self.getVal('Fov X-Y (cm)')
         fovz = 0.01 * self.getVal('Fov Z (cm)')

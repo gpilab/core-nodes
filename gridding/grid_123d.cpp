@@ -86,7 +86,8 @@ int griddat(Array<float> &crds, Array<complex<float> > &data, Array<float> &wate
   if (crds.size(0) == 1) {
     outdata = complex<float> (0.);
 
-    fmtx0 = mtx0 = outdata.size(0);
+    mtx0 = outdata.size(0);
+    fmtx0 = outdata.size(0) & ~1; // round down to nearest even integer
     for (d=0;d<data.size();d++) {
       if ((crds(0,d) >= -0.5) && (crds(0,d) <= 0.5)) { // only grid if crds inbounds
         theta = -2.*M_PI*crds(0,d)*dx;
@@ -113,8 +114,10 @@ int griddat(Array<float> &crds, Array<complex<float> > &data, Array<float> &wate
   if (crds.size(0) == 2) {
     outdata = complex<float> (0.);
 
-    fmtx0 = mtx0 = outdata.size(0);
-    fmtx1 = mtx1 = outdata.size(1);
+    mtx0 = outdata.size(0);
+    mtx1 = outdata.size(1);
+    fmtx0 = outdata.size(0) & ~1; // round down to nearest even integer
+    fmtx1 = outdata.size(1) & ~1;
     for (d=0;d<data.size();d++) {
       if ((crds(0,d) >= -0.5) && (crds(0,d) <= 0.5) &&
           (crds(1,d) >= -0.5) && (crds(1,d) <= 0.5)) { // only grid if crds inbounds
@@ -151,9 +154,12 @@ int griddat(Array<float> &crds, Array<complex<float> > &data, Array<float> &wate
   else if (crds.size(0) == 3) {
     outdata = complex<float> (0.);
 
-    fmtx0 = mtx0 = outdata.size(0);
-    fmtx1 = mtx1 = outdata.size(1);
-    fmtx2 = mtx2 = outdata.size(2);
+    mtx0 = outdata.size(0);
+    mtx1 = outdata.size(1);
+    mtx2 = outdata.size(2);
+    fmtx0 = outdata.size(0) & ~1; // round down to nearest even integer
+    fmtx1 = outdata.size(1) & ~1;
+    fmtx2 = outdata.size(2) & ~1;
     for (d=0;d<data.size();d++) {
       if ((crds(0,d) >= -0.5) && (crds(0,d) <= 0.5) &&
           (crds(1,d) >= -0.5) && (crds(1,d) <= 0.5) &&
