@@ -45,11 +45,9 @@ from matplotlib.backends.backend_qt4agg import (
     FigureCanvasQTAgg as FigureCanvas,
     NavigationToolbar2QT as NavigationToolbar)
 
-
 class MatplotDisplay(gpi.GenericWidgetGroup):
 
-    """Combines the BasicCWFCSliders with ExclusivePushButtons
-    for a unique widget element useful for reduce dimensions.
+    """Embeds the matplotlib figure window.
     """
     valueChanged = gpi.Signal()
 
@@ -77,8 +75,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
 
     # support
     def create_main_frame(self):
-
-        self.fig = Figure((5.0, 4.0), dpi=100)
+        self.fig = Figure((6.0, 4.8), dpi=100, facecolor='white', tight_layout=True, linewidth=6.0, edgecolor='0.93')
         self.canvas = FigureCanvas(self.fig)
         self.canvas.setParent(self)
         self.canvas.setFocusPolicy(QtCore.Qt.StrongFocus)
