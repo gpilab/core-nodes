@@ -45,6 +45,7 @@ from matplotlib.backends.backend_qt4agg import (
     FigureCanvasQTAgg as FigureCanvas,
     NavigationToolbar2QT as NavigationToolbar)
 
+
 class MatplotDisplay(gpi.GenericWidgetGroup):
 
     """Embeds the matplotlib figure window.
@@ -56,6 +57,8 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
 
         # gpi interface
         self._collapsables = []
+        self._subplotSettings = {}
+        self._keepers = ['title', 'ylabel', 'xlabel', 'yscale', 'xscale']
 
         # plot specific UI side panel
         #  -sets options for plot window so this needs to be run first
@@ -63,12 +66,21 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         vbox.setContentsMargins(0, 0, 0, 0)  # no spaces around this item
         vbox.setSpacing(0)
 
+        # AUTOSCALE
         self._autoscale_btn = gpi.widgets.BasicPushButton(self)
         self._autoscale_btn.set_toggle(True)
         self._autoscale_btn.set_button_title('autoscale')
         self._autoscale_btn.valueChanged.connect(self.on_draw)
         self._collapsables.append(self._autoscale_btn)
 
+        # GRID
+        self._grid_btn = gpi.widgets.BasicPushButton(self)
+        self._grid_btn.set_toggle(True)
+        self._grid_btn.set_button_title('grid')
+        self._grid_btn.valueChanged.connect(self.on_draw)
+        self._collapsables.append(self._grid_btn)
+
+        # X/Y LIMITS
         lims = QtGui.QGridLayout()
         self._xl = gpi.widgets.BasicDoubleSpinBox(self)
         self._xh = gpi.widgets.BasicDoubleSpinBox(self)
@@ -105,6 +117,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
 
         vbox.addLayout(lims)
         vbox.addWidget(self._autoscale_btn)
+        vbox.addWidget(self._grid_btn)
         vbox.insertStretch(-1,1)
 
         # plot window
@@ -121,6 +134,8 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
 
         self.set_collapsed(True)  # hide options by default
 
+        self.copySubplotSettings()
+
     # setters
     def set_val(self, data):
         '''Takes a list of npy arrays.
@@ -130,6 +145,10 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
             self.on_draw()
         else:
             return
+
+    def set_grid(self, val):
+        self._grid_btn.set_val(val)
+        self.on_draw()
 
     def set_autoscale(self, val):
         self._autoscale_btn.set_val(val)
@@ -159,9 +178,18 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         if not quiet:
             self.on_draw()
 
+    def set_plotOptions(self, val):
+        self._subplotSettings = val
+
     # getters
     def get_val(self):
         return self._data
+
+    def get_grid(self):
+        return self._grid_btn.get_val()
+
+    def get_autoscale(self):
+        return self._autoscale_btn.get_val()
 
     def get_xlim(self):
         return (self._xh.get_val(), self._xl.get_val())
@@ -169,8 +197,8 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
     def get_ylim(self):
         return (self._yh.get_val(), self._yl.get_val())
 
-    def get_autoscale(self):
-        return self._autoscale_btn.get_val()
+    def get_plotOptions(self):
+        return self._subplotSettings
 
     # support
     def create_main_frame(self):
@@ -181,6 +209,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self.canvas.setFocus()
 
         self.mpl_toolbar = NavigationToolbar(self.canvas, self)
+        self.mpl_toolbar.actionTriggered.connect(self.copySubplotSettings)
 
         self.canvas.mpl_connect('key_press_event', self.on_key_press)
 
@@ -190,8 +219,20 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         return vbox
         #self.setLayout(vbox)
 
-    #def get_data2(self):
-    #    return np.arange(20).reshape([4, 5]).copy()
+    def copySubplotSettings(self):
+        '''Get a copy of the settings found in the 'Figure Options' editor.
+        '''
+        for k in self._keepers:
+            self._subplotSettings[k] = getattr(self.axes, 'get_'+k)()
+
+        print self._subplotSettings
+
+    def applySubplotSettings(self):
+        '''Everytime the plot is drawn it looses its 'Figure Options' so just
+        make sure they are applied again.
+        '''
+        for k in self._keepers:
+            getattr(self.axes, 'set_'+k)(self._subplotSettings[k])
 
     def on_draw(self):
         self.fig.clear()
@@ -203,6 +244,8 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         # self.axes.plot(self.x, self.y, 'ro')
         # self.axes.imshow(self.data, interpolation='nearest')
         # self.axes.plot([1,2,3])
+
+        self.axes.grid(self.get_grid())
 
         if self._data is None:
             return
@@ -222,6 +265,8 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         if self.get_autoscale():
             self.set_xlim(self.axes.get_xlim(), quiet=True)
             self.set_ylim(self.axes.get_ylim(), quiet=True)
+
+        self.applySubplotSettings()
 
         self.canvas.draw()
 
