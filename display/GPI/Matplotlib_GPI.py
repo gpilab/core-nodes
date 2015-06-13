@@ -58,7 +58,9 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         # gpi interface
         self._collapsables = []
         self._subplotSettings = {}
-        self._keepers = ['title', 'ylabel', 'xlabel', 'yscale', 'xscale']
+        self._subplot_keepers = ['title', 'ylabel', 'xlabel', 'yscale', 'xscale']
+        self._lineSettings = []
+        self._line_keepers = ['linewidth', 'linestyle', 'label', 'marker', 'markeredgecolor', 'markerfacecolor', 'markersize', 'color', 'alpha']
 
         # plot specific UI side panel
         #  -sets options for plot window so this needs to be run first
@@ -133,6 +135,8 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self.setLayout(hbox)
 
         self.set_collapsed(True)  # hide options by default
+        self.set_grid(True)
+        self.set_autoscale(True)
 
         self.copySubplotSettings()
 
@@ -181,6 +185,9 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
     def set_plotOptions(self, val):
         self._subplotSettings = val
 
+    def set_lineOptions(self, val):
+        self._lineSettings = val
+
     # getters
     def get_val(self):
         return self._data
@@ -200,6 +207,9 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
     def get_plotOptions(self):
         return self._subplotSettings
 
+    def get_lineOptions(self):
+        return self._lineSettings
+
     # support
     def create_main_frame(self):
         self.fig = Figure((6.0, 4.8), dpi=100, facecolor='white', linewidth=6.0, edgecolor='0.93')
@@ -207,6 +217,8 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self.canvas.setParent(self)
         self.canvas.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.canvas.setFocus()
+
+        self.canvas.setSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.MinimumExpanding)
 
         self.mpl_toolbar = NavigationToolbar(self.canvas, self)
         self.mpl_toolbar.actionTriggered.connect(self.copySubplotSettings)
@@ -222,16 +234,21 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
     def copySubplotSettings(self):
         '''Get a copy of the settings found in the 'Figure Options' editor.
         '''
-        for k in self._keepers:
+        for k in self._subplot_keepers:
             self._subplotSettings[k] = getattr(self.axes, 'get_'+k)()
 
-        print self._subplotSettings
+        self._lineSettings = []
+        for l in self.axes.get_lines():
+            s = {}
+            for k in self._line_keepers:
+                s[k] = getattr(l, 'get_'+k)()
+            self._lineSettings.append(s)
 
     def applySubplotSettings(self):
         '''Everytime the plot is drawn it looses its 'Figure Options' so just
         make sure they are applied again.
         '''
-        for k in self._keepers:
+        for k in self._subplot_keepers:
             getattr(self.axes, 'set_'+k)(self._subplotSettings[k])
 
     def on_draw(self):
@@ -254,13 +271,22 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
 
         # plot each set
         # print "--------------------plot the data"
+        cnt = -1
         for data in self._data:
+            cnt += 1
 
             # check for x, y data
-            if data.shape[-1] == 2:
-                self.axes.plot(data[..., 0], data[..., 1], alpha=0.8, lw=2.0)
+            if cnt < len(self._lineSettings):
+                s = self._lineSettings[cnt]
+                if data.shape[-1] == 2:
+                    self.axes.plot(data[..., 0], data[..., 1], **s)
+                else:
+                    self.axes.plot(data, **s)
             else:
-                self.axes.plot(data, alpha=0.8, lw=2.0)
+                if data.shape[-1] == 2:
+                    self.axes.plot(data[..., 0], data[..., 1], alpha=0.8, lw=2.0)
+                else:
+                    self.axes.plot(data, alpha=0.8, lw=2.0)
 
         if self.get_autoscale():
             self.set_xlim(self.axes.get_xlim(), quiet=True)
