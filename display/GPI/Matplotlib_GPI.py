@@ -48,18 +48,97 @@ from matplotlib.backends.backend_qt4agg import (
 
 class MatplotDisplay(gpi.GenericWidgetGroup):
 
-    """Combines the BasicCWFCSliders with ExclusivePushButtons
-    for a unique widget element useful for reduce dimensions.
+    """Embeds the matplotlib figure window.
     """
     valueChanged = gpi.Signal()
 
     def __init__(self, title, parent=None):
         super(MatplotDisplay, self).__init__(title, parent)
 
-        #self.data = self.get_data2()
+        # gpi interface
+        self._collapsables = []
+        self._subplotSettings = {}
+        self._subplot_keepers = ['title', 'ylabel', 'xlabel', 'yscale', 'xscale']
+        self._lineSettings = []
+        self._line_keepers = ['linewidth', 'linestyle', 'label', 'marker', 'markeredgecolor', 'markerfacecolor', 'markersize', 'color', 'alpha']
+
+        # plot specific UI side panel
+        #  -sets options for plot window so this needs to be run first
+        vbox = QtGui.QVBoxLayout()
+        vbox.setContentsMargins(0, 0, 0, 0)  # no spaces around this item
+        vbox.setSpacing(0)
+
+        # AUTOSCALE
+        self._autoscale_btn = gpi.widgets.BasicPushButton(self)
+        self._autoscale_btn.set_toggle(True)
+        self._autoscale_btn.set_button_title('autoscale')
+        self._autoscale_btn.valueChanged.connect(self.on_draw)
+        self._collapsables.append(self._autoscale_btn)
+
+        # GRID
+        self._grid_btn = gpi.widgets.BasicPushButton(self)
+        self._grid_btn.set_toggle(True)
+        self._grid_btn.set_button_title('grid')
+        self._grid_btn.valueChanged.connect(self.on_draw)
+        self._collapsables.append(self._grid_btn)
+
+        # X/Y LIMITS
+        lims = QtGui.QGridLayout()
+        self._xl = gpi.widgets.BasicDoubleSpinBox(self)
+        self._xh = gpi.widgets.BasicDoubleSpinBox(self)
+        self._yl = gpi.widgets.BasicDoubleSpinBox(self)
+        self._yh = gpi.widgets.BasicDoubleSpinBox(self)
+        self._xl.valueChanged.connect(self.on_draw)
+        self._xh.valueChanged.connect(self.on_draw)
+        self._yl.valueChanged.connect(self.on_draw)
+        self._yh.valueChanged.connect(self.on_draw)
+        self._xl.set_immediate(True)
+        self._xh.set_immediate(True)
+        self._yl.set_immediate(True)
+        self._yh.set_immediate(True)
+        self._xlab = QtGui.QLabel('x limits')
+        self._ylab = QtGui.QLabel('y limits')
+        self._maxlab = QtGui.QLabel('max')
+        self._minlab = QtGui.QLabel('min')
+        lims.addWidget(self._maxlab,1,0,1,1)
+        lims.addWidget(self._minlab,2,0,1,1)
+        lims.addWidget(self._xlab,0,1,1,1,alignment=QtCore.Qt.AlignHCenter)
+        lims.addWidget(self._xh,1,1,1,1,alignment=QtCore.Qt.AlignHCenter)
+        lims.addWidget(self._xl,2,1,1,1,alignment=QtCore.Qt.AlignHCenter)
+        lims.addWidget(self._ylab,0,2,1,1,alignment=QtCore.Qt.AlignHCenter)
+        lims.addWidget(self._yh,1,2,1,1,alignment=QtCore.Qt.AlignHCenter)
+        lims.addWidget(self._yl,2,2,1,1,alignment=QtCore.Qt.AlignHCenter)
+        self._collapsables.append(self._xlab)
+        self._collapsables.append(self._ylab)
+        self._collapsables.append(self._xl)
+        self._collapsables.append(self._xh)
+        self._collapsables.append(self._yl)
+        self._collapsables.append(self._yh)
+        self._collapsables.append(self._minlab)
+        self._collapsables.append(self._maxlab)
+
+        vbox.addLayout(lims)
+        vbox.addWidget(self._autoscale_btn)
+        vbox.addWidget(self._grid_btn)
+        vbox.insertStretch(-1,1)
+
+        # plot window
         self._data = None
-        self.create_main_frame()
+        self._plotwindow = self.create_main_frame()
         self.on_draw()
+
+        # put side panel and plot window together
+        hbox = QtGui.QHBoxLayout()
+        hbox.addLayout(vbox)
+        hbox.addLayout(self._plotwindow)
+        hbox.setStretch(0,11)
+        self.setLayout(hbox)
+
+        self.set_collapsed(True)  # hide options by default
+        self.set_grid(True)
+        self.set_autoscale(True)
+
+        self.copySubplotSettings()
 
     # setters
     def set_val(self, data):
@@ -71,37 +150,119 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         else:
             return
 
+    def set_grid(self, val):
+        self._grid_btn.set_val(val)
+        self.on_draw()
+
+    def set_autoscale(self, val):
+        self._autoscale_btn.set_val(val)
+        self.on_draw()
+
+    def set_collapsed(self, val):
+        """bool | Only collapse the display options, not the Plot window.
+        """
+        self._isCollapsed = val
+        for wdg in self._collapsables:
+            if hasattr(wdg, 'setVisible'):
+                wdg.setVisible(not val)
+
+    def set_xlim(self, val, quiet=False):
+        '''tuple of floats (min, max)
+        '''
+        self._xh.set_val(val[0])
+        self._xl.set_val(val[1])
+        if not quiet:
+            self.on_draw()
+
+    def set_ylim(self, val, quiet=False):
+        '''tuple of floats (min, max)
+        '''
+        self._yh.set_val(val[0])
+        self._yl.set_val(val[1])
+        if not quiet:
+            self.on_draw()
+
+    def set_plotOptions(self, val):
+        self._subplotSettings = val
+
+    def set_lineOptions(self, val):
+        self._lineSettings = val
+
     # getters
     def get_val(self):
         return self._data
 
+    def get_grid(self):
+        return self._grid_btn.get_val()
+
+    def get_autoscale(self):
+        return self._autoscale_btn.get_val()
+
+    def get_xlim(self):
+        return (self._xh.get_val(), self._xl.get_val())
+
+    def get_ylim(self):
+        return (self._yh.get_val(), self._yl.get_val())
+
+    def get_plotOptions(self):
+        return self._subplotSettings
+
+    def get_lineOptions(self):
+        return self._lineSettings
+
     # support
     def create_main_frame(self):
-
-        self.fig = Figure((5.0, 4.0), dpi=100)
+        self.fig = Figure((6.0, 4.8), dpi=100, facecolor='white', linewidth=6.0, edgecolor='0.93')
         self.canvas = FigureCanvas(self.fig)
         self.canvas.setParent(self)
         self.canvas.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.canvas.setFocus()
 
+        self.canvas.setSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.MinimumExpanding)
+
         self.mpl_toolbar = NavigationToolbar(self.canvas, self)
+        self.mpl_toolbar.actionTriggered.connect(self.copySubplotSettings)
 
         self.canvas.mpl_connect('key_press_event', self.on_key_press)
 
         vbox = QtGui.QVBoxLayout()
         vbox.addWidget(self.canvas)  # the matplotlib canvas
         vbox.addWidget(self.mpl_toolbar)
-        self.setLayout(vbox)
+        return vbox
+        #self.setLayout(vbox)
 
-    #def get_data2(self):
-    #    return np.arange(20).reshape([4, 5]).copy()
+    def copySubplotSettings(self):
+        '''Get a copy of the settings found in the 'Figure Options' editor.
+        '''
+        for k in self._subplot_keepers:
+            self._subplotSettings[k] = getattr(self.axes, 'get_'+k)()
+
+        self._lineSettings = []
+        for l in self.axes.get_lines():
+            s = {}
+            for k in self._line_keepers:
+                s[k] = getattr(l, 'get_'+k)()
+            self._lineSettings.append(s)
+
+    def applySubplotSettings(self):
+        '''Everytime the plot is drawn it looses its 'Figure Options' so just
+        make sure they are applied again.
+        '''
+        for k in self._subplot_keepers:
+            getattr(self.axes, 'set_'+k)(self._subplotSettings[k])
 
     def on_draw(self):
         self.fig.clear()
-        self.axes = self.fig.add_subplot(111)
+
+        if self.get_autoscale():
+            self.axes = self.fig.add_subplot(111, autoscale_on=self._autoscale_btn.get_val())
+        else:
+            self.axes = self.fig.add_subplot(111, autoscale_on=self._autoscale_btn.get_val(), xlim=self.get_xlim(), ylim=self.get_ylim())
         # self.axes.plot(self.x, self.y, 'ro')
         # self.axes.imshow(self.data, interpolation='nearest')
         # self.axes.plot([1,2,3])
+
+        self.axes.grid(self.get_grid())
 
         if self._data is None:
             return
@@ -110,13 +271,28 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
 
         # plot each set
         # print "--------------------plot the data"
+        cnt = -1
         for data in self._data:
+            cnt += 1
 
             # check for x, y data
-            if data.shape[-1] == 2:
-                self.axes.plot(data[..., 0], data[..., 1], alpha=0.8, lw=2.0)
+            if cnt < len(self._lineSettings):
+                s = self._lineSettings[cnt]
+                if data.shape[-1] == 2:
+                    self.axes.plot(data[..., 0], data[..., 1], **s)
+                else:
+                    self.axes.plot(data, **s)
             else:
-                self.axes.plot(data, alpha=0.8, lw=2.0)
+                if data.shape[-1] == 2:
+                    self.axes.plot(data[..., 0], data[..., 1], alpha=0.8, lw=2.0)
+                else:
+                    self.axes.plot(data, alpha=0.8, lw=2.0)
+
+        if self.get_autoscale():
+            self.set_xlim(self.axes.get_xlim(), quiet=True)
+            self.set_ylim(self.axes.get_ylim(), quiet=True)
+
+        self.applySubplotSettings()
 
         self.canvas.draw()
 
