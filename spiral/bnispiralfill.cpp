@@ -230,18 +230,18 @@ void bnispiralfill(double* spparams, int maxarray, float* gxarray, float* gyarra
 
   if (spparams[spSTYPE] == 3) { // FLORET
     int hubs = ktmp.size(3);
+    int arms = garray.size(2) / hubs;
     // alpha0 = 0.25*M_PI; // hardcoded for hubs to cover +/- 45 degrees
-    alphastep = 2.*alpha0/(double)(garray.size(2));
+    alphastep = 2.*alpha0/(double)(arms);
     int jc = round(garray.size(2)/2);
     /* re-order interleaves */
-    Array <double> gtmp(garray);
-    uint64_t setlength = garray.size(2) / 34;
+    uint64_t setlength = arms / 34;
     uint64_t setind = 0;
     uint64_t curset;
     uint64_t curind;
     uint64_t subind;
 
-    for(j=0;j<garray.size(2);j++) { // arms
+    for(j=0;j<arms;j++) { // arms
       /* RKR re-order the FLORET arms to allow smooth transitions between 
       * interleaves */
       if(rebin)
@@ -276,7 +276,7 @@ void bnispiralfill(double* spparams, int maxarray, float* gxarray, float* gyarra
 // Now integrate the x-y gradients, scale to k-space
 // kz = tan(alpha) * |{kx,ky}|
 // also calculate gz = dkz/kscale
-    for(j=0;j<garray.size(2);j++) { // arms
+    for(j=0;j<arms;j++) { // arms
       // alpha = -alpha0 + ((double)(j)*alphastep);
       // ta = tan(alpha);
       kx = kxyscale*garray(0,0,j);
@@ -285,20 +285,24 @@ void bnispiralfill(double* spparams, int maxarray, float* gxarray, float* gyarra
       ktmp(0,0,j,0) = kx;
       ktmp(1,0,j,0) = ky;
       ktmp(2,0,j,0) = kz;
-      // ktmp(2,0,j,0) = ta*sqrt(kx*kx + ky*ky);
-      // garray(2,0,j) = ktmp(2,0,j,0)/kxyscale;
       // fill in other 2 hubs
       if(hubs > 1)
       {
         ktmp(0,0,j,1) = ktmp(1,0,j,0);
         ktmp(1,0,j,1) = ktmp(2,0,j,0);
         ktmp(2,0,j,1) = ktmp(0,0,j,0);
+        garray(0,0,j+arms) = garray(1,0,j);
+        garray(1,0,j+arms) = garray(2,0,j);
+        garray(2,0,j+arms) = garray(0,0,j);
       }
       if(hubs > 2)
       {
         ktmp(0,0,j,2) = -ktmp(2,0,j,0);
         ktmp(1,0,j,2) = ktmp(1,0,j,0);
         ktmp(2,0,j,2) = ktmp(0,0,j,0);
+        garray(0,0,j+2*arms) = -garray(2,0,j);
+        garray(1,0,j+2*arms) = garray(1,0,j);
+        garray(2,0,j+2*arms) = garray(0,0,j);
       }
       for(i=1;i<garray.size(1);i++) { // points
         kx = ktmp(0,i-1,j,0) + kxyscale*garray(0,i,j);
@@ -307,20 +311,24 @@ void bnispiralfill(double* spparams, int maxarray, float* gxarray, float* gyarra
         ktmp(0,i,j,0) = kx;
         ktmp(1,i,j,0) = ky;
         ktmp(2,i,j,0) = kz;
-        // ktmp(2,i,j,0) = ta*sqrt(kx*kx + ky*ky);
-        // garray(2,i,j) = (ktmp(2,i,j,0)-ktmp(2,i-1,j,0))/kxyscale;
         // fill in other 2 hubs
         if(hubs > 1)
         {
             ktmp(0,i,j,1) = ktmp(1,i,j,0);
             ktmp(1,i,j,1) = ktmp(2,i,j,0);
             ktmp(2,i,j,1) = ktmp(0,i,j,0);
+            garray(0,i,j+arms) = garray(1,i,j);
+            garray(1,i,j+arms) = garray(2,i,j);
+            garray(2,i,j+arms) = garray(0,i,j);
         }
         if(hubs > 2)
         {
             ktmp(0,i,j,2) = -ktmp(2,i,j,0);
             ktmp(1,i,j,2) = ktmp(1,i,j,0);
             ktmp(2,i,j,2) = ktmp(0,i,j,0);
+            garray(0,i,j+2*arms) = -garray(2,i,j);
+            garray(1,i,j+2*arms) = garray(1,i,j);
+            garray(2,i,j+2*arms) = garray(0,i,j);
         }
       } // i
     } // j

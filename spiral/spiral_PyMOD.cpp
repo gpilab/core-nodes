@@ -268,6 +268,12 @@ PYFI_FUNC(coords)
     k_dims(1) = g_dims(1); // just for ktmp, reassign this below for karray
     g_dims(2) = k_dims(2);
 
+    /* RKR make larger to account for other hubs */
+    if(spparams[spSTYPE] == spSTYPE_FLORET)
+    {
+        g_dims(2) *= *hubs;
+    }
+
     // DHW spiral_inout options
     if (*spinout > 1)
     {
