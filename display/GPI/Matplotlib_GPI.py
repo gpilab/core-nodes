@@ -117,9 +117,32 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._collapsables.append(self._minlab)
         self._collapsables.append(self._maxlab)
 
+        # TICK MARKS
+        ticks = QtGui.QGridLayout()
+        self._x_numticks = gpi.widgets.BasicDoubleSpinBox(self)
+        self._x_numticks.valueChanged.connect(self.on_draw)
+        self._y_numticks = gpi.widgets.BasicDoubleSpinBox(self)
+        self._y_numticks.valueChanged.connect(self.on_draw)
+        self._x_numticks.set_immediate(True)
+        self._y_numticks.set_immediate(True)
+        self._x_numticks.set_min(2)
+        self._y_numticks.set_min(2)
+        self._x_numticks.set_max(100)
+        self._y_numticks.set_max(100)
+        self._x_numticks.set_val(5)
+        self._y_numticks.set_val(5)
+        self._x_numticks.set_label('x ticks')
+        self._y_numticks.set_label('y ticks')
+        ticks.addWidget(self._x_numticks, 0,0,1,1)
+        ticks.addWidget(self._y_numticks, 1,0,1,1)
+        self._collapsables.append(self._x_numticks)
+        self._collapsables.append(self._y_numticks)
+
+        # panel layout
         vbox.addLayout(lims)
         vbox.addWidget(self._autoscale_btn)
         vbox.addWidget(self._grid_btn)
+        vbox.addLayout(ticks)
         vbox.insertStretch(-1,1)
 
         # plot window
@@ -130,7 +153,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._updatetimer = QtCore.QTimer()
         self._updatetimer.setSingleShot(True)
         self._updatetimer.timeout.connect(self._on_draw)
-        self._updatetimer.setInterval(100)
+        self._updatetimer.setInterval(50)
 
         # put side panel and plot window together
         hbox = QtGui.QHBoxLayout()
@@ -313,6 +336,9 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         if self.get_autoscale():
             self.set_xlim(self.axes.get_xlim(), quiet=True)
             self.set_ylim(self.axes.get_ylim(), quiet=True)
+
+        self.axes.set_xticks(np.linspace(*self.axes.get_xlim(), num=self._x_numticks.get_val()))
+        self.axes.set_yticks(np.linspace(*self.axes.get_ylim(), num=self._y_numticks.get_val()))
 
         self.applySubplotSettings()
 
