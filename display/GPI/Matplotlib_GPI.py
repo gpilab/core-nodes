@@ -125,7 +125,12 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         # plot window
         self._data = None
         self._plotwindow = self.create_main_frame()
-        self.on_draw()
+        # since drawing is slow, don't do it as often, use the timer as a
+        # debouncer
+        self._updatetimer = QtCore.QTimer()
+        self._updatetimer.setSingleShot(True)
+        self._updatetimer.timeout.connect(self._on_draw)
+        self._updatetimer.setInterval(100)
 
         # put side panel and plot window together
         hbox = QtGui.QHBoxLayout()
@@ -134,11 +139,13 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         hbox.setStretch(0,11)
         self.setLayout(hbox)
 
-        self.set_collapsed(True)  # hide options by default
+        #self._on_draw() # draw once to get initial settings
+        #self.copySubplotSettings()
+
+        # hide side-panel options by default
+        self.set_collapsed(True)  
         self.set_grid(True)
         self.set_autoscale(True)
-
-        self.copySubplotSettings()
 
     # setters
     def set_val(self, data):
@@ -213,6 +220,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
     # support
     def create_main_frame(self):
         self.fig = Figure((6.0, 4.8), dpi=100, facecolor='white', linewidth=6.0, edgecolor='0.93')
+        self.axes = None
         self.canvas = FigureCanvas(self.fig)
         self.canvas.setParent(self)
         self.canvas.setFocusPolicy(QtCore.Qt.StrongFocus)
@@ -234,6 +242,9 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
     def copySubplotSettings(self):
         '''Get a copy of the settings found in the 'Figure Options' editor.
         '''
+        if self.axes is None:
+            return
+
         for k in self._subplot_keepers:
             self._subplotSettings[k] = getattr(self.axes, 'get_'+k)()
 
@@ -249,9 +260,15 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         make sure they are applied again.
         '''
         for k in self._subplot_keepers:
-            getattr(self.axes, 'set_'+k)(self._subplotSettings[k])
+            if k in self._subplotSettings:
+                getattr(self.axes, 'set_'+k)(self._subplotSettings[k])
 
     def on_draw(self):
+        if not self._updatetimer.isActive():
+            self._updatetimer.start()
+
+    def _on_draw(self):
+        print "draw"
         self.fig.clear()
 
         if self.get_autoscale():
