@@ -219,7 +219,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
 
     # support
     def create_main_frame(self):
-        self.fig = Figure((6.0, 4.8), dpi=100, facecolor='white', linewidth=6.0, edgecolor='0.93')
+        self.fig = Figure((6.0, 4.8), dpi=100, facecolor='0.98', linewidth=6.0, edgecolor='0.93')
         self.axes = None
         self.canvas = FigureCanvas(self.fig)
         self.canvas.setParent(self)
@@ -279,6 +279,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         # self.axes.plot([1,2,3])
 
         self.axes.grid(self.get_grid())
+        self.axes.set_axis_bgcolor('0.97')
 
         if self._data is None:
             return
@@ -299,10 +300,15 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
                 else:
                     self.axes.plot(data, **s)
             else:
+
+                ln = max(data.shape)
+                lw = max(5.0-np.log10(ln), 1.0)
+                al = max(1.0-1.0/np.log2(ln), 0.75)
+
                 if data.shape[-1] == 2:
-                    self.axes.plot(data[..., 0], data[..., 1], alpha=0.8, lw=2.0)
+                    self.axes.plot(data[..., 0], data[..., 1], alpha=al, lw=lw)
                 else:
-                    self.axes.plot(data, alpha=0.8, lw=2.0)
+                    self.axes.plot(data, alpha=al, lw=lw)
 
         if self.get_autoscale():
             self.set_xlim(self.axes.get_xlim(), quiet=True)
