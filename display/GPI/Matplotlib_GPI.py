@@ -136,14 +136,14 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         hbox = QtGui.QHBoxLayout()
         hbox.addLayout(vbox)
         hbox.addLayout(self._plotwindow)
-        hbox.setStretch(0,11)
+        hbox.setStretch(11,0)
         self.setLayout(hbox)
 
         #self._on_draw() # draw once to get initial settings
         #self.copySubplotSettings()
 
-        # hide side-panel options by default
-        self.set_collapsed(True)  
+        # Don't hide side-panel options by default
+        self.set_collapsed(False)
         self.set_grid(True)
         self.set_autoscale(True)
 
@@ -268,7 +268,6 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
             self._updatetimer.start()
 
     def _on_draw(self):
-        print "draw"
         self.fig.clear()
 
         if self.get_autoscale():
