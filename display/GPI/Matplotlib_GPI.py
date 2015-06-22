@@ -62,6 +62,14 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._lineSettings = []
         self._line_keepers = ['linewidth', 'linestyle', 'label', 'marker', 'markeredgecolor', 'markerfacecolor', 'markersize', 'color', 'alpha']
 
+        # since drawing is slow, don't do it as often, use the timer as a
+        # debouncer
+        self._on_draw_cnt = 0
+        self._updatetimer = QtCore.QTimer()
+        self._updatetimer.setSingleShot(True)
+        self._updatetimer.timeout.connect(self._on_draw)
+        self._updatetimer.setInterval(10)
+
         # plot specific UI side panel
         #  -sets options for plot window so this needs to be run first
         vbox = QtGui.QVBoxLayout()
@@ -148,12 +156,6 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         # plot window
         self._data = None
         self._plotwindow = self.create_main_frame()
-        # since drawing is slow, don't do it as often, use the timer as a
-        # debouncer
-        self._updatetimer = QtCore.QTimer()
-        self._updatetimer.setSingleShot(True)
-        self._updatetimer.timeout.connect(self._on_draw)
-        self._updatetimer.setInterval(50)
 
         # put side panel and plot window together
         hbox = QtGui.QHBoxLayout()
@@ -287,6 +289,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
                 getattr(self.axes, 'set_'+k)(self._subplotSettings[k])
 
     def on_draw(self):
+        self._on_draw_cnt += 1
         if not self._updatetimer.isActive():
             self._updatetimer.start()
 
@@ -343,6 +346,9 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self.applySubplotSettings()
 
         self.canvas.draw()
+
+        #print 'draw count: ', self._on_draw_cnt
+        self._on_draw_cnt = 0
 
     def on_key_press(self, event):
         # print 'Matplotlib-> you pressed:' + str(event.key)
