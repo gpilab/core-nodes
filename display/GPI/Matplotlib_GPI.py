@@ -58,6 +58,8 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         # gpi interface
         self._collapsables = []
         self._subplotSettings = {}
+        self._subplotPosition = {'right': 0.9, 'bottom': 0.1, 'top': 0.9, 'wspace': 0.2, 'hspace': 0.2, 'left': 0.125}
+        #self._subplotPosition = {'right': 0.9, 'bottom': 0.15, 'top': 0.9, 'wspace': 0.2, 'hspace': 0.2, 'left': 0.18}
         self._subplot_keepers = ['title', 'ylabel', 'xlabel', 'yscale', 'xscale']
         self._lineSettings = []
         self._line_keepers = ['linewidth', 'linestyle', 'label', 'marker', 'markeredgecolor', 'markerfacecolor', 'markersize', 'color', 'alpha']
@@ -104,12 +106,14 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._xh.set_immediate(True)
         self._yl.set_immediate(True)
         self._yh.set_immediate(True)
+        self._xl.set_label('min')
+        self._xh.set_label('max')
         self._xlab = QtGui.QLabel('x limits')
         self._ylab = QtGui.QLabel('y limits')
-        self._maxlab = QtGui.QLabel('max')
-        self._minlab = QtGui.QLabel('min')
-        lims.addWidget(self._maxlab,1,0,1,1)
-        lims.addWidget(self._minlab,2,0,1,1)
+        #self._maxlab = QtGui.QLabel('max')
+        #self._minlab = QtGui.QLabel('min')
+        #lims.addWidget(self._maxlab,1,0,1,1)
+        #lims.addWidget(self._minlab,2,0,1,1)
         lims.addWidget(self._xlab,0,1,1,1,alignment=QtCore.Qt.AlignHCenter)
         lims.addWidget(self._xh,1,1,1,1,alignment=QtCore.Qt.AlignHCenter)
         lims.addWidget(self._xl,2,1,1,1,alignment=QtCore.Qt.AlignHCenter)
@@ -122,8 +126,8 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._collapsables.append(self._xh)
         self._collapsables.append(self._yl)
         self._collapsables.append(self._yh)
-        self._collapsables.append(self._minlab)
-        self._collapsables.append(self._maxlab)
+        #self._collapsables.append(self._minlab)
+        #self._collapsables.append(self._maxlab)
 
         # TICK MARKS
         ticks = QtGui.QGridLayout()
@@ -232,6 +236,9 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
     def set_lineOptions(self, val):
         self._lineSettings = val
 
+    def set_plotPosition(self, val):
+        self._subplotPosition = val
+
     def set_ticks(self, s):
         self._x_numticks.set_val(s['xticknum'])
         self._y_numticks.set_val(s['yticknum'])
@@ -259,6 +266,9 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
 
     def get_lineOptions(self):
         return self._lineSettings
+
+    def get_plotPosition(self):
+        return self._subplotPosition
 
     def get_ticks(self):
         s = {}
@@ -309,9 +319,11 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         if self.axes is None:
             return
 
+        # subplot settings
         for k in self._subplot_keepers:
             self._subplotSettings[k] = getattr(self.axes, 'get_'+k)()
 
+        # line settings
         self._lineSettings = []
         for l in self.axes.get_lines():
             s = {}
@@ -319,13 +331,26 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
                 s[k] = getattr(l, 'get_'+k)()
             self._lineSettings.append(s)
 
+        # subplot position 
+        self._subplotPosition = {}
+        self._subplotPosition['left'] = self.fig.subplotpars.left
+        self._subplotPosition['right'] = self.fig.subplotpars.right
+        self._subplotPosition['top'] = self.fig.subplotpars.top
+        self._subplotPosition['bottom'] = self.fig.subplotpars.bottom
+        self._subplotPosition['wspace'] = self.fig.subplotpars.wspace
+        self._subplotPosition['hspace'] = self.fig.subplotpars.hspace
+
     def applySubplotSettings(self):
         '''Everytime the plot is drawn it looses its 'Figure Options' so just
         make sure they are applied again.
         '''
+        # subplot settings
         for k in self._subplot_keepers:
             if k in self._subplotSettings:
                 getattr(self.axes, 'set_'+k)(self._subplotSettings[k])
+
+        #subplot position
+        self.fig.subplots_adjust(**self._subplotPosition)
 
     def on_draw(self):
         self._on_draw_cnt += 1
