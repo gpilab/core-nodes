@@ -232,6 +232,12 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
     def set_lineOptions(self, val):
         self._lineSettings = val
 
+    def set_ticks(self, s):
+        self._x_numticks.set_val(s['xticknum'])
+        self._y_numticks.set_val(s['yticknum'])
+        self._x_ticks.setText(s['xticks'])
+        self._y_ticks.setText(s['yticks'])
+
     # getters
     def get_val(self):
         return self._data
@@ -253,6 +259,14 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
 
     def get_lineOptions(self):
         return self._lineSettings
+
+    def get_ticks(self):
+        s = {}
+        s['xticknum'] = self._x_numticks.get_val()
+        s['yticknum'] = self._y_numticks.get_val()
+        s['xticks'] = str(self._x_ticks.text())
+        s['yticks'] = str(self._y_ticks.text())
+        return s
 
     # support
     def check_validticks(self, tickwdg):
