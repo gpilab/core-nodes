@@ -131,6 +131,14 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._x_numticks.valueChanged.connect(self.on_draw)
         self._y_numticks = gpi.widgets.BasicDoubleSpinBox(self)
         self._y_numticks.valueChanged.connect(self.on_draw)
+        self._x_ticks = QtGui.QLineEdit()
+        self._y_ticks = QtGui.QLineEdit()
+        self._x_ticks.textChanged.connect(lambda txt: self.check_validticks(self._x_ticks))
+        self._y_ticks.textChanged.connect(lambda txt: self.check_validticks(self._y_ticks))
+        self._x_ticks.setPlaceholderText('comma separated list of x labels')
+        self._y_ticks.setPlaceholderText('comma separated list of y labels')
+        self._x_ticks.returnPressed.connect(self.on_draw)
+        self._y_ticks.returnPressed.connect(self.on_draw)
         self._x_numticks.set_immediate(True)
         self._y_numticks.set_immediate(True)
         self._x_numticks.set_min(2)
@@ -143,8 +151,12 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._y_numticks.set_label('y ticks')
         ticks.addWidget(self._x_numticks, 0,0,1,1)
         ticks.addWidget(self._y_numticks, 1,0,1,1)
+        ticks.addWidget(self._x_ticks, 0,1,1,1)
+        ticks.addWidget(self._y_ticks, 1,1,1,1)
         self._collapsables.append(self._x_numticks)
         self._collapsables.append(self._y_numticks)
+        self._collapsables.append(self._x_ticks)
+        self._collapsables.append(self._y_ticks)
 
         # panel layout
         vbox.addLayout(lims)
@@ -243,6 +255,19 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         return self._lineSettings
 
     # support
+    def check_validticks(self, tickwdg):
+        s = tickwdg.text()
+        comma_cnt = s.count(',')
+        if (comma_cnt > 0) or (len(s) == 0):
+            color = '#ffffff' # white
+            tickwdg.setStyleSheet('QLineEdit { background-color: %s }' % color)
+            return
+
+        #color = '#fff79a' # yellow
+        color = '#f6989d' # red
+        tickwdg.setStyleSheet('QLineEdit { background-color: %s }' % color)
+        return
+
     def create_main_frame(self):
         self.fig = Figure((6.0, 4.8), dpi=100, facecolor='0.98', linewidth=6.0, edgecolor='0.93')
         self.axes = None
@@ -336,12 +361,26 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
                 else:
                     self.axes.plot(data, alpha=al, lw=lw)
 
+        # AUTOSCALE
         if self.get_autoscale():
             self.set_xlim(self.axes.get_xlim(), quiet=True)
             self.set_ylim(self.axes.get_ylim(), quiet=True)
 
-        self.axes.set_xticks(np.linspace(*self.axes.get_xlim(), num=self._x_numticks.get_val()))
-        self.axes.set_yticks(np.linspace(*self.axes.get_ylim(), num=self._y_numticks.get_val()))
+        # X TICKS
+        xl = self._x_ticks.text().split(',')
+        if len(xl) > 1:
+            self.axes.set_xticklabels(xl)
+            self.axes.set_xticks(np.linspace(*self.axes.get_xlim(), num=len(xl)))
+        else:
+            self.axes.set_xticks(np.linspace(*self.axes.get_xlim(), num=self._x_numticks.get_val()))
+
+        # Y TICKS
+        yl = self._y_ticks.text().split(',')
+        if len(yl) > 1:
+            self.axes.set_yticklabels(yl)
+            self.axes.set_yticks(np.linspace(*self.axes.get_ylim(), num=len(yl)))
+        else:
+            self.axes.set_yticks(np.linspace(*self.axes.get_ylim(), num=self._y_numticks.get_val()))
 
         self.applySubplotSettings()
 
