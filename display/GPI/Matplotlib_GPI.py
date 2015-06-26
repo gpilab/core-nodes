@@ -166,11 +166,19 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._collapsables.append(self._x_ticks)
         self._collapsables.append(self._y_ticks)
 
+        # LEGEND
+        self._legend_btn = gpi.widgets.BasicPushButton(self)
+        self._legend_btn.set_toggle(True)
+        self._legend_btn.set_button_title('legend')
+        self._legend_btn.valueChanged.connect(self.on_draw)
+        self._collapsables.append(self._legend_btn)
+
         # panel layout
         vbox.addLayout(lims)
         vbox.addWidget(self._autoscale_btn)
         vbox.addWidget(self._grid_btn)
         vbox.addLayout(ticks)
+        vbox.addWidget(self._legend_btn)
         vbox.insertStretch(-1,1)
 
         # plot window
@@ -249,6 +257,10 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._x_ticks.setText(s['xticks'])
         self._y_ticks.setText(s['yticks'])
 
+    def set_legend(self, val):
+        self._legend_btn.set_val(val)
+        self.on_draw()
+
     # getters
     def get_val(self):
         return self._data
@@ -281,6 +293,9 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         s['xticks'] = str(self._x_ticks.text())
         s['yticks'] = str(self._y_ticks.text())
         return s
+
+    def get_legend(self):
+        return self._legend_btn.get_val()
 
     # support
     def check_validticks(self, tickwdg):
@@ -402,7 +417,12 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
                 if data.shape[-1] == 2:
                     self.axes.plot(data[..., 0], data[..., 1], alpha=al, lw=lw)
                 else:
-                    self.axes.plot(data, alpha=al, lw=lw)
+                    self.axes.plot(data, alpha=al, lw=lw, label='one')
+
+        # LEGEND
+        if self.get_legend():
+            handles, labels = self.axes.get_legend_handles_labels()
+            self.axes.legend(handles, labels)
 
         # AUTOSCALE
         if self.get_autoscale():
