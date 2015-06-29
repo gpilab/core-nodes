@@ -34,6 +34,7 @@
 
 # Author: Nick Zwart
 # Date: 2013 Oct 30
+from __future__ import print_function
 
 import gpi
 from gpi import QtCore, QtGui
@@ -44,6 +45,144 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import (
     FigureCanvasQTAgg as FigureCanvas,
     NavigationToolbar2QT as NavigationToolbar)
+
+###############################################################################
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2009 Pierre Raybau
+# Licensed under the terms of the MIT License
+# see the mpl licenses directory for a copy of the license
+
+"""Module that provides a GUI-based editor for matplotlib's figure options"""
+
+#from __future__ import print_function
+import os.path as osp
+
+import matplotlib.backends.qt4_editor.formlayout as formlayout
+from matplotlib.backends.qt4_compat import QtGui
+from matplotlib import markers
+
+def get_icon(name):
+    import matplotlib
+    basedir = osp.join(matplotlib.rcParams['datapath'], 'images')
+    return QtGui.QIcon(osp.join(basedir, name))
+
+LINESTYLES = {
+              '-': 'Solid',
+              '--': 'Dashed',
+              '-.': 'DashDot',
+              ':': 'Dotted',
+              'steps': 'Steps',
+              'none': 'None',
+              }
+
+MARKERS = markers.MarkerStyle.markers
+
+COLORS = {'b': '#0000ff', 'g': '#00ff00', 'r': '#ff0000', 'c': '#ff00ff',
+          'm': '#ff00ff', 'y': '#ffff00', 'k': '#000000', 'w': '#ffffff'}
+
+def col2hex(color):
+    """Convert matplotlib color to hex"""
+    return COLORS.get(color, color)
+
+def figure_edit(axes, parent=None):
+    """Edit matplotlib figure options"""
+    sep = (None, None) # separator
+
+    has_curve = len(axes.get_lines()) > 0
+
+    # Get / General
+    xmin, xmax = axes.get_xlim()
+    ymin, ymax = axes.get_ylim()
+    general = [('Title', axes.get_title()),
+               sep,
+               (None, "<b>X-Axis</b>"),
+               ('Min', xmin), ('Max', xmax),
+               ('Label', axes.get_xlabel()),
+               ('Scale', [axes.get_xscale(), 'linear', 'log']),
+               sep,
+               (None, "<b>Y-Axis</b>"),
+               ('Min', ymin), ('Max', ymax),
+               ('Label', axes.get_ylabel()),
+               ('Scale', [axes.get_yscale(), 'linear', 'log'])
+               ]
+
+    if has_curve:
+        # Get / Curves
+        linedict = {}
+        for line in axes.get_lines():
+            label = line.get_label()
+            if label == '_nolegend_':
+                continue
+            linedict[label] = line
+        curves = []
+        linestyles = LINESTYLES.items()
+        markers = MARKERS.items()
+        curvelabels = sorted(linedict.keys())
+        for label in curvelabels:
+            line = linedict[label]
+            curvedata = [
+                         ('Label', label),
+                         sep,
+                         (None, '<b>Line</b>'),
+                         ('Style', [line.get_linestyle()] + linestyles),
+                         ('Width', line.get_linewidth()),
+                         ('Color', col2hex(line.get_color())),
+                         sep,
+                         (None, '<b>Marker</b>'),
+                         ('Style', [line.get_marker()] + markers),
+                         ('Size', line.get_markersize()),
+                         ('Facecolor', col2hex(line.get_markerfacecolor())),
+                         ('Edgecolor', col2hex(line.get_markeredgecolor())),
+                         ]
+            curves.append([curvedata, label, ""])
+
+    datalist = [(general, "Axes", "")]
+    if has_curve:
+        datalist.append((curves, "Curves", ""))
+        
+    def apply_callback(data):
+        """This function will be called to apply changes"""
+        if has_curve:
+            general, curves = data
+        else:
+            general, = data
+            
+        # Set / General
+        title, xmin, xmax, xlabel, xscale, ymin, ymax, ylabel, yscale = general
+        axes.set_xscale(xscale)
+        axes.set_yscale(yscale)
+        axes.set_title(title)
+        axes.set_xlim(xmin, xmax)
+        axes.set_xlabel(xlabel)
+        axes.set_ylim(ymin, ymax)
+        axes.set_ylabel(ylabel)
+        
+        if has_curve:
+            # Set / Curves
+            for index, curve in enumerate(curves):
+                line = linedict[curvelabels[index]]
+                label, linestyle, linewidth, color, \
+                    marker, markersize, markerfacecolor, markeredgecolor = curve
+                line.set_label(label)
+                line.set_linestyle(linestyle)
+                line.set_linewidth(linewidth)
+                line.set_color(color)
+                if marker is not 'none':
+                    line.set_marker(marker)
+                    line.set_markersize(markersize)
+                    line.set_markerfacecolor(markerfacecolor)
+                    line.set_markeredgecolor(markeredgecolor)
+            
+        # Redraw
+        figure = axes.get_figure()
+        figure.canvas.draw()
+        
+    data = formlayout.fedit(datalist, title="Figure options", parent=parent,
+                            icon=get_icon('qt4_editor_options.svg'), apply=apply_callback)
+    if data is not None:
+        apply_callback(data)
+###############################################################################   
 
 
 class MatplotDisplay(gpi.GenericWidgetGroup):
@@ -105,8 +244,8 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._xh.set_immediate(True)
         self._yl.set_immediate(True)
         self._yh.set_immediate(True)
-        self._xl.set_label('min')
-        self._xh.set_label('max')
+        self._xl.set_label('max')
+        self._xh.set_label('min')
         self._xl.set_decimals(7)
         self._xh.set_decimals(7)
         self._yl.set_decimals(7)
@@ -190,6 +329,13 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._legend_btn.valueChanged.connect(self.on_draw)
         self._collapsables.append(self._legend_btn)
 
+        # LINE OPTIONS
+        self._lino_btn = gpi.widgets.BasicPushButton(self)
+        self._lino_btn.set_toggle(False)
+        self._lino_btn.set_button_title('line options')
+        self._lino_btn.valueChanged.connect(self.lineOptionsDialog)
+        self._collapsables.append(self._lino_btn)
+
         # panel layout
         vbox.addLayout(plotlabels)
         vbox.addWidget(self._grid_btn)
@@ -197,6 +343,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         vbox.addWidget(self._autoscale_btn)
         vbox.addLayout(ticks)
         vbox.addWidget(self._legend_btn)
+        vbox.addWidget(self._lino_btn)
         vbox.insertStretch(-1,1)
 
         # plot window
@@ -362,6 +509,11 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         return vbox
         #self.setLayout(vbox)
 
+    def lineOptionsDialog(self):
+        if self.axes is None:
+            return
+        figure_edit(self.axes, self)
+
     def copySubplotSettings(self):
         '''Get a copy of the settings found in the 'Figure Options' editor.
         '''
@@ -491,7 +643,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
             from matplotlib.backend_bases import key_press_handler
             key_press_handler(event, self.canvas, self.mpl_toolbar)
         except:
-            print "key_press_handler import failed. -old matplotlib version."
+            print("key_press_handler import failed. -old matplotlib version.")
 
 
 class ExternalNode(gpi.NodeAPI):
