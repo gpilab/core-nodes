@@ -58,8 +58,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         # gpi interface
         self._collapsables = []
         self._subplotSettings = {}
-        self._subplotPosition = {'right': 0.9, 'bottom': 0.1, 'top': 0.9, 'wspace': 0.2, 'hspace': 0.2, 'left': 0.125}
-        #self._subplotPosition = {'right': 0.9, 'bottom': 0.15, 'top': 0.9, 'wspace': 0.2, 'hspace': 0.2, 'left': 0.18}
+        self._subplotPosition = {'right': 0.9, 'bottom': 0.12, 'top': 0.9, 'wspace': 0.2, 'hspace': 0.2, 'left': 0.125}
         self._subplot_keepers = ['yscale', 'xscale']
         self._lineSettings = []
         self._line_keepers = ['linewidth', 'linestyle', 'label', 'marker', 'markeredgecolor', 'markerfacecolor', 'markersize', 'color', 'alpha']
