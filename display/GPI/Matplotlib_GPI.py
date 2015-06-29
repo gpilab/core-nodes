@@ -192,9 +192,9 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
 
         # panel layout
         vbox.addLayout(plotlabels)
+        vbox.addWidget(self._grid_btn)
         vbox.addLayout(lims)
         vbox.addWidget(self._autoscale_btn)
-        vbox.addWidget(self._grid_btn)
         vbox.addLayout(ticks)
         vbox.addWidget(self._legend_btn)
         vbox.insertStretch(-1,1)
@@ -207,7 +207,8 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         hbox = QtGui.QHBoxLayout()
         hbox.addLayout(vbox)
         hbox.addLayout(self._plotwindow)
-        hbox.setStretch(11,0)
+        hbox.setStretch(0,0)
+        hbox.setStretch(1,11)
         self.setLayout(hbox)
 
         #self._on_draw() # draw once to get initial settings
