@@ -417,7 +417,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
                 if data.shape[-1] == 2:
                     self.axes.plot(data[..., 0], data[..., 1], alpha=al, lw=lw)
                 else:
-                    self.axes.plot(data, alpha=al, lw=lw, label='one')
+                    self.axes.plot(data, alpha=al, lw=lw)
 
         # LEGEND
         if self.get_legend():
