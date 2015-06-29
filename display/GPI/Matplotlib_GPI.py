@@ -60,7 +60,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._subplotSettings = {}
         self._subplotPosition = {'right': 0.9, 'bottom': 0.1, 'top': 0.9, 'wspace': 0.2, 'hspace': 0.2, 'left': 0.125}
         #self._subplotPosition = {'right': 0.9, 'bottom': 0.15, 'top': 0.9, 'wspace': 0.2, 'hspace': 0.2, 'left': 0.18}
-        self._subplot_keepers = ['title', 'ylabel', 'xlabel', 'yscale', 'xscale']
+        self._subplot_keepers = ['yscale', 'xscale']
         self._lineSettings = []
         self._line_keepers = ['linewidth', 'linestyle', 'label', 'marker', 'markeredgecolor', 'markerfacecolor', 'markersize', 'color', 'alpha']
 
@@ -166,6 +166,24 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._collapsables.append(self._x_ticks)
         self._collapsables.append(self._y_ticks)
 
+        # TITLE, XLABEL, YLABEL
+        plotlabels = QtGui.QHBoxLayout()
+        self._plot_title = QtGui.QLineEdit()
+        self._plot_xlab = QtGui.QLineEdit()
+        self._plot_ylab = QtGui.QLineEdit()
+        self._plot_title.setPlaceholderText('title')
+        self._plot_xlab.setPlaceholderText('x label')
+        self._plot_ylab.setPlaceholderText('y label')
+        self._plot_title.returnPressed.connect(self.on_draw)
+        self._plot_xlab.returnPressed.connect(self.on_draw)
+        self._plot_ylab.returnPressed.connect(self.on_draw)
+        plotlabels.addWidget(self._plot_title)
+        plotlabels.addWidget(self._plot_xlab)
+        plotlabels.addWidget(self._plot_ylab)
+        self._collapsables.append(self._plot_title)
+        self._collapsables.append(self._plot_xlab)
+        self._collapsables.append(self._plot_ylab)
+
         # LEGEND
         self._legend_btn = gpi.widgets.BasicPushButton(self)
         self._legend_btn.set_toggle(True)
@@ -174,6 +192,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._collapsables.append(self._legend_btn)
 
         # panel layout
+        vbox.addLayout(plotlabels)
         vbox.addLayout(lims)
         vbox.addWidget(self._autoscale_btn)
         vbox.addWidget(self._grid_btn)
@@ -207,8 +226,6 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         if isinstance(data, list):
             self._data = data
             self.on_draw()
-        else:
-            return
 
     def set_grid(self, val):
         self._grid_btn.set_val(val)
@@ -257,6 +274,12 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._x_ticks.setText(s['xticks'])
         self._y_ticks.setText(s['yticks'])
 
+    def set_plotlabels(self, s):
+        self._plot_title.setText(s['title'])
+        self._plot_xlab.setText(s['xlabel'])
+        self._plot_ylab.setText(s['ylabel'])
+        self.on_draw()
+
     def set_legend(self, val):
         self._legend_btn.set_val(val)
         self.on_draw()
@@ -292,6 +315,13 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         s['yticknum'] = self._y_numticks.get_val()
         s['xticks'] = str(self._x_ticks.text())
         s['yticks'] = str(self._y_ticks.text())
+        return s
+
+    def get_plotlabels(self):
+        s = {}
+        s['title'] = str(self._plot_title.text())
+        s['xlabel'] = str(self._plot_xlab.text())
+        s['ylabel'] = str(self._plot_ylab.text())
         return s
 
     def get_legend(self):
@@ -380,9 +410,9 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self.fig.clear()
 
         if self.get_autoscale():
-            self.axes = self.fig.add_subplot(111, autoscale_on=self._autoscale_btn.get_val())
+            self.axes = self.fig.add_subplot(111, autoscale_on=self._autoscale_btn.get_val(), **self.get_plotlabels())
         else:
-            self.axes = self.fig.add_subplot(111, autoscale_on=self._autoscale_btn.get_val(), xlim=self.get_xlim(), ylim=self.get_ylim())
+            self.axes = self.fig.add_subplot(111, autoscale_on=self._autoscale_btn.get_val(), xlim=self.get_xlim(), ylim=self.get_ylim(), **self.get_plotlabels())
         # self.axes.plot(self.x, self.y, 'ro')
         # self.axes.imshow(self.data, interpolation='nearest')
         # self.axes.plot([1,2,3])
