@@ -35,6 +35,8 @@
 # Author: Nick Zwart
 # Date: 2013 Oct 30
 from __future__ import print_function
+import os
+import matplotlib
 
 import gpi
 from gpi import QtCore, QtGui
@@ -45,6 +47,17 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import (
     FigureCanvasQTAgg as FigureCanvas,
     NavigationToolbar2QT as NavigationToolbar)
+from matplotlib.backends.backend_qt4 import SubplotToolQt
+
+class MainWin_close(QtGui.QMainWindow):
+    window_closed = gpi.Signal()
+    def __init__(self):
+        super(MainWin_close, self).__init__()
+
+    def closeEvent(self, event):
+        super(MainWin_close, self).closeEvent(event)
+        self.window_closed.emit()
+
 
 ###############################################################################
 # -*- coding: utf-8 -*-
@@ -59,7 +72,7 @@ from matplotlib.backends.backend_qt4agg import (
 import os.path as osp
 
 import matplotlib.backends.qt4_editor.formlayout as formlayout
-from matplotlib.backends.qt4_compat import QtGui
+#from matplotlib.backends.qt4_compat import QtGui
 from matplotlib import markers
 
 def get_icon(name):
@@ -92,20 +105,23 @@ def figure_edit(axes, parent=None):
     has_curve = len(axes.get_lines()) > 0
 
     # Get / General
-    xmin, xmax = axes.get_xlim()
-    ymin, ymax = axes.get_ylim()
-    general = [('Title', axes.get_title()),
-               sep,
-               (None, "<b>X-Axis</b>"),
-               ('Min', xmin), ('Max', xmax),
-               ('Label', axes.get_xlabel()),
-               ('Scale', [axes.get_xscale(), 'linear', 'log']),
-               sep,
-               (None, "<b>Y-Axis</b>"),
-               ('Min', ymin), ('Max', ymax),
-               ('Label', axes.get_ylabel()),
-               ('Scale', [axes.get_yscale(), 'linear', 'log'])
-               ]
+    #xmin, xmax = axes.get_xlim()
+    #ymin, ymax = axes.get_ylim()
+    #general = [('Title', axes.get_title()),
+    #           sep,
+    #           (None, "<b>X-Axis</b>"),
+    #           ('Min', xmin), ('Max', xmax),
+    #           ('Label', axes.get_xlabel()),
+    #           ('Scale', [axes.get_xscale(), 'linear', 'log']),
+    #           sep,
+    #           (None, "<b>Y-Axis</b>"),
+    #           ('Min', ymin), ('Max', ymax),
+    #           ('Label', axes.get_ylabel()),
+    #           ('Scale', [axes.get_yscale(), 'linear', 'log'])
+    #           ]
+
+    if not has_curve:
+        return
 
     if has_curve:
         # Get / Curves
@@ -137,26 +153,29 @@ def figure_edit(axes, parent=None):
                          ]
             curves.append([curvedata, label, ""])
 
-    datalist = [(general, "Axes", "")]
-    if has_curve:
-        datalist.append((curves, "Curves", ""))
+    #datalist = [(general, "Axes", "")]
+    #if has_curve:
+    #datalist.append((curves, "Curves", ""))
+    datalist = [(curves, "Curves", "")]
         
     def apply_callback(data):
         """This function will be called to apply changes"""
-        if has_curve:
-            general, curves = data
-        else:
-            general, = data
+        #if has_curve:
+        #    general, curves = data
+        #else:
+        #    general, = data
+
+        curves = data[0]
             
         # Set / General
-        title, xmin, xmax, xlabel, xscale, ymin, ymax, ylabel, yscale = general
-        axes.set_xscale(xscale)
-        axes.set_yscale(yscale)
-        axes.set_title(title)
-        axes.set_xlim(xmin, xmax)
-        axes.set_xlabel(xlabel)
-        axes.set_ylim(ymin, ymax)
-        axes.set_ylabel(ylabel)
+        #title, xmin, xmax, xlabel, xscale, ymin, ymax, ylabel, yscale = general
+        #axes.set_xscale(xscale)
+        #axes.set_yscale(yscale)
+        #axes.set_title(title)
+        #axes.set_xlim(xmin, xmax)
+        #axes.set_xlabel(xlabel)
+        #axes.set_ylim(ymin, ymax)
+        #axes.set_ylabel(ylabel)
         
         if has_curve:
             # Set / Curves
@@ -198,7 +217,8 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._collapsables = []
         self._subplotSettings = {}
         self._subplotPosition = {'right': 0.9, 'bottom': 0.12, 'top': 0.9, 'wspace': 0.2, 'hspace': 0.2, 'left': 0.125}
-        self._subplot_keepers = ['yscale', 'xscale']
+        #self._subplot_keepers = ['yscale', 'xscale']
+        self._subplot_keepers = []
         self._lineSettings = []
         self._line_keepers = ['linewidth', 'linestyle', 'label', 'marker', 'markeredgecolor', 'markerfacecolor', 'markersize', 'color', 'alpha']
 
@@ -273,9 +293,9 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
 
         # TICK MARKS
         ticks = QtGui.QGridLayout()
-        self._x_numticks = gpi.widgets.BasicDoubleSpinBox(self)
+        self._x_numticks = gpi.widgets.BasicSpinBox(self)
         self._x_numticks.valueChanged.connect(self.on_draw)
-        self._y_numticks = gpi.widgets.BasicDoubleSpinBox(self)
+        self._y_numticks = gpi.widgets.BasicSpinBox(self)
         self._y_numticks.valueChanged.connect(self.on_draw)
         self._x_ticks = QtGui.QLineEdit()
         self._y_ticks = QtGui.QLineEdit()
@@ -336,6 +356,13 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._lino_btn.valueChanged.connect(self.lineOptionsDialog)
         self._collapsables.append(self._lino_btn)
 
+        # SUBPLOT SPACING OPTIONS
+        self._subplotso_btn = gpi.widgets.BasicPushButton(self)
+        self._subplotso_btn.set_toggle(False)
+        self._subplotso_btn.set_button_title('spacing options')
+        self._subplotso_btn.valueChanged.connect(self.subplotSpacingOptions)
+        self._collapsables.append(self._subplotso_btn)
+
         # panel layout
         vbox.addLayout(plotlabels)
         vbox.addWidget(self._grid_btn)
@@ -344,6 +371,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         vbox.addLayout(ticks)
         vbox.addWidget(self._legend_btn)
         vbox.addWidget(self._lino_btn)
+        vbox.addWidget(self._subplotso_btn)
         vbox.insertStretch(-1,1)
 
         # plot window
@@ -513,6 +541,26 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         if self.axes is None:
             return
         figure_edit(self.axes, self)
+        self.copySubplotSettings()
+        self.on_draw()
+
+    def subplotSpacingOptions(self):
+        if self.fig is None:
+            return
+
+        self.adj_window = MainWin_close()
+        self.adj_window.window_closed.connect(self.copySubplotSettings)
+        win = self.adj_window
+
+        win.setWindowTitle("Subplot Configuration Tool")
+        image = os.path.join( matplotlib.rcParams['datapath'],'images','matplotlib.png' )
+        win.setWindowIcon(QtGui.QIcon( image ))
+
+        tool = SubplotToolQt(self.fig, win)
+        win.setCentralWidget(tool)
+        win.setSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
+
+        win.show()
 
     def copySubplotSettings(self):
         '''Get a copy of the settings found in the 'Figure Options' editor.
@@ -614,16 +662,16 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         # X TICKS
         xl = self._x_ticks.text().split(',')
         if len(xl) > 1:
-            self.axes.set_xticklabels(xl)
             self.axes.set_xticks(np.linspace(*self.axes.get_xlim(), num=len(xl)))
+            self.axes.set_xticklabels(xl)
         else:
             self.axes.set_xticks(np.linspace(*self.axes.get_xlim(), num=self._x_numticks.get_val()))
 
         # Y TICKS
         yl = self._y_ticks.text().split(',')
         if len(yl) > 1:
-            self.axes.set_yticklabels(yl)
             self.axes.set_yticks(np.linspace(*self.axes.get_ylim(), num=len(yl)))
+            self.axes.set_yticklabels(yl)
         else:
             self.axes.set_yticks(np.linspace(*self.axes.get_ylim(), num=self._y_numticks.get_val()))
 
