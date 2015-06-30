@@ -63,6 +63,7 @@ class MainWin_close(QtGui.QMainWindow):
     def isActive(self):
         return self._isActive
 
+figureoptions = None # NRZ don't use this menu
 class NavbarTools(NavigationToolbar):
     # list of toolitems to add to the toolbar, format is:
     # (
