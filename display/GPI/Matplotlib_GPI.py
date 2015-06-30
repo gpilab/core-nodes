@@ -363,6 +363,10 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._subplotso_btn.valueChanged.connect(self.subplotSpacingOptions)
         self._collapsables.append(self._subplotso_btn)
 
+        plot_options_layout = QtGui.QHBoxLayout()
+        plot_options_layout.addWidget(self._subplotso_btn)
+        plot_options_layout.addWidget(self._lino_btn)
+
         # panel layout
         vbox.addLayout(plotlabels)
         vbox.addWidget(self._grid_btn)
@@ -370,8 +374,9 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         vbox.addWidget(self._autoscale_btn)
         vbox.addLayout(ticks)
         vbox.addWidget(self._legend_btn)
-        vbox.addWidget(self._lino_btn)
-        vbox.addWidget(self._subplotso_btn)
+        vbox.addLayout(plot_options_layout)
+        #vbox.addWidget(self._lino_btn)
+        #vbox.addWidget(self._subplotso_btn)
         vbox.insertStretch(-1,1)
 
         # plot window
