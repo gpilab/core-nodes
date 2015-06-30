@@ -63,6 +63,101 @@ class MainWin_close(QtGui.QMainWindow):
     def isActive(self):
         return self._isActive
 
+class NavbarTools(NavigationToolbar):
+    # list of toolitems to add to the toolbar, format is:
+    # (
+    #   text, # the text of the button (often not visible to users)
+    #   tooltip_text, # the tooltip shown on hover (where possible)
+    #   image_file, # name of the image for the button (without the extension)
+    #   name_of_method, # name of the method in NavigationToolbar2 to call
+    # )
+    toolitems = (
+        ('Home', 'Reset original view', 'home', 'home'),
+        ('Back', 'Back to  previous view', 'back', 'back'),
+        ('Forward', 'Forward to next view', 'forward', 'forward'),
+        (None, None, None, None),
+        ('Pan', 'Pan axes with left mouse, zoom with right', 'move', 'pan'),
+        ('Zoom', 'Zoom to rectangle', 'zoom_to_rect', 'zoom'),
+        (None, None, None, None),
+        #('Subplots', 'Configure subplots', 'subplots', 'configure_subplots'),
+        ('Save', 'Save the figure', 'filesave', 'save_figure'),
+      )
+
+    def __init__(self, canvas, parent):
+        super(NavbarTools, self).__init__(canvas, parent)
+
+    def _init_toolbar(self):
+        figureoptions = None # NRZ don't use this menu
+        self.basedir = os.path.join(matplotlib.rcParams[ 'datapath' ],'images')
+
+        for text, tooltip_text, image_file, callback in self.toolitems:
+            if text is None:
+                self.addSeparator()
+            else:
+                a = self.addAction(self._icon(image_file + '.png'),
+                                         text, getattr(self, callback))
+                self._actions[callback] = a
+                if callback in ['zoom', 'pan']:
+                    a.setCheckable(True)
+                if tooltip_text is not None:
+                    a.setToolTip(tooltip_text)
+
+        if figureoptions is not None:
+            a = self.addAction(self._icon("qt4_editor_options.png"),
+                               'Customize', self.edit_parameters)
+            a.setToolTip('Edit curves line and axes parameters')
+
+        self.buttons = {}
+
+        # Add the x,y location widget at the right side of the toolbar
+        # The stretch factor is 1 which means any resizing of the toolbar
+        # will resize this label instead of the buttons.
+        if self.coordinates:
+            self.locLabel = QtGui.QLabel( "", self )
+            self.locLabel.setAlignment(
+                    QtCore.Qt.AlignRight | QtCore.Qt.AlignTop )
+            self.locLabel.setSizePolicy(
+                QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,
+                                  QtGui.QSizePolicy.Ignored))
+            labelAction = self.addWidget(self.locLabel)
+            labelAction.setVisible(True)
+
+        # reference holder for subplots_adjust window
+        self.adj_window = None
+
+    if figureoptions is not None:
+        def edit_parameters(self):
+            allaxes = self.canvas.figure.get_axes()
+            if len(allaxes) == 1:
+                axes = allaxes[0]
+            else:
+                titles = []
+                for axes in allaxes:
+                    title = axes.get_title()
+                    ylabel = axes.get_ylabel()
+                    if title:
+                        fmt = "%(title)s"
+                        if ylabel:
+                            fmt += ": %(ylabel)s"
+                        fmt += " (%(axes_repr)s)"
+                    elif ylabel:
+                        fmt = "%(axes_repr)s (%(ylabel)s)"
+                    else:
+                        fmt = "%(axes_repr)s"
+                    titles.append(fmt % dict(title = title,
+                                         ylabel = ylabel,
+                                         axes_repr = repr(axes)))
+                item, ok = QtGui.QInputDialog.getItem(self, 'Customize',
+                                                      'Select axes:', titles,
+                                                      0, False)
+                if ok:
+                    axes = allaxes[titles.index(unicode(item))]
+                else:
+                    return
+
+            figureoptions.figure_edit(axes, self)
+
+
 
 ###############################################################################
 # -*- coding: utf-8 -*-
@@ -607,7 +702,8 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
 
         self.canvas.setSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.MinimumExpanding)
 
-        self.mpl_toolbar = NavigationToolbar(self.canvas, self)
+        #self.mpl_toolbar = NavigationToolbar(self.canvas, self)
+        self.mpl_toolbar = NavbarTools(self.canvas, self)
         self.mpl_toolbar.actionTriggered.connect(self.copySubplotSettings)
 
         self.canvas.mpl_connect('key_press_event', self.on_key_press)
