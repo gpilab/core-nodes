@@ -53,10 +53,15 @@ class MainWin_close(QtGui.QMainWindow):
     window_closed = gpi.Signal()
     def __init__(self):
         super(MainWin_close, self).__init__()
+        self._isActive = True
 
     def closeEvent(self, event):
         super(MainWin_close, self).closeEvent(event)
         self.window_closed.emit()
+        self._isActive = False
+
+    def isActive(self):
+        return self._isActive
 
 
 ###############################################################################
@@ -216,8 +221,9 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         # gpi interface
         self._collapsables = []
         self._subplotSettings = {}
-        self._subplotPosition = {'right': 0.9, 'bottom': 0.12, 'top': 0.9, 'wspace': 0.2, 'hspace': 0.2, 'left': 0.125}
-        #self._subplot_keepers = ['yscale', 'xscale']
+        #self._subplotPosition = {'right': 0.9, 'bottom': 0.12, 'top': 0.9, 'wspace': 0.2, 'hspace': 0.2, 'left': 0.125}
+        self._subplotPosition = {'right': 0.913, 'bottom': 0.119, 'top': 0.912, 'wspace': 0.2, 'hspace': 0.2, 'left': 0.111}
+        #self._subplot_keepers = ['yscale', 'xscale'] # linear, log
         self._subplot_keepers = []
         self._lineSettings = []
         self._line_keepers = ['linewidth', 'linestyle', 'label', 'marker', 'markeredgecolor', 'markerfacecolor', 'markersize', 'color', 'alpha']
@@ -342,6 +348,22 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._collapsables.append(self._plot_xlab)
         self._collapsables.append(self._plot_ylab)
 
+        # XSCALE, YSCALE
+        self._xscale_btn = gpi.widgets.BasicPushButton(self)
+        self._xscale_btn.set_toggle(True)
+        self._xscale_btn.set_button_title('log(x)')
+        self._xscale_btn.valueChanged.connect(self.on_draw)
+        self._collapsables.append(self._xscale_btn)
+        self._yscale_btn = gpi.widgets.BasicPushButton(self)
+        self._yscale_btn.set_toggle(True)
+        self._yscale_btn.set_button_title('log(y)')
+        self._yscale_btn.valueChanged.connect(self.on_draw)
+        self._collapsables.append(self._yscale_btn)
+
+        scale_options_layout = QtGui.QHBoxLayout()
+        scale_options_layout.addWidget(self._xscale_btn)
+        scale_options_layout.addWidget(self._yscale_btn)
+
         # LEGEND
         self._legend_btn = gpi.widgets.BasicPushButton(self)
         self._legend_btn.set_toggle(True)
@@ -362,18 +384,61 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._subplotso_btn.set_button_title('spacing options')
         self._subplotso_btn.valueChanged.connect(self.subplotSpacingOptions)
         self._collapsables.append(self._subplotso_btn)
+        self.adj_window = None
 
         plot_options_layout = QtGui.QHBoxLayout()
         plot_options_layout.addWidget(self._subplotso_btn)
         plot_options_layout.addWidget(self._lino_btn)
 
+        grid_legend_lyt = QtGui.QHBoxLayout()
+        grid_legend_lyt.addWidget(self._legend_btn)
+        grid_legend_lyt.addWidget(self._grid_btn)
+
+        autoscale_scale_lyt = QtGui.QHBoxLayout()
+        autoscale_scale_lyt.addWidget(self._autoscale_btn)
+        autoscale_scale_lyt.addWidget(self._xscale_btn)
+        autoscale_scale_lyt.addWidget(self._yscale_btn)
+
+        # HLINES
+        self._hline1 = QtGui.QFrame()
+        self._hline1.setFrameStyle(QtGui.QFrame.HLine | QtGui.QFrame.Sunken)
+        self._hline1.setSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
+        self._collapsables.append(self._hline1)
+
+        self._hline2 = QtGui.QFrame()
+        self._hline2.setFrameStyle(QtGui.QFrame.HLine | QtGui.QFrame.Sunken)
+        self._hline2.setSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
+        self._collapsables.append(self._hline2)
+
+        spc = 10
+        self._spacer1 = QtGui.QSpacerItem(1,spc,QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        self._spacer2 = QtGui.QSpacerItem(1,spc,QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        self._spacer3 = QtGui.QSpacerItem(1,spc,QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        self._spacer4 = QtGui.QSpacerItem(1,spc,QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        self._collapsables.append(self._spacer1)
+        self._collapsables.append(self._spacer2)
+        self._collapsables.append(self._spacer3)
+        self._collapsables.append(self._spacer4)
+
         # panel layout
         vbox.addLayout(plotlabels)
-        vbox.addWidget(self._grid_btn)
+
+        vbox.addSpacerItem(self._spacer1)
+        vbox.addWidget(self._hline1)
+        vbox.addSpacerItem(self._spacer2)
+
         vbox.addLayout(lims)
-        vbox.addWidget(self._autoscale_btn)
+        #vbox.addLayout(scale_options_layout)
+        #vbox.addWidget(self._autoscale_btn)
+        vbox.addLayout(autoscale_scale_lyt)
+
+        vbox.addSpacerItem(self._spacer3)
+        vbox.addWidget(self._hline2)
+        vbox.addSpacerItem(self._spacer4)
+
         vbox.addLayout(ticks)
-        vbox.addWidget(self._legend_btn)
+        #vbox.addWidget(self._legend_btn)
+        vbox.addLayout(grid_legend_lyt)
         vbox.addLayout(plot_options_layout)
         #vbox.addWidget(self._lino_btn)
         #vbox.addWidget(self._subplotso_btn)
@@ -464,6 +529,11 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._legend_btn.set_val(val)
         self.on_draw()
 
+    def set_scale(self, val):
+        self._xscale_btn.set_val(val['xscale'])
+        self._yscale_btn.set_val(val['yscale'])
+        self.on_draw()
+
     # getters
     def get_val(self):
         return self._data
@@ -506,6 +576,12 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
 
     def get_legend(self):
         return self._legend_btn.get_val()
+
+    def get_scale(self):
+        s = {}
+        s['xscale'] = self._xscale_btn.get_val()
+        s['yscale'] = self._yscale_btn.get_val()
+        return s
 
     # support
     def check_validticks(self, tickwdg):
@@ -552,6 +628,12 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
     def subplotSpacingOptions(self):
         if self.fig is None:
             return
+
+        # don't allow the user to open extra windows
+        if self.adj_window is not None:
+            if self.adj_window.isActive():
+                self.adj_window.raise_()
+                return
 
         self.adj_window = MainWin_close()
         self.adj_window.window_closed.connect(self.copySubplotSettings)
@@ -615,14 +697,42 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self.fig.clear()
 
         if self.get_autoscale():
-            self.axes = self.fig.add_subplot(111, autoscale_on=self._autoscale_btn.get_val(), **self.get_plotlabels())
+            self.axes = self.fig.add_subplot(111, autoscale_on=self._autoscale_btn.get_val())
         else:
-            self.axes = self.fig.add_subplot(111, autoscale_on=self._autoscale_btn.get_val(), xlim=self.get_xlim(), ylim=self.get_ylim(), **self.get_plotlabels())
+            self.axes = self.fig.add_subplot(111, autoscale_on=self._autoscale_btn.get_val(), xlim=self.get_xlim(), ylim=self.get_ylim())
+
+        self.axes.set_title(self.get_plotlabels()['title'], fontweight='bold', fontsize=16)
+        self.axes.set_xlabel(self.get_plotlabels()['xlabel'], fontsize=14)
+        self.axes.set_ylabel(self.get_plotlabels()['ylabel'], fontsize=14)
+
         # self.axes.plot(self.x, self.y, 'ro')
         # self.axes.imshow(self.data, interpolation='nearest')
         # self.axes.plot([1,2,3])
+    
+        # XSCALE
+        if self.get_scale()['xscale']:
+            self.axes.set_xscale('log')
+        else:
+            self.axes.set_xscale('linear')
 
-        self.axes.grid(self.get_grid())
+        # YSCALE
+        if self.get_scale()['yscale']:
+            self.axes.set_yscale('log')
+        else:
+            self.axes.set_yscale('linear')
+
+        # GRID
+        ax_color = '0.5'
+        if self.get_grid():
+            self.axes.grid(self.get_grid(), color=ax_color)
+        else:
+            self.axes.grid(self.get_grid())
+
+        # AXES SPINE COLOR
+        self.axes.spines['bottom'].set_color(ax_color)
+        self.axes.spines['top'].set_color(ax_color) 
+        self.axes.spines['right'].set_color(ax_color)
+        self.axes.spines['left'].set_color(ax_color)
         self.axes.set_axis_bgcolor('0.97')
 
         if self._data is None:
