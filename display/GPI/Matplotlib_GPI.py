@@ -467,6 +467,13 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._legend_btn.valueChanged.connect(self.on_draw)
         self._collapsables.append(self._legend_btn)
 
+        # HOLD
+        self._hold_btn = gpi.widgets.BasicPushButton(self)
+        self._hold_btn.set_toggle(True)
+        self._hold_btn.set_button_title('hold')
+        #self._hold_btn.valueChanged.connect(self.on_draw)
+        self._collapsables.append(self._hold_btn)
+
         # LINE OPTIONS
         self._lino_btn = gpi.widgets.BasicPushButton(self)
         self._lino_btn.set_toggle(False)
@@ -506,15 +513,24 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._hline2.setSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
         self._collapsables.append(self._hline2)
 
+        self._hline3 = QtGui.QFrame()
+        self._hline3.setFrameStyle(QtGui.QFrame.HLine | QtGui.QFrame.Sunken)
+        self._hline3.setSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
+        self._collapsables.append(self._hline3)
+
         spc = 10
         self._spacer1 = QtGui.QSpacerItem(1,spc,QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         self._spacer2 = QtGui.QSpacerItem(1,spc,QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         self._spacer3 = QtGui.QSpacerItem(1,spc,QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         self._spacer4 = QtGui.QSpacerItem(1,spc,QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        self._spacer5 = QtGui.QSpacerItem(1,spc,QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        self._spacer6 = QtGui.QSpacerItem(1,spc,QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         self._collapsables.append(self._spacer1)
         self._collapsables.append(self._spacer2)
         self._collapsables.append(self._spacer3)
         self._collapsables.append(self._spacer4)
+        self._collapsables.append(self._spacer5)
+        self._collapsables.append(self._spacer6)
 
         # panel layout
         vbox.addLayout(plotlabels)
@@ -538,6 +554,13 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         vbox.addLayout(plot_options_layout)
         #vbox.addWidget(self._lino_btn)
         #vbox.addWidget(self._subplotso_btn)
+
+        vbox.addSpacerItem(self._spacer5)
+        vbox.addWidget(self._hline3)
+        vbox.addSpacerItem(self._spacer6)
+
+        vbox.addWidget(self._hold_btn)
+
         vbox.insertStretch(-1,1)
 
         # plot window
@@ -791,13 +814,23 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
             self._updatetimer.start()
 
     def _on_draw(self):
-        self.fig.clear()
 
-        if self.get_autoscale():
-            self.axes = self.fig.add_subplot(111, autoscale_on=self._autoscale_btn.get_val())
+        # HOLD / Create New AXES
+        if not self._hold_btn.get_val():
+            self.fig.clear()
+            self.axes = self.fig.add_subplot(111)
         else:
-            self.axes = self.fig.add_subplot(111, autoscale_on=self._autoscale_btn.get_val(), xlim=self.get_xlim(), ylim=self.get_ylim())
+            # if hold then set color-cycling
+            line_color = {}
+            line_color['color'] = np.random.rand(3,)
 
+        # AUTOSCALE and LIMITS
+        self.axes.set_autoscale_on(self.get_autoscale())
+        if not self.get_autoscale():
+            self.axes.set_xlim(self.get_xlim())
+            self.axes.set_ylim(self.get_ylim())
+
+        # TITLE, XLABEL and YLABEL
         self.axes.set_title(self.get_plotlabels()['title'], fontweight='bold', fontsize=16)
         self.axes.set_xlabel(self.get_plotlabels()['xlabel'], fontsize=14)
         self.axes.set_ylabel(self.get_plotlabels()['ylabel'], fontsize=14)
@@ -846,6 +879,8 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
             # check for x, y data
             if cnt < len(self._lineSettings):
                 s = self._lineSettings[cnt]
+                if self._hold_btn.get_val():
+                    s.update(line_color)
                 if data.shape[-1] == 2:
                     self.axes.plot(data[..., 0], data[..., 1], **s)
                 else:
@@ -857,9 +892,9 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
                 al = max(1.0-1.0/np.log2(ln), 0.75)
 
                 if data.shape[-1] == 2:
-                    self.axes.plot(data[..., 0], data[..., 1], alpha=al, lw=lw)
+                    self.axes.plot(data[..., 0], data[..., 1], alpha=al, lw=lw, **line_color)
                 else:
-                    self.axes.plot(data, alpha=al, lw=lw)
+                    self.axes.plot(data, alpha=al, lw=lw, **line_color)
 
         # LEGEND
         if self.get_legend():
