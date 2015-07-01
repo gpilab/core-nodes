@@ -264,11 +264,12 @@ def figure_edit(axes, parent=None):
         figure = axes.get_figure()
         figure.canvas.draw()
         
+    # formlayout disappears in matplotlib 1.4.0
     if formlayout is not None:
         data = formlayout.fedit(datalist, title="Figure options", parent=parent, icon=get_icon('qt4_editor_options.svg'), apply=apply_callback)
 
-    if data is not None:
-        apply_callback(data)
+        if data is not None:
+            apply_callback(data)
 ###############################################################################   
 
 
