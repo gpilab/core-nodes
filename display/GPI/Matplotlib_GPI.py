@@ -474,6 +474,13 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         #self._hold_btn.valueChanged.connect(self.on_draw)
         self._collapsables.append(self._hold_btn)
 
+        # RESET
+        self._reset_btn = gpi.widgets.BasicPushButton(self)
+        self._reset_btn.set_toggle(False)
+        self._reset_btn.set_button_title('reset')
+        self._reset_btn.valueChanged.connect(self._init_parms_)
+        self._collapsables.append(self._reset_btn)
+
         # LINE OPTIONS
         self._lino_btn = gpi.widgets.BasicPushButton(self)
         self._lino_btn.set_toggle(False)
@@ -562,6 +569,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         vbox.addWidget(self._hold_btn)
 
         vbox.insertStretch(-1,1)
+        vbox.addWidget(self._reset_btn)
 
         # plot window
         self._data = None
@@ -582,6 +590,9 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self.set_collapsed(False)
         self.set_grid(True)
         self.set_autoscale(True)
+
+        # DEFAULTS
+        self._init_parms_()
 
     # setters
     def set_val(self, data):
@@ -808,6 +819,32 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         #subplot position
         self.fig.subplots_adjust(**self._subplotPosition)
 
+    def _init_parms_(self):
+        '''Default parameter settings
+        '''
+        self._subplotSettings = {}
+        self._subplotPosition = {'right': 0.913, 'bottom': 0.119, 'top': 0.912, 'wspace': 0.2, 'hspace': 0.2, 'left': 0.111}
+        self._lineSettings = []
+        self.set_autoscale(True)
+        self.set_grid(True)
+        s = {}
+        s['xticknum'] = 5
+        s['yticknum'] = 5
+        s['xticks'] = ''
+        s['yticks'] = ''
+        self.set_ticks(s)
+        s = {}
+        s['title'] = ''
+        s['xlabel'] = ''
+        s['ylabel'] = ''
+        self.set_plotlabels(s)
+        self.set_legend(False)
+        s = {}
+        s['xscale'] = False # linear
+        s['yscale'] = False
+        self.set_scale(s)
+        self.on_draw()
+
     def on_draw(self):
         self._on_draw_cnt += 1
         if not self._updatetimer.isActive():
@@ -816,13 +853,13 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
     def _on_draw(self):
 
         # HOLD / Create New AXES
+        line_color = {}
         if not self._hold_btn.get_val():
             self.fig.clear()
             self.axes = self.fig.add_subplot(111)
         else:
             # if hold then set color-cycling
-            line_color = {}
-            line_color['color'] = np.random.rand(3,)
+            line_color['color'] = tuple(np.random.rand(3,).tolist())
 
         # AUTOSCALE and LIMITS
         self.axes.set_autoscale_on(self.get_autoscale())
