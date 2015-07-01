@@ -38,6 +38,9 @@ from __future__ import print_function
 import os
 import matplotlib
 
+import matplotlib as mpl
+print('matplotlib version: ', mpl.__version__)
+
 import gpi
 from gpi import QtCore, QtGui
 
@@ -63,7 +66,6 @@ class MainWin_close(QtGui.QMainWindow):
     def isActive(self):
         return self._isActive
 
-figureoptions = None # NRZ don't use this menu
 class NavbarTools(NavigationToolbar):
     # list of toolitems to add to the toolbar, format is:
     # (
@@ -88,7 +90,6 @@ class NavbarTools(NavigationToolbar):
         super(NavbarTools, self).__init__(canvas, parent)
 
     def _init_toolbar(self):
-        figureoptions = None # NRZ don't use this menu
         self.basedir = os.path.join(matplotlib.rcParams[ 'datapath' ],'images')
 
         for text, tooltip_text, image_file, callback in self.toolitems:
@@ -102,11 +103,6 @@ class NavbarTools(NavigationToolbar):
                     a.setCheckable(True)
                 if tooltip_text is not None:
                     a.setToolTip(tooltip_text)
-
-        if figureoptions is not None:
-            a = self.addAction(self._icon("qt4_editor_options.png"),
-                               'Customize', self.edit_parameters)
-            a.setToolTip('Edit curves line and axes parameters')
 
         self.buttons = {}
 
@@ -126,40 +122,6 @@ class NavbarTools(NavigationToolbar):
         # reference holder for subplots_adjust window
         self.adj_window = None
 
-    if figureoptions is not None:
-        def edit_parameters(self):
-            allaxes = self.canvas.figure.get_axes()
-            if len(allaxes) == 1:
-                axes = allaxes[0]
-            else:
-                titles = []
-                for axes in allaxes:
-                    title = axes.get_title()
-                    ylabel = axes.get_ylabel()
-                    if title:
-                        fmt = "%(title)s"
-                        if ylabel:
-                            fmt += ": %(ylabel)s"
-                        fmt += " (%(axes_repr)s)"
-                    elif ylabel:
-                        fmt = "%(axes_repr)s (%(ylabel)s)"
-                    else:
-                        fmt = "%(axes_repr)s"
-                    titles.append(fmt % dict(title = title,
-                                         ylabel = ylabel,
-                                         axes_repr = repr(axes)))
-                item, ok = QtGui.QInputDialog.getItem(self, 'Customize',
-                                                      'Select axes:', titles,
-                                                      0, False)
-                if ok:
-                    axes = allaxes[titles.index(unicode(item))]
-                else:
-                    return
-
-            figureoptions.figure_edit(axes, self)
-
-
-
 ###############################################################################
 # -*- coding: utf-8 -*-
 #
@@ -172,7 +134,11 @@ class NavbarTools(NavigationToolbar):
 #from __future__ import print_function
 import os.path as osp
 
-import matplotlib.backends.qt4_editor.formlayout as formlayout
+try:
+    import matplotlib.backends.qt4_editor.formlayout as formlayout
+except:
+    formlayout = None
+
 #from matplotlib.backends.qt4_compat import QtGui
 from matplotlib import markers
 
@@ -298,8 +264,9 @@ def figure_edit(axes, parent=None):
         figure = axes.get_figure()
         figure.canvas.draw()
         
-    data = formlayout.fedit(datalist, title="Figure options", parent=parent,
-                            icon=get_icon('qt4_editor_options.svg'), apply=apply_callback)
+    if formlayout is not None:
+        data = formlayout.fedit(datalist, title="Figure options", parent=parent, icon=get_icon('qt4_editor_options.svg'), apply=apply_callback)
+
     if data is not None:
         apply_callback(data)
 ###############################################################################   
