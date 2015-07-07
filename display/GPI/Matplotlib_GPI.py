@@ -137,7 +137,11 @@ import os.path as osp
 try:
     import matplotlib.backends.qt4_editor.formlayout as formlayout
 except:
-    formlayout = None
+    try:
+        import matplotlib.backends.qt_editor.formlayout as formlayout
+    except:
+        formlayout = None
+        print("formlayout can't be found, line options will be disabled")
 
 #from matplotlib.backends.qt4_compat import QtGui
 from matplotlib import markers
@@ -719,6 +723,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
 
     def lineOptionsDialog(self):
         if self.axes is None:
+            print("Matplotlib: no lines to modify, skipping line editor")
             return
         figure_edit(self.axes, self)
         self.copySubplotSettings()
