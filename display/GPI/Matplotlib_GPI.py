@@ -453,6 +453,20 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._reset_btn.valueChanged.connect(self._init_parms_)
         self._collapsables.append(self._reset_btn)
 
+        # X=0, Y=0
+        self._xeq0_btn = gpi.widgets.BasicPushButton(self)
+        self._xeq0_btn.set_toggle(True)
+        self._xeq0_btn.set_button_title('x=0')
+        self._xeq0_btn.set_val(True)
+        self._xeq0_btn.valueChanged.connect(self.on_draw)
+        self._collapsables.append(self._xeq0_btn)
+        self._yeq0_btn = gpi.widgets.BasicPushButton(self)
+        self._yeq0_btn.set_toggle(True)
+        self._yeq0_btn.set_button_title('y=0')
+        self._yeq0_btn.set_val(True)
+        self._yeq0_btn.valueChanged.connect(self.on_draw)
+        self._collapsables.append(self._yeq0_btn)
+
         # LINE OPTIONS
         self._lino_btn = gpi.widgets.BasicPushButton(self)
         self._lino_btn.set_toggle(False)
@@ -480,6 +494,8 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         autoscale_scale_lyt.addWidget(self._autoscale_btn)
         autoscale_scale_lyt.addWidget(self._xscale_btn)
         autoscale_scale_lyt.addWidget(self._yscale_btn)
+        autoscale_scale_lyt.addWidget(self._xeq0_btn)
+        autoscale_scale_lyt.addWidget(self._yeq0_btn)
 
         # HLINES
         self._hline1 = QtGui.QFrame()
@@ -631,6 +647,14 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._legend_btn.set_val(val)
         self.on_draw()
 
+    def set_xline(self, val):
+        self._yeq0_btn.set_val(val)
+        self.on_draw()
+
+    def set_yline(self, val):
+        self._xeq0_btn.set_val(val)
+        self.on_draw()
+
     def set_scale(self, val):
         self._xscale_btn.set_val(val['xscale'])
         self._yscale_btn.set_val(val['yscale'])
@@ -678,6 +702,12 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
 
     def get_legend(self):
         return self._legend_btn.get_val()
+
+    def get_xline(self):
+        return self._yeq0_btn.get_val()
+
+    def get_yline(self):
+        return self._xeq0_btn.get_val()
 
     def get_scale(self):
         s = {}
@@ -839,6 +869,12 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         if not self.get_autoscale():
             self.axes.set_xlim(self.get_xlim())
             self.axes.set_ylim(self.get_ylim())
+
+        # X=0, Y=0
+        if self.get_xline():
+            self.axes.axhline(y=0, color='k')
+        if self.get_yline():
+            self.axes.axvline(x=0, color='k')
 
         # TITLE, XLABEL and YLABEL
         self.axes.set_title(self.get_plotlabels()['title'], fontweight='bold', fontsize=16)
