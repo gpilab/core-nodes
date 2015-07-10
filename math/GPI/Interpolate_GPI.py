@@ -148,6 +148,8 @@ class ExternalNode(gpi.NodeAPI):
     Dimension[n]:  For each dimension,
       factor - (desired output length)/(input length)
       length - desired output length
+    kind - what type or order of interpolation to apply.
+        'slinear', 'quadratic', and 'cubic' are all spline interpolations
     Compute - compute
     """
 
@@ -159,12 +161,14 @@ class ExternalNode(gpi.NodeAPI):
         self.ndim = 6  # underlying c-code is only 6-dim
         for i in range(self.ndim):
             self.addWidget('Interpolate_GROUP', self.dim_base_name+str(i)+']')
+        interp_modes =  ('linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic')
+        self.addWidget('ComboBox', 'interpolation-mode', items=interp_modes)
         self.addWidget('PushButton', 'compute', toggle=True)
 
         # IO Ports
         self.addInPort('in', 'NPYarray', obligation=gpi.REQUIRED)
         self.addInPort('size', 'NPYarray', obligation=gpi.OPTIONAL)
-        self.addOutPort('out1', 'NPYarray')
+        self.addOutPort('out', 'NPYarray')
 
     def validate(self):
         if 'in' in self.portEvents() or 'size' in self.portEvents():
@@ -193,45 +197,61 @@ class ExternalNode(gpi.NodeAPI):
         return(0)
                        
     def compute(self):
-      import sys
-      import numpy as np
-      import scipy as sp
-      data_in = self.getData('in')
-      data = data_in
-      dimm = list(data_in.shape)
-      self.ndim = data_in.ndim
-      if self.getVal('compute'):
-        for i in range(self.ndim):
-          index = i
-          val = self.getVal(self.dim_base_name+str(index)+']')
-          interpnew = val['length']
-          axisnew = dimm[i]
-          dim_val = data_in.shape[i]
-          new_axisnew = axisnew-1
-          x = np.linspace(0, new_axisnew, axisnew)
-          xnew = np.linspace(0, new_axisnew, interpnew)
-          if dim_val == 1:
-            m = 0
-            for m in range(interpnew):
-              if m>0:
-                ynew = np.append(data,data,axis=i)
-                data = ynew
-              else:
-                ynew = data
-          else:
-            yinterp = interpolate.interp1d(x,data,kind='linear',axis=i)
-            ynew = yinterp(xnew)
+        data_in = self.getData('in')
+        kind = self.getVal('interpolation-mode')
 
-          outdata = ynew
-          data = ynew
-          out1 = outdata
+        dimm = data_in.shape
+        self.ndim = data_in.ndim
 
-        out_dim = list(out1.shape)
-        self.setData('out1', out1.astype(data_in.dtype))
-      else:
-        pass
+        data_out = data_in.copy()
+        if self.getVal('compute'):
+            if kind in ('linear', 'nearest', 'zero'):
+                for i in range(self.ndim):
+                    val = self.getVal(self.dim_base_name+str(i)+']')
+                    interpnew = val['length']
+                    axisnew = dimm[i]
+                    x = np.linspace(0, axisnew-1, axisnew)
+                    xnew = np.linspace(0, axisnew-1, interpnew)
+                    if axisnew == 1:
+                        reps = np.ones((self.ndim,))
+                        reps[i] = interpnew
+                        ynew = np.tile(data_out, reps)
+                    elif axisnew == interpnew:
+                        continue
+                    else:
+                        yinterp = interpolate.interp1d(x, data_out,
+                                                       kind=kind, axis=i)
+                        ynew = yinterp(xnew)
 
-      return(0)
+                    data_out = ynew
+            else:
+                from scipy.ndimage.interpolation import zoom
+                orders = {'slinear': 1, 'quadratic': 2, 'cubic': 3}
+                o = orders[kind]
+
+                # if the data is complex, interp real and imaginary separately
+                if data_in.dtype in (np.complex64, np.complex128):
+                    data_real = np.real(data_in)
+                    data_imag = np.imag(data_in)
+                else:
+                    data_real = data_in
+                    data_imag = None
+
+                zoom_facs = []
+                for i in range(self.ndim):
+                    val = self.getVal(self.dim_base_name + str(i) + ']')
+                    zoom_facs.append(float(val['length']) / val['in_len'])
+
+                data_out = zoom(data_real, zoom_facs, order=o)
+
+                if data_imag is not None:
+                    data_out = data_out + 1j*zoom(data_imag, zoom_facs, order=o)
+
+            self.setData('out', data_out)
+        else:
+            pass
+
+        return(0)
 
 
     def execType(self):
