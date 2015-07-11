@@ -162,7 +162,7 @@ class ExternalNode(gpi.NodeAPI):
         for i in range(self.ndim):
             self.addWidget('Interpolate_GROUP', self.dim_base_name+str(i)+']')
         interp_modes =  ('linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic')
-        self.addWidget('ComboBox', 'interpolation-mode', items=interp_modes)
+        self.addWidget('ComboBox', 'interpolation-mode', items=interp_modes, val='slinear')
         self.addWidget('PushButton', 'compute', toggle=True)
 
         # IO Ports
