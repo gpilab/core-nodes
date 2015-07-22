@@ -81,11 +81,16 @@ class ReduceSliders(gpi.GenericWidgetGroup):
         """A python-dict containing keys: center, width, floor, ceiling,
         and selection.
         """
-        self.sl.set_center(val['center'])
-        self.sl.set_width(val['width'])
-        self.sl.set_floor(val['floor'])
-        self.sl.set_ceiling(val['ceiling'])
-        self._selection = val['selection']
+        if 'center' in val:
+            self.sl.set_center(val['center'])
+        if 'width' in val:
+            self.sl.set_width(val['width'])
+        if 'floor' in val:
+            self.sl.set_floor(val['floor'])
+        if 'ceiling' in val:
+            self.sl.set_ceiling(val['ceiling'])
+        if 'selection' in val:
+            self._selection = val['selection']
         self.buttons[self._selection].blockSignals(True)
         self.buttons[self._selection].setChecked(True)
         self.buttons[self._selection].blockSignals(False)
@@ -171,6 +176,17 @@ class ExternalNode(gpi.NodeAPI):
       Pass - ith dimension is passed (not affected)
     Mask - generate data for "mask" output - good to leave off for large data sets if not needed
     Compute - generate sliced/cropped data
+
+    The Reduce Widget takes a dict with the following keys:
+        d = {}
+        d['selection'] # integer 0-3 for 'C/W', 'B/E', 'Slice' and 'Pass'
+
+        d['center']    # integer 1-N only for 'C/W'
+        d['width']     # integer 1-N only for 'C/W'
+
+        d['floor']     # integer 1-N only for 'B/E'
+        d['ceiling']   # integer 1-N only for 'B/E'
+    Not all keys have to be present.
     """
     def execType(self):
         '''Could be GPI_THREAD, GPI_PROCESS, GPI_APPLOOP'''
