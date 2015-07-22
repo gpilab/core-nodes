@@ -578,13 +578,18 @@ class ExternalNode(gpi.NodeAPI):
 
         # DISPLAY RGB image
         else:
-          red   = data[:,:,2].astype(np.uint8)
-          green = data[:,:,1].astype(np.uint8)
-          blue  = data[:,:,0].astype(np.uint8)
-          if(data.ndim is 3 and data.shape[-1] is 4) :
-              alpha = data[:,:,3].astype(np.uint8)
-          else :
-              alpha = 255.*np.ones(blue.shape)
+
+          if data.shape[-1] > 3:
+            red   = data[:,:,2].astype(np.uint8)
+            green = data[:,:,1].astype(np.uint8)
+            blue  = data[:,:,0].astype(np.uint8)
+            if(data.ndim is 3 and data.shape[-1] is 4) :
+                alpha = data[:,:,3].astype(np.uint8)
+            else:
+                alpha = 255.*np.ones(blue.shape)
+          else:
+              self.log.warn("input veclen of "+str(data.shape[-1])+" is incompatible")
+              return 1
 
         h, w = red.shape[:2]
         image1 = np.zeros((h, w, 4), dtype=np.uint8)
