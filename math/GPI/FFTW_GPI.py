@@ -193,7 +193,7 @@ class ExternalNode(gpi.NodeAPI):
 
         # IO Ports
         self.addInPort('in', 'NPYarray', obligation=gpi.REQUIRED)
-        self.addOutPort('out', 'NPYarray', dtype=[np.complex64, np.complex128])
+        self.addOutPort('out', 'NPYarray', dtype=np.complex64)
 
     def validate(self):
         '''update the widget bounds based on the input data
@@ -229,8 +229,7 @@ class ExternalNode(gpi.NodeAPI):
         import numpy as np
 
         data = self.getData('in')
-        if data.dtype != 'complex128':
-            data = data.astype('complex64')
+        data = np.require(data, dtype=np.complex64, requirements='C')
 
         if self.getVal('compute'):
 
@@ -258,10 +257,7 @@ class ExternalNode(gpi.NodeAPI):
             # import in thread to save namespace
             import core.math.fft as ft
 
-            out = ft.fftw(data.astype(np.complex64), out_dims, **kwargs)
-
-            if data.dtype == np.complex128:
-                out = out.astype(np.complex128)
+            out = ft.fftw(data, out_dims, **kwargs)
 
             self.setData('out', out)
 
