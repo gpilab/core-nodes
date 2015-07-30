@@ -446,6 +446,12 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         #self._hold_btn.valueChanged.connect(self.on_draw)
         self._collapsables.append(self._hold_btn)
 
+        # MOVE AXES TO ORIGIN
+        # self._origin_axes_btn = gpi.widgets.BasicPushButton(self)
+        # self._origin_axes_btn.set_toggle(True)
+        # self._origin_axes_btn.set_button_title("axes at (0,0)")
+        # self._collapsables.append(self._origin_axes_btn)
+
         # RESET
         self._reset_btn = gpi.widgets.BasicPushButton(self)
         self._reset_btn.set_toggle(False)
@@ -555,6 +561,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         vbox.addSpacerItem(self._spacer6)
 
         vbox.addWidget(self._hold_btn)
+        # vbox.addWidget(self._origin_axes_btn)
 
         vbox.insertStretch(-1,1)
         vbox.addWidget(self._reset_btn)
@@ -860,21 +867,15 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         if not self._hold_btn.get_val():
             self.fig.clear()
             self.axes = self.fig.add_subplot(111)
-        else:
-            # if hold then set color-cycling
-            line_color['color'] = tuple(np.random.rand(3,).tolist())
+        # else:
+        #     # if hold then set color-cycling
+        #     line_color['color'] = tuple(np.random.rand(3,).tolist())
 
         # AUTOSCALE and LIMITS
         self.axes.set_autoscale_on(self.get_autoscale())
         if not self.get_autoscale():
             self.axes.set_xlim(self.get_xlim())
             self.axes.set_ylim(self.get_ylim())
-
-        # X=0, Y=0
-        if self.get_xline():
-            self.axes.axhline(y=0, color='k')
-        if self.get_yline():
-            self.axes.axvline(x=0, color='k')
 
         # TITLE, XLABEL and YLABEL
         self.axes.set_title(self.get_plotlabels()['title'], fontweight='bold', fontsize=16)
@@ -911,6 +912,14 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self.axes.spines['left'].set_color(ax_color)
         self.axes.set_axis_bgcolor('0.97')
 
+        # if self._origin_axes_btn.get_val():
+        #     self.axes.spines['left'].set_position('zero')
+        #     self.axes.spines['bottom'].set_position('zero')
+        #     self.axes.spines['left'].set_smart_bounds(True)
+        #     self.axes.spines['bottom'].set_smart_bounds(True)
+        #     self.axes.xaxis.set_ticks_position('bottom')
+        #     self.axes.yaxis.set_ticks_position('left')
+
         if self._data is None:
             return
 
@@ -941,6 +950,12 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
                     self.axes.plot(data[..., 0], data[..., 1], alpha=al, lw=lw, **line_color)
                 else:
                     self.axes.plot(data, alpha=al, lw=lw, **line_color)
+
+        # X=0, Y=0
+        if self.get_xline():
+            self.axes.axhline(y=0, color='k', zorder=-1)
+        if self.get_yline():
+            self.axes.axvline(x=0, color='k', zorder=-1)
 
         # LEGEND
         if self.get_legend():
