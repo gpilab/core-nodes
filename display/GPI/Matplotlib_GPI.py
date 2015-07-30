@@ -953,9 +953,9 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
 
         # X=0, Y=0
         if self.get_xline():
-            self.axes.axhline(y=0, color='k', zorder=-1)
+            self.axes.axhline(y=0, color='k', zorder=-1, label="y=0")
         if self.get_yline():
-            self.axes.axvline(x=0, color='k', zorder=-1)
+            self.axes.axvline(x=0, color='k', zorder=-1, label="x=0")
 
         # LEGEND
         if self.get_legend():
