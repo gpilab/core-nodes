@@ -863,13 +863,9 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
     def _on_draw(self):
 
         # HOLD / Create New AXES
-        line_color = {}
         if not self._hold_btn.get_val():
             self.fig.clear()
             self.axes = self.fig.add_subplot(111)
-        # else:
-        #     # if hold then set color-cycling
-        #     line_color['color'] = tuple(np.random.rand(3,).tolist())
 
         # AUTOSCALE and LIMITS
         self.axes.set_autoscale_on(self.get_autoscale())
@@ -927,29 +923,15 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
 
         # plot each set
         # print "--------------------plot the data"
-        cnt = -1
         for data in self._data:
-            cnt += 1
+            ln = max(data.shape)
+            lw = max(5.0-np.log10(ln), 1.0)
+            al = max(1.0-1.0/np.log2(ln), 0.75)
 
-            # check for x, y data
-            if cnt < len(self._lineSettings):
-                s = self._lineSettings[cnt]
-                if self._hold_btn.get_val():
-                    s.update(line_color)
-                if data.shape[-1] == 2:
-                    self.axes.plot(data[..., 0], data[..., 1], **s)
-                else:
-                    self.axes.plot(data, **s)
+            if data.shape[-1] == 2:
+                self.axes.plot(data[..., 0], data[..., 1], alpha=al, lw=lw)
             else:
-
-                ln = max(data.shape)
-                lw = max(5.0-np.log10(ln), 1.0)
-                al = max(1.0-1.0/np.log2(ln), 0.75)
-
-                if data.shape[-1] == 2:
-                    self.axes.plot(data[..., 0], data[..., 1], alpha=al, lw=lw, **line_color)
-                else:
-                    self.axes.plot(data, alpha=al, lw=lw, **line_color)
+                self.axes.plot(data, alpha=al, lw=lw)
 
         # X=0, Y=0
         if self.get_xline():
