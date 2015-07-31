@@ -62,7 +62,7 @@ class Interpolate_GROUP(gpi.GenericWidgetGroup):
         self.db.set_label('factor:')
         self.db.set_min(0.001)
         self.db.set_max(gpi.GPI_FLOAT_MAX)
-        self.db.set_decimals(5)
+        self.db.set_decimals(8)
         self.db.set_singlestep(0.1)
         self.db.set_val(1)
 
