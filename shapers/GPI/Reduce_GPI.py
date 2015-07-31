@@ -104,6 +104,12 @@ class ReduceSliders(gpi.GenericWidgetGroup):
         """A max value for center, width, floor and ceiling (int)."""
         self.sl.set_max(val)
 
+    def set_quietmax(self, val):
+        if val is not None:
+            self.blockSignals(True)
+            self.set_max(val)
+            self.blockSignals(False)
+
     # getters
     def get_val(self):
         val = {}
@@ -119,6 +125,12 @@ class ReduceSliders(gpi.GenericWidgetGroup):
 
     def get_max(self):
         return self.sl.get_max()
+
+    def get_quietmax(self):
+        # don't return a value so that network deserialize passes 'None' to
+        # the setter
+        pass
+
     # support
 
     def setCropBounds(self):
@@ -222,8 +234,9 @@ class ExternalNode(gpi.NodeAPI):
             # visibility and bounds
             for i in xrange(self.ndim):
                 if i < dilen:
-                    self.setAttr(self.dim_base_name+str(-i-1)+']', 
-                            visible=True, max=data.shape[-i-1])
+                    self.setAttr(self.dim_base_name+str(-i-1)+']', visible=True)
+                    self.setAttr(self.dim_base_name+str(-i-1)+']', quietmax=data.shape[-i-1])
+
                     # JGP for Pass, always max out floor and ceiling always
                     w = self.getVal(self.dim_base_name+str(-i-1)+']')
                     if w['selection'] == 3:
