@@ -580,9 +580,9 @@ class ExternalNode(gpi.NodeAPI):
         else:
 
           if data.shape[-1] > 3:
-            red   = data[:,:,2].astype(np.uint8)
+            red   = data[:,:,0].astype(np.uint8)
             green = data[:,:,1].astype(np.uint8)
-            blue  = data[:,:,0].astype(np.uint8)
+            blue  = data[:,:,2].astype(np.uint8)
             if(data.ndim is 3 and data.shape[-1] is 4) :
                 alpha = data[:,:,3].astype(np.uint8)
             else:
