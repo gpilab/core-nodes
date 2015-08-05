@@ -63,9 +63,7 @@ class ExternalNode(gpi.NodeAPI):
        # Widgets
         self.addWidget(
             'SaveFileBrowser', 'File Browser', button_title='Browse',
-            caption='Save File (*.npy)', directory='~/',
-            filter='tiff (*.tiff);;jpg (*.jpg);;all (*)'
-            )
+            caption='Save File (*.npy)', filter='tiff (*.tiff);;jpg (*.jpg);;all (*)')
         self.addWidget('PushButton', 'Write Mode', button_title='Write on New Filename', toggle=True)
         self.addWidget('PushButton', 'Write Now', button_title='Write Right Now', toggle=False)
 
