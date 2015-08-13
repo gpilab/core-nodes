@@ -150,6 +150,7 @@ class ExternalNode(gpi.NodeAPI):
       length - desired output length
     kind - what type or order of interpolation to apply.
         'slinear', 'quadratic', and 'cubic' are all spline interpolations
+        'sinc' interpolation uses zero-padding and FFTW
     Compute - compute
     """
 
@@ -161,8 +162,11 @@ class ExternalNode(gpi.NodeAPI):
         self.ndim = 6  # underlying c-code is only 6-dim
         for i in range(self.ndim):
             self.addWidget('Interpolate_GROUP', self.dim_base_name+str(i)+']')
-        interp_modes =  ('linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic')
+        interp_modes =  ('linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic', 'sinc')
         self.addWidget('ComboBox', 'interpolation-mode', items=interp_modes, val='slinear')
+        windows =  ('none', 'hann', 'hamming', 'blackman', 'lanczos', 'tukey')
+        self.addWidget('ComboBox', 'window', items=windows, val='lanczos', visible=False)
+        self.addWidget('DoubleSpinBox', 'alpha', min=0.0, max=1.0, val=0.5, visible=False)
         self.addWidget('PushButton', 'compute', toggle=True)
 
         # IO Ports
@@ -193,14 +197,24 @@ class ExternalNode(gpi.NodeAPI):
                     self.setAttr(self.dim_base_name+str(i)+']', visible=True, quietval=val)
                 else:
                     self.setAttr(self.dim_base_name+str(i)+']',visible=False)
-           
+
+        if self.getVal('interpolation-mode') == 'sinc':
+            self.setAttr('window', visible=True)
+            if self.getVal('window') == 'tukey':
+                self.setAttr('alpha', visible=True)
+            else:
+                self.setAttr('alpha', visible=False)
+        else:
+            self.setAttr('window', visible=False)
+            self.setAttr('alpha', visible=False)
+
         return(0)
                        
     def compute(self):
         data_in = self.getData('in')
         kind = self.getVal('interpolation-mode')
 
-        dimm = data_in.shape
+        self.dimm = data_in.shape
         self.ndim = data_in.ndim
 
         data_out = data_in.copy()
@@ -209,7 +223,7 @@ class ExternalNode(gpi.NodeAPI):
                 for i in range(self.ndim):
                     val = self.getVal(self.dim_base_name+str(i)+']')
                     interpnew = val['length']
-                    axisnew = dimm[i]
+                    axisnew = self.dimm[i]
                     x = np.linspace(0, axisnew-1, axisnew)
                     xnew = np.linspace(0, axisnew-1, interpnew)
                     if axisnew == 1:
@@ -224,7 +238,7 @@ class ExternalNode(gpi.NodeAPI):
                         ynew = yinterp(xnew)
 
                     data_out = ynew
-            else:
+            elif kind in ('slinear', 'quadratic', 'cubic'):
                 from scipy.ndimage.interpolation import zoom
                 orders = {'slinear': 1, 'quadratic': 2, 'cubic': 3}
                 o = orders[kind]
@@ -246,6 +260,36 @@ class ExternalNode(gpi.NodeAPI):
 
                 if data_imag is not None:
                     data_out = data_out + 1j*zoom(data_imag, zoom_facs, order=o)
+            else:
+                # use zero-padding and FFTW to sinc-interpolate
+                import core.math.fft as ft
+                data_in_c64 = np.require(data_in,
+                                         dtype=np.complex64, requirements='C')
+
+                old_dims = np.asarray(self.dimm[::-1], dtype=np.int64)
+                new_dims = old_dims.copy()
+                fftargs = {}
+                win = np.ones(data_in.shape)
+                for i in range(self.ndim):
+                    win *= self.window(i)
+                    val = self.getVal(self.dim_base_name + str(i) + ']')
+                    new_dims[self.ndim-i-1] = np.int64(val['length'])
+                    if val['length'] == val['in_len']:
+                        fftargs['dim{}'.format(self.ndim-i)] = 0
+                    else:
+                        fftargs['dim{}'.format(self.ndim-i)] = 1
+
+                # forward FFT with original dimensions
+                fftargs['dir'] = 0
+                data_out = ft.fftw(data_in_c64, old_dims, **fftargs)
+
+                data_out *= win.astype(np.complex64)
+                # inverse FFT with new dimensions (zero-pad kspace)
+                fftargs['dir'] = 1
+                data_out = ft.fftw(data_out, new_dims, **fftargs)
+
+                if data_in.dtype in (np.float32, np.float64):
+                    data_out = np.real(data_out)
 
             self.setData('out', data_out)
         else:
@@ -256,3 +300,41 @@ class ExternalNode(gpi.NodeAPI):
 
     def execType(self):
         return gpi.GPI_PROCESS
+
+    def window(self, axis):
+        kind = self.getVal('window')
+        N = self.dimm[axis]
+
+        win = np.ones(N) # kind = 'none' is a rectangular window
+
+        if kind == 'hann':
+            win = np.hanning(N)
+        elif kind == 'hamming':
+            win = np.hamming(N)
+        elif kind == 'blackman':
+            win = np.blackman(N)
+        elif kind == 'lanczos':
+            n = np.arange(N)
+            win = np.sinc(2. * np.arange(N) / (N - 1) - 1)
+        elif kind == 'tukey':
+            a = self.getVal('alpha')
+            if a != 0.0:
+                l_edge = a * (N - 1) // 2
+                r_edge = round((N - 1) * (1 - a / 2))
+                n = np.arange(N)
+                win[0:l_edge] = 0.5*(1 + 
+                                np.cos(np.pi * (2*n[0:l_edge] / a / (N - 1) - 1))) 
+                win[l_edge:r_edge] = 1
+                win[r_edge::] = 0.5*(1 +
+                                np.cos(np.pi * (2*n[r_edge::] / a / (N - 1)  - 2/a + 1)))
+
+        for ax in range(self.ndim):
+            if ax < axis:
+                win = win[np.newaxis, ...]
+            elif ax > axis:
+                win = win[..., np.newaxis]
+
+        return win
+
+            
+
