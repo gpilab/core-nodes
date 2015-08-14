@@ -63,6 +63,7 @@ class ExternalNode(gpi.NodeAPI):
         self.addInPort('in', 'NPYarray')
                        #dtype=[np.complex64, np.complex128, np.float32,
                        #    np.float64, np.int64, np.int32, np.int16, np.int8])
+        self.URI = gpi.TranslateFileURI
 
     def validate(self):
 
@@ -70,6 +71,9 @@ class ExternalNode(gpi.NodeAPI):
             self.setAttr('Write Mode', button_title="Write on Every Event")
         else:
             self.setAttr('Write Mode', button_title="Write on New Filename")
+
+        fname = self.URI(self.getVal('File Browser'))
+        self.setDetailLabel(fname)
 
         return 0
 
@@ -79,7 +83,7 @@ class ExternalNode(gpi.NodeAPI):
 
         if self.getVal('Write Mode') or self.getVal('Write Now') or ('File Browser' in self.widgetEvents()):
 
-            fname = gpi.TranslateFileURI(self.getVal('File Browser'))
+            fname = self.URI(self.getVal('File Browser'))
             if not fname.endswith('.raw'):
                 fname += '.raw'
 

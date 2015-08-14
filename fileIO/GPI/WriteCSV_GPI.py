@@ -59,11 +59,16 @@ class ExternalNode(gpi.NodeAPI):
         # IO Ports
         self.addInPort('in', 'NPYarray')
 
+        self.URI = gpi.TranslateFileURI
+
     def validate(self):
         if self.getVal('Write Mode'):
             self.setAttr('Write Mode', button_title="Write on Every Event")
         else:
             self.setAttr('Write Mode', button_title="Write on New Filename")
+
+        fname = self.URI(self.getVal('File Browser'))
+        self.setDetailLabel(fname)
 
         return 0
 
@@ -72,7 +77,7 @@ class ExternalNode(gpi.NodeAPI):
         import csv
 
         if self.getVal('Write Mode') or self.getVal('Write Now') or ('File Browser'  in self.widgetEvents()):
-            fname = gpi.TranslateFileURI(self.getVal('File Browser'))
+            fname = self.URI(self.getVal('File Browser'))
             if not fname.endswith('.csv'):
                 fname += '.csv'
             if fname == '.csv':
