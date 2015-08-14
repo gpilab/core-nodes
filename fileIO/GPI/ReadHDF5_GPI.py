@@ -87,6 +87,10 @@ class ExternalNode(gpi.NodeAPI):
 
         return 0
 
+    def validate(self):
+        fname = self.URI(self.getVal('File Browser'))
+        self.setDetailLabel(fname)
+
     def compute(self):
         import time
         import numpy as np

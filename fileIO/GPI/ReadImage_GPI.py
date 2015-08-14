@@ -66,12 +66,19 @@ class ExternalNode(gpi.NodeAPI):
 
         self.addOutPort(title='out', type='NPYarray')
 
+        self.URI = gpi.TranslateFileURI
+
     def validate(self) :
         if self.getVal('Swap Colors (RGB -> BGR)') :
             self.setAttr('Swap Colors (RGB -> BGR)', button_title="BGR")
         else :
             self.setAttr('Swap Colors (RGB -> BGR)', button_title="RGB")
+
+        fname = self.URI(self.getVal('File Browser'))
+        self.setDetailLabel(fname)
+
         return 0
+
     def compute(self):
         import numpy as np
         import time
@@ -81,7 +88,7 @@ class ExternalNode(gpi.NodeAPI):
         swap = self.getVal('Swap Colors (RGB -> BGR)')
 
         #start file browser
-        fname = gpi.TranslateFileURI(self.getVal('File Browser'))
+        fname = self.URI(self.getVal('File Browser'))
 
         # ignore this case
         if fname == '':
