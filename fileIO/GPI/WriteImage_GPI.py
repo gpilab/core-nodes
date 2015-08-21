@@ -63,9 +63,7 @@ class ExternalNode(gpi.NodeAPI):
        # Widgets
         self.addWidget(
             'SaveFileBrowser', 'File Browser', button_title='Browse',
-            caption='Save File (*.npy)', directory='~/',
-            filter='tiff (*.tiff);;jpg (*.jpg);;all (*)'
-            )
+            caption='Save File (*.npy)', filter='tiff (*.tiff);;jpg (*.jpg);;all (*)')
         self.addWidget('PushButton', 'Write Mode', button_title='Write on New Filename', toggle=True)
         self.addWidget('PushButton', 'Write Now', button_title='Write Right Now', toggle=False)
 
@@ -97,7 +95,10 @@ class ExternalNode(gpi.NodeAPI):
         import numpy as np
         from PIL import Image
 
-        data = self.getData('in')
+        data = self.getData('in').copy()
+
+        if data.ndim == 3:
+            data[...,(0,2)] = data[...,(2,0)]
 
         #Note: scipy.misc.imsave() uses the Python Imaging Library (PIL) which automatically 
         #chooses the format in which to save files based on the file extension (.jpg, .tif, etc)
@@ -115,7 +116,6 @@ class ExternalNode(gpi.NodeAPI):
             else:
                 fname += '.tiff'
 
-            data = self.getData('in')
             img = Image.fromarray(data)
             img.save(fname)
             self.log.info("File Written : " +str(fname))

@@ -37,6 +37,7 @@
 
 import gpi
 import sys
+from textwrap import dedent
 import traceback
 
 
@@ -66,17 +67,19 @@ class ExternalNode(gpi.NodeAPI):
 
         self.addWidget('TextBox', 'Status', val='Ready.')
 
-        code = "in1 = self.getData('in1')\n" \
-            + "in2 = self.getData('in2')\n" \
-            + "in3 = self.getData('in3')\n" \
-            + "in4 = self.getData('in4')\n" \
-            + "\n\n" \
-            + "# your code here...\n" \
-            + "\n\n" \
-            + "self.setData('out1', None)\n" \
-            + "self.setData('out2', None)\n" \
-            + "self.setData('out3', None)\n" \
-            + "self.setData('out4', None)\n"
+        code = '\n'.join((
+            "in1 = self.getData('in1')",
+            "in2 = self.getData('in2')",
+            "in3 = self.getData('in3')",
+            "in4 = self.getData('in4')",
+            "",
+            "import numpy as np",
+            "# your code here...",
+            "",
+            "self.setData('out1', None)",
+            "self.setData('out2', None)",
+            "self.setData('out3', None)",
+            "self.setData('out4', None)"))
 
         # Widgets
         self.addWidget('TextEdit', 'Python Code', val=code)

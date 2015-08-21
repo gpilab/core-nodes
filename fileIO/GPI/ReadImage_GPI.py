@@ -60,8 +60,7 @@ class ExternalNode(gpi.NodeAPI):
 
     def initUI(self):
         self.addWidget('TextBox', 'I/O Info:')
-        self.addWidget('OpenFileBrowser', 'File Browser', button_title='Browse', caption='Open File', directory='~/', 
-            filter='png (*.png);;jpg (*.jpg);;tiff (*.tiff);;all (*)')
+        self.addWidget('OpenFileBrowser', 'File Browser', button_title='Browse', caption='Open File', filter='png (*.png);;jpg (*.jpg);;tiff (*.tiff);;all (*)')
         self.addWidget('PushButton', 'Gray Scale', toggle=True)
         self.addWidget('PushButton', 'Swap Colors (RGB -> BGR)', toggle=True, val=0, button_title='RGB')
 

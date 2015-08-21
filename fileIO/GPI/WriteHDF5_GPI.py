@@ -81,8 +81,7 @@ class ExternalNode(gpi.NodeAPI):
        # Widgets
         self.addWidget(
             'SaveFileBrowser', 'File Browser', button_title='Browse',
-            caption='Save File (*.hdf5)', directory='~/',
-            filter='hdf5 (*.hdf5)')
+            caption='Save File (*.hdf5)', filter='hdf5 (*.hdf5)')
         self.addWidget('StringBox', 'set-name', val='gpidata')
         self.addWidget('PushButton', 'compress (GZIP)', toggle=True)
         self.addWidget('PushButton', 'Write Mode', button_title='Write on New Filename', toggle=True)

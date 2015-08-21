@@ -1,0 +1,12 @@
+# default is auto (let git do its magic)
+* text=auto
+
+# source files
+*.py     text
+*.c      text
+*.cpp    text
+*.md     text
+
+# binary files
+*.net    binary
+

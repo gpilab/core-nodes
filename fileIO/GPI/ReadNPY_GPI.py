@@ -62,8 +62,7 @@ class ExternalNode(gpi.NodeAPI):
        # Widgets
         self.addWidget('TextBox', 'I/O Info:')
         self.addWidget('OpenFileBrowser', 'File Browser',
-                button_title='Browse', caption='Open File', directory='~/',
-                    filter='numpy (*.npy)')
+                button_title='Browse', caption='Open File', filter='numpy (*.npy)')
         self.addWidget('PushButton', 'Squeeze', toggle=True)
 
         # IO Ports

@@ -194,7 +194,7 @@ class ExternalNode(gpi.NodeAPI):
                          val=float(inparam['spSLEWMAX'][0]))
             self.setAttr('MaxGrd (mT/m)',
                          val=float(inparam['spGMAX'][0]))
-            self.setAttr('Gam (kHz/mT/ms)',
+            self.setAttr('Gam (kHz/mT)',
                          val=float(inparam['spGAMMA'][0]))
 
             self.setAttr('Fov X-Y (cm)',
