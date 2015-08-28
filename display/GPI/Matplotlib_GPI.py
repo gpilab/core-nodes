@@ -926,7 +926,10 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         for data in self._data:
             ln = max(data.shape)
             lw = max(5.0-np.log10(ln), 1.0)
-            al = max(1.0-1.0/np.log2(ln), 0.75)
+            if ln > 0:
+                al = max(1.0-1.0/np.log2(ln), 0.75)
+            else:
+                al = 0
 
             if data.shape[-1] == 2:
                 self.axes.plot(data[..., 0], data[..., 1], alpha=al, lw=lw)
