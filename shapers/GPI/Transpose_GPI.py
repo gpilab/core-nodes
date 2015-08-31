@@ -52,6 +52,7 @@ class OrderButtons(gpi.GenericWidgetGroup):
         self.wdg.addTab('0')
         self.wdg.setMovable(True)
         self.wdg.tabMoved.connect(self.labelsChanged)
+        # self.wdg.currentChanged.connect(self.labelsChanged)
         self._labels = ['0']
         # layout
         wdgLayout.addWidget(self.wdg)
@@ -103,12 +104,7 @@ class ExternalNode(gpi.NodeAPI):
         self.trans_ind = []
         self.info_message = ""
         self.addWidget('TextBox', 'Info:')
-        self.buttons = []
-        # for i in range(3):
-        #     self.buttons = self.buttons+[str(-i-1)]
-        # self.addWidget('ExclusivePushButtons', 'Input Dim', buttons=self.buttons, val=0)
-        # self.addWidget('ExclusivePushButtons', 'Output Dim', buttons=self.buttons, val=0)
-        self.addWidget('PushButton', 'Transpose', toggle=True, val=0)
+        self.addWidget('PushButton', 'Transpose', toggle=True, val=1)
         self.addWidget('OrderButtons', 'Dimension Order')
 
         # IO Ports
@@ -117,37 +113,19 @@ class ExternalNode(gpi.NodeAPI):
 
     def validate(self):
         data = self.getData('in')
-        # dim1 = self.getVal('Input Dim')
-        # dim2 = self.getVal('Output Dim')
-
         order = self.getVal('Dimension Order')
+
         if len(order) != data.ndim:
             order = []
             for i in xrange(data.ndim):
-                # order = order+[str(-i-1)]
                 order = order+[str(i)]
-        self.setAttr('Dimension Order', val=order)
+            self.setAttr('Dimension Order', quietval=order)
 
+        # automatically transpose if ndim = 2
         if data.ndim < 3:
             self.setAttr('Dimension Order', visible=False)
         else:
             self.setAttr('Dimension Order', visible=True)
-
-        # if self.portEvents():
-        #     if dim1 > data.ndim:
-        #         dim1 = 0
-        #     if dim2 > data.ndim:
-        #         dim2 = 0
-
-        # self.buttons = []
-        # for i in range(data.ndim):
-        #     self.buttons = self.buttons+[str(-i-1)]
-        # self.setAttr('Input Dim', buttons = self.buttons, val=dim1)
-        # self.setAttr('Output Dim', buttons = self.buttons, val=dim2)
-        # self.trans_ind = range(-data.ndim, 0)
-
-        # self.trans_ind[data.ndim-dim1-1] = int(self.buttons[dim2])
-        # self.trans_ind[data.ndim-dim2-1] = int(self.buttons[dim1])
 
         return(0)
 
@@ -157,11 +135,12 @@ class ExternalNode(gpi.NodeAPI):
         transpose = self.getVal('Transpose')
         basic_info = "Input Dimensions: "+str(data.shape)+"\n" 
         order = self.getVal('Dimension Order')
+
         trans_ind = data.ndim*[0]
         self.shape = list(data.shape)
+        # setup the transpose indices (automatically transpose if ndim = 2)
         if data.ndim > 2:
             for i in xrange(len(order)):
-                # trans_ind[len(order)-1-i] = int(order[i])
                 trans_ind[i] = int(order[i])
                 self.shape[i] = data.shape[trans_ind[i]]
         else:
