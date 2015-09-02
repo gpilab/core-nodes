@@ -39,6 +39,25 @@ import gpi
 from gpi import QtGui
 
 
+class GPITabBar(QtGui.QTabBar):
+    tabReleased = gpi.Signal()
+
+    def __init__(self, parent=None):
+        super(GPITabBar, self).__init__(parent)
+        self._labels_at_press = None
+
+    def labels(self):
+        return [str(self.tabText(i)) for i in xrange(self.count())]
+
+    def mousePressEvent(self, event):
+        self._labels_at_press = self.labels()
+        super(GPITabBar, self).mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        super(GPITabBar, self).mouseReleaseEvent(event)
+        if self.labels() != self._labels_at_press:
+            self.tabReleased.emit()
+
 class OrderButtons(gpi.GenericWidgetGroup):
     """A set of reorderable tabs."""
     valueChanged = gpi.Signal()
@@ -48,10 +67,10 @@ class OrderButtons(gpi.GenericWidgetGroup):
 
         # at least one button
         wdgLayout = QtGui.QGridLayout()
-        self.wdg = QtGui.QTabBar()
+        self.wdg = GPITabBar()
         self.wdg.addTab('0')
         self.wdg.setMovable(True)
-        self.wdg.currentChanged.connect(self.valueChanged.emit)
+        self.wdg.tabReleased.connect(self.valueChanged.emit)
         # layout
         wdgLayout.addWidget(self.wdg)
         self.setLayout(wdgLayout)
@@ -72,15 +91,13 @@ class OrderButtons(gpi.GenericWidgetGroup):
 
     # getters
     def get_val(self):
-        return self.labels()
+        return self.wdg.labels()
 
     # support
     def clearTabs(self):
         while self.wdg.count() > 0:
             self.wdg.removeTab(0)
 
-    def labels(self):
-        return [str(self.wdg.tabText(i)) for i in xrange(self.wdg.count())]
 
 class ExternalNode(gpi.NodeAPI):
     """Peform transpose operations on an array.
@@ -140,12 +157,12 @@ class ExternalNode(gpi.NodeAPI):
         # compute
         if transpose and data.ndim > 1:
             out = data.transpose(trans_ind)
-            self.setData('out', out)
         else:
             out = data
 
         # updata info 
         info = basic_info+"Output Dimensions: "+str(out.shape)+"\n"
         self.setAttr('Info:', val = info)
+        self.setData('out', out)
 
         return 0
