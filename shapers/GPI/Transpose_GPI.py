@@ -89,10 +89,6 @@ class OrderButtons(gpi.GenericWidgetGroup):
         self.wdg.clearTabs()
         self.wdg.addTabsFromList(names)
 
-    def set_visible(self, val):
-        # is this needed?
-        self.wdg.setVisible(val)
-
     # getters
     def get_val(self):
         return self.wdg.labels()
