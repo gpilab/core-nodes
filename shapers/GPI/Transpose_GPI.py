@@ -40,11 +40,19 @@ from gpi import QtGui
 
 
 class GPITabBar(QtGui.QTabBar):
-    tabReleased = gpi.Signal()
+    currentChanged = gpi.Signal()
 
     def __init__(self, parent=None):
         super(GPITabBar, self).__init__(parent)
         self._labels_at_press = None
+
+    def clearTabs(self):
+        while self.count() > 0:
+            self.removeTab(0)
+
+    def addTabsFromList(self, names):
+        for i in xrange(len(names)):
+            self.addTab(str(names[i]))
 
     def labels(self):
         return [str(self.tabText(i)) for i in xrange(self.count())]
@@ -56,7 +64,7 @@ class GPITabBar(QtGui.QTabBar):
     def mouseReleaseEvent(self, event):
         super(GPITabBar, self).mouseReleaseEvent(event)
         if self.labels() != self._labels_at_press:
-            self.tabReleased.emit()
+            self.currentChanged.emit()
 
 class OrderButtons(gpi.GenericWidgetGroup):
     """A set of reorderable tabs."""
@@ -70,20 +78,16 @@ class OrderButtons(gpi.GenericWidgetGroup):
         self.wdg = GPITabBar()
         self.wdg.addTab('0')
         self.wdg.setMovable(True)
-        self.wdg.tabReleased.connect(self.valueChanged.emit)
+        self.wdg.currentChanged.connect(self.valueChanged.emit)
         # layout
         wdgLayout.addWidget(self.wdg)
         self.setLayout(wdgLayout)
 
     # setters
-    def set_val(self, names=[]):
+    def set_val(self, names):
         """list(str,str,...) | A list of labels (e.g. ['b1', 'b2',...])."""
-
-        self.clearTabs()
-
-        # add new buttons
-        for i in xrange(len(names)):
-            self.wdg.addTab(str(names[i]))
+        self.wdg.clearTabs()
+        self.wdg.addTabsFromList(names)
 
     def set_visible(self, val):
         # is this needed?
@@ -92,11 +96,6 @@ class OrderButtons(gpi.GenericWidgetGroup):
     # getters
     def get_val(self):
         return self.wdg.labels()
-
-    # support
-    def clearTabs(self):
-        while self.wdg.count() > 0:
-            self.wdg.removeTab(0)
 
 
 class ExternalNode(gpi.NodeAPI):
