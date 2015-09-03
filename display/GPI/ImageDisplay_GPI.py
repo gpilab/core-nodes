@@ -286,6 +286,7 @@ class ExternalNode(gpi.NodeAPI):
             self.setAttr('Zero Ref',visible=scalarvis)
 
           self.setAttr('Range Min',visible=scalarvis)
+          self.setAttr('Range Max',visible=scalarvis)
 
           zval = self.getVal('Zero Ref')
           if zval == 1:
