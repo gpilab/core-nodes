@@ -175,6 +175,11 @@ class ExternalNode(gpi.NodeAPI):
         self.addWidget('SpinBox', 'Edge Pixels', min=0)
         self.addWidget('SpinBox', 'Black Pixels', min=0)
         self.addWidget('DisplayBox', 'Viewport:')
+        self.addWidget('Slider', 'Slice', min=1, val=1)
+        self.addWidget('ExclusivePushButtons', 'Slice/Tile Dimension', buttons=['0', '1', '2'], val=0)
+        self.addWidget('ExclusivePushButtons', 'Extra Dimension', buttons=['Slice', 'Tile', 'RGB(A)'], val=0)
+        self.addWidget('SpinBox', '# Columns', val=1)
+        self.addWidget('SpinBox', '# Rows', val=1)
         self.addWidget('WindowLevel', 'L W F C:', collapsed=True)
         self.addWidget('ExclusivePushButtons','Scalar Display',
                        buttons=['Pass','Mag','Sign'], val=0)
@@ -186,25 +191,73 @@ class ExternalNode(gpi.NodeAPI):
         self.addWidget('DoubleSpinBox', 'Range Max')
 
         # IO Ports
-        self.addInPort('in', 'NPYarray')
+        self.addInPort('in', 'NPYarray', drange=(2,3))
         self.addOutPort('out', 'NPYarray')
 
     def validate(self):
 
         # Complex or Scalar?
         data = self.getData('in')
+        dimfunc = self.getVal('Extra Dimension')
 
-        if data.ndim is not 2:
-          if ((data.ndim is not 3) or
-              (data.shape[-1] is not 3) and (data.shape[-1] is not 4)):
-            self.log.warn("data must be 2D or 3D with the last dim=3 or 4")
-            return 1
+        if data.ndim == 3:
+            dimval = self.getVal('Slice/Tile Dimension')
+            self.setAttr('Extra Dimension', visible=True)
+            if data.shape[-1] not in [3, 4]:
+                if dimfunc > 1:
+                    dimfunc = 0
+                self.setAttr('Extra Dimension', buttons=['Slice', 'Tile'], val=dimfunc)
+            else:
+                self.setAttr('Extra Dimension', buttons=['Slice', 'Tile', 'RGB(A)'], val=dimfunc)
 
-        self.setAttr('L W F C:',visible=(data.ndim==2))
-        self.setAttr('Gamma',visible=(data.ndim==2))
-        self.setAttr('Fix Range',visible=(data.ndim==2))
+            if dimfunc == 0:
+                slval = self.getVal('Slice')
+                self.setAttr('Slice/Tile Dimension', visible=True)
+                if slval > data.shape[dimval]:
+                    slval = data.shape[dimval]
+                self.setAttr('Slice', visible=True, min=1, max=data.shape[dimval], val=slval)
+                self.setAttr('# Rows', visible=False)
+                self.setAttr('# Columns', visible=False)
+            elif dimfunc == 1:
+                self.setAttr('Slice/Tile Dimension', visible=True)
+                ncol = self.getVal('# Columns')
+                nrow = self.getVal('# Rows')
+                N = data.shape[dimval]
+                if '# Rows' in self.widgetEvents():
+                    while (int(N) % int(nrow) != 0 and nrow > 1):
+                        nrow = nrow - 1
+                    ncol = np.ceil(float(N) / nrow)
+                if '# Columns' in self.widgetEvents():
+                    while (int(N) % int(ncol) != 0 and ncol > 1):
+                        ncol = ncol - 1
+                    nrow = np.ceil(float(N) / ncol)
+                if (nrow * ncol != N or 'Slice/Tile Dimension' in self.widgetEvents()):
+                    nrow = int(np.sqrt(N))
+                    while (int(N) % int(nrow) != 0 and nrow > 1):
+                        nrow = nrow - 1
+                    ncol = np.ceil(float(N) / nrow)
+
+                self.setAttr('# Columns', visible=True, val=ncol)
+                self.setAttr('# Rows', visible=True, val=nrow)
+                self.setAttr('Slice', visible=False)
+            else:
+                self.setAttr('Slice/Tile Dimension', visible=False)
+                self.setAttr('Slice', visible=False)
+                self.setAttr('# Rows', visible=False)
+                self.setAttr('# Columns', visible=False)
+
+        else:
+            self.setAttr('Extra Dimension', visible=False)
+            self.setAttr('Slice/Tile Dimension', visible=False)
+            self.setAttr('Slice', visible=False)
+            self.setAttr('# Rows', visible=False)
+            self.setAttr('# Columns', visible=False)
+
+        self.setAttr('L W F C:',visible=(dimfunc != 2))
+        self.setAttr('Gamma',visible=(dimfunc != 2))
+        self.setAttr('Fix Range',visible=(dimfunc != 2))
       
-        if data.ndim is 3:
+        if dimfunc == 2:
           self.setAttr('Complex Display',visible=False)
           self.setAttr('Color Map',visible=False)
           self.setAttr('Scalar Display',visible=False)
@@ -233,6 +286,7 @@ class ExternalNode(gpi.NodeAPI):
             self.setAttr('Zero Ref',visible=scalarvis)
 
           self.setAttr('Range Min',visible=scalarvis)
+          self.setAttr('Range Max',visible=scalarvis)
 
           zval = self.getVal('Zero Ref')
           if zval == 1:
@@ -254,6 +308,40 @@ class ExternalNode(gpi.NodeAPI):
 
         # make a copy for changes
         data = self.getData('in').copy()
+
+        # get extra dimension parameters and modify data
+        dimfunc = self.getVal('Extra Dimension')
+        dimval = self.getVal('Slice/Tile Dimension')
+        if data.ndim == 3 and dimfunc < 2:
+            if dimfunc == 0:
+                slval = self.getVal('Slice')-1
+                if dimval == 0:
+                    data = data[slval,...]
+                elif dimval == 1:
+                    data = data[:,slval,:]
+                else:
+                    data = data[...,slval]
+            else:
+                ncol = self.getVal('# Columns')
+                nrow = self.getVal('# Rows')
+                if dimval == 0:
+                    dim1 = data.shape[1]
+                    dim2 = data.shape[2]
+                    data.shape = [nrow, ncol, dim1, dim2]
+                    data = np.ascontiguousarray(np.transpose(data, (0,2,1,3)))
+                    data.shape = [dim1*nrow, dim2*ncol]
+                elif dimval == 1:
+                    dim1 = data.shape[0]
+                    dim2 = data.shape[2]
+                    data.shape = [dim1, nrow, ncol, dim2]
+                    data = np.ascontiguousarray(np.transpose(data, (1,0,2,3)))
+                    data.shape = [dim1*nrow, dim2*ncol]
+                else: 
+                    dim1 = data.shape[0]
+                    dim2 = data.shape[1]
+                    data.shape = [dim1, dim2, nrow, ncol]
+                    data = np.ascontiguousarray(np.transpose(data, (2,0,3,1)))
+                    data.shape = [dim1*nrow, dim2*ncol]
 
         # Read in parameters, make a little floor:ceiling adjustment
         gamma = self.getVal('Gamma')
@@ -373,7 +461,7 @@ class ExternalNode(gpi.NodeAPI):
           alpha = np.uint8(255.*np.ones(blue.shape))
 
         # DISPLAY SCALAR DATA
-        elif data.ndim is 2:
+        elif dimfunc != 2:
 
           if np.iscomplexobj(data):
             if cval == 0: # Real

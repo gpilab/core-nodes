@@ -39,6 +39,33 @@ import gpi
 from gpi import QtGui
 
 
+class GPITabBar(QtGui.QTabBar):
+    currentChanged = gpi.Signal()
+
+    def __init__(self, parent=None):
+        super(GPITabBar, self).__init__(parent)
+        self._labels_at_press = None
+
+    def clearTabs(self):
+        while self.count() > 0:
+            self.removeTab(0)
+
+    def addTabsFromList(self, names):
+        for i in xrange(len(names)):
+            self.addTab(str(names[i]))
+
+    def labels(self):
+        return [str(self.tabText(i)) for i in xrange(self.count())]
+
+    def mousePressEvent(self, event):
+        self._labels_at_press = self.labels()
+        super(GPITabBar, self).mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        super(GPITabBar, self).mouseReleaseEvent(event)
+        if self.labels() != self._labels_at_press:
+            self.currentChanged.emit()
+
 class OrderButtons(gpi.GenericWidgetGroup):
     """A set of reorderable tabs."""
     valueChanged = gpi.Signal()
@@ -48,12 +75,10 @@ class OrderButtons(gpi.GenericWidgetGroup):
 
         # at least one button
         wdgLayout = QtGui.QGridLayout()
-        self.wdg = QtGui.QTabBar()
+        self.wdg = GPITabBar()
         self.wdg.addTab('0')
         self.wdg.setMovable(True)
-        self.wdg.tabMoved.connect(self.labelsChanged)
-        # self.wdg.currentChanged.connect(self.labelsChanged)
-        self._labels = ['0']
+        self.wdg.currentChanged.connect(self.valueChanged.emit)
         # layout
         wdgLayout.addWidget(self.wdg)
         self.setLayout(wdgLayout)
@@ -61,30 +86,12 @@ class OrderButtons(gpi.GenericWidgetGroup):
     # setters
     def set_val(self, names):
         """list(str,str,...) | A list of labels (e.g. ['b1', 'b2',...])."""
-
-        # clear all buttons
-        self._labels = []
-        while self.wdg.count() > 0:
-            self.wdg.removeTab(0)
-
-        # add buttons
-        for i in xrange(len(names)):
-            self.wdg.addTab(names[i])
-            self._labels.append(names[i])
-
-    def set_visible(self, val):
-        self.wdg.setVisible(val)
+        self.wdg.clearTabs()
+        self.wdg.addTabsFromList(names)
 
     # getters
     def get_val(self):
-        return self._labels
-
-    # support
-    def labelsChanged(self):
-        self._labels = []
-        for i in xrange(self.wdg.count()):
-            self._labels.append(str(self.wdg.tabText(i)))
-        self.valueChanged.emit()
+        return self.wdg.labels()
 
 
 class ExternalNode(gpi.NodeAPI):
@@ -100,9 +107,6 @@ class ExternalNode(gpi.NodeAPI):
     def initUI(self):
 
         # Widgets
-        self.shape = []
-        self.trans_ind = []
-        self.info_message = ""
         self.addWidget('TextBox', 'Info:')
         self.addWidget('PushButton', 'Transpose', toggle=True, val=1)
         self.addWidget('OrderButtons', 'Dimension Order')
@@ -115,11 +119,10 @@ class ExternalNode(gpi.NodeAPI):
         data = self.getData('in')
         order = self.getVal('Dimension Order')
 
+        # the widget doesn't have the same dims as the data then reset the
+        # widget with the new length
         if len(order) != data.ndim:
-            order = []
-            for i in xrange(data.ndim):
-                order = order+[str(i)]
-            self.setAttr('Dimension Order', quietval=order)
+            self.setAttr('Dimension Order', quietval=[str(i) for i in xrange(data.ndim)])
 
         # automatically transpose if ndim = 2
         if data.ndim < 3:
@@ -127,39 +130,34 @@ class ExternalNode(gpi.NodeAPI):
         else:
             self.setAttr('Dimension Order', visible=True)
 
-        return(0)
+        return 0 
 
     def compute(self):
 
         data = self.getData('in')
         transpose = self.getVal('Transpose')
-        basic_info = "Input Dimensions: "+str(data.shape)+"\n" 
         order = self.getVal('Dimension Order')
 
-        trans_ind = data.ndim*[0]
-        self.shape = list(data.shape)
+        # display info
+        basic_info = "Input Dimensions: "+str(data.shape)+"\n" 
+
         # setup the transpose indices (automatically transpose if ndim = 2)
+        trans_ind = data.ndim*[0]
         if data.ndim > 2:
             for i in xrange(len(order)):
                 trans_ind[i] = int(order[i])
-                self.shape[i] = data.shape[trans_ind[i]]
         else:
             trans_ind = [1, 0]
 
+        # compute
         if transpose and data.ndim > 1:
             out = data.transpose(trans_ind)
-            self.shape = out.shape
-            self.setData('out', out)
-
         else:
             out = data
 
         # updata info 
-        info = basic_info+"Output Dimensions: "+str(self.shape)+"\n"
+        info = basic_info+"Output Dimensions: "+str(out.shape)+"\n"
         self.setAttr('Info:', val = info)
+        self.setData('out', out)
 
-        return(0)
-
-    def execType(self):
-        '''Could be GPI_THREAD, GPI_PROCESS, GPI_APPLOOP'''
-        return gpi.GPI_PROCESS
+        return 0
