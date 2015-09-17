@@ -49,8 +49,7 @@ class ExternalNode(gpi.NodeAPI):
         self.addWidget('TextBox', 'I/O Info:')
         self.addWidget(
             'OpenFileBrowser', 'File Browser', button_title='Browse',
-            caption='Open File', directory='~/',
-            filter='matlab files (*.mat)')
+            caption='Open File', filter='matlab files (*.mat)')
         self.addWidget('ComboBox', 'dataset')
 
         # IO Ports

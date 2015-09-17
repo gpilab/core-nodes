@@ -33,63 +33,39 @@
 
 
 # Author: Nick Zwart
-# Date: 2012sep02
+# Date: 2015apr07
+# Brief: A simple node to get things started.  Just copy this file to your
+#        working directory, rename the 'NewNode' part, and start hacking. This
+#        provides a push button widget, input and output array and info logger.
 
 import gpi
-import numpy as np
+
 
 class ExternalNode(gpi.NodeAPI):
-    """A module for writing NPY arrays to a raw data file (no header)
-
-    INPUT: Numpy array to write to file
-
-    WIDGETS:
-    File Browser - button to launch file browser, and typein widget if the pathway is known.
-    Write Mode - write at any event, or write only with new filename
-    Write Now - write right now
-    """
+    '''Node summary goes here.
+    '''
 
     def initUI(self):
-
-       # Widgets
-        self.addWidget(
-            'SaveFileBrowser', 'File Browser', button_title='Browse',
-            caption='Save File (*.raw)', filter='Raw (*.raw)')
-        self.addWidget('PushButton', 'Write Mode', button_title='Write on New Filename', toggle=True)
-        self.addWidget('PushButton', 'Write Now', button_title='Write Right Now', toggle=False)
-
+        # Widgets
+        self.addWidget('PushButton', 'click', toggle=True)
 
         # IO Ports
-        self.addInPort('in', 'NPYarray')
-                       #dtype=[np.complex64, np.complex128, np.float32,
-                       #    np.float64, np.int64, np.int32, np.int16, np.int8])
-
-    def validate(self):
-
-        if self.getVal('Write Mode'):
-            self.setAttr('Write Mode', button_title="Write on Every Event")
-        else:
-            self.setAttr('Write Mode', button_title="Write on New Filename")
-
-        return 0
+        self.addInPort('in', 'NPYarray', obligation=gpi.OPTIONAL)
+        self.addOutPort('out', 'NPYarray')
 
     def compute(self):
+        '''This is where the main algorithm should be implemented.
+        '''
 
-        import numpy as np
+        self.log.node("Its alive!!!")
 
-        if self.getVal('Write Mode') or self.getVal('Write Now') or ('File Browser' in self.widgetEvents()):
+        # GETTING WIDGET INFO
+        val = self.getVal('click')
 
-            fname = gpi.TranslateFileURI(self.getVal('File Browser'))
-            if not fname.endswith('.raw'):
-                fname += '.raw'
+        # GETTING PORT DATA 
+        data = self.getData('in')
 
-            if fname == '.raw':
-                return 0
+        # SETTING PORT DATA
+        self.setData('out', data)
 
-            data = self.getData('in')
-
-            fptr = open(fname, 'wb')
-            fptr.write(data.tostring())
-            fptr.close()
-
-        return(0)
+        return 0

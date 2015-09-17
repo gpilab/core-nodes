@@ -48,7 +48,8 @@ class ExternalNode(gpi.NodeAPI):
 
     def initUI(self):
         # Widgets
-        self.addWidget('Slider', 'Combine Dimension',min=0,max=0,val=0)
+        self.addWidget('TextBox', 'Info', val='Ready')
+        self.addWidget('Slider', 'Combine Dimension',min=-1,max=0,val=0)
 
         # IO Ports
         self.addInPort('indata1', 'NPYarray', obligation=gpi.REQUIRED)
@@ -59,8 +60,12 @@ class ExternalNode(gpi.NodeAPI):
     def validate(self):
         
         indata1  = self.getData('indata1')
+        indata2  = self.getData('indata2')
         comb_dim = self.getVal('Combine Dimension')
         self.setAttr('Combine Dimension', max = indata1.ndim, val=comb_dim)
+
+        info = "input1 : " +str(indata1.shape) + "\n" + "input2 : " +str(indata2.shape)
+        self.setAttr('Info', val=info)
 
         return 0
 
@@ -72,15 +77,30 @@ class ExternalNode(gpi.NodeAPI):
         indata1  = self.getData('indata1')
         indata2  = self.getData('indata2')
         comb_dim = self.getVal('Combine Dimension')
-
+        
         if comb_dim == indata1.ndim:
             temp1 = np.expand_dims(indata1, comb_dim)
             temp2 = np.expand_dims(indata2, comb_dim)
+
             try:
                 outdata = np.append(temp1, temp2, axis = comb_dim)
             except ValueError as dim_err:
                 self.log.warn('Combine error: '+str(dim_err))
             else:
+                info = "input1 : " +str(indata1.shape) + "\ninput2 : " +str(indata2.shape) + "\noutput : " +str(outdata.shape)
+                self.setAttr('Info', val=info)
+                self.setData('outdata',outdata)
+        elif comb_dim == -1 :
+            temp1 = np.expand_dims(indata1, 0)
+            temp2 = np.expand_dims(indata2, 0)
+
+            try:
+                outdata = np.append(temp1, temp2, axis = 0)
+            except ValueError as dim_err:
+                self.log.warn('Combine error: '+str(dim_err))
+            else:
+                info = "input1 : " +str(indata1.shape) + "\ninput2 : " +str(indata2.shape) + "\noutput : " +str(outdata.shape)
+                self.setAttr('Info', val=info)
                 self.setData('outdata',outdata)
         else:
             try:
@@ -88,8 +108,11 @@ class ExternalNode(gpi.NodeAPI):
             except ValueError as dim_err:
                 self.log.warn('Combine error: '+str(dim_err))
             else:
+                info = "input1 : " +str(indata1.shape) + "\ninput2 : " +str(indata2.shape) + "\noutput : " +str(outdata.shape)
+                self.setAttr('Info', val=info)
                 self.setData('outdata',outdata)
 
+        
         return 0
 
     def execType(self):

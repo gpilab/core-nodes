@@ -53,8 +53,7 @@ class ExternalNode(gpi.NodeAPI):
         self.addWidget('TextBox', 'I/O Info:')
         self.addWidget(
             'OpenFileBrowser', 'File Browser', button_title='Browse',
-            caption='Open File', directory='~/',
-            filter='hdf5 (*.hdf5);;hdf5 (*.h5)')
+            caption='Open File', filter='hdf5 (*.hdf5);;hdf5 (*.h5)')
         self.addWidget('ComboBox', 'dataset')
         # self.addWidget('StringBox', 'set-name', val='gpidata')
 

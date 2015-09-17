@@ -62,7 +62,7 @@ class Interpolate_GROUP(gpi.GenericWidgetGroup):
         self.db.set_label('factor:')
         self.db.set_min(0.001)
         self.db.set_max(gpi.GPI_FLOAT_MAX)
-        self.db.set_decimals(5)
+        self.db.set_decimals(8)
         self.db.set_singlestep(0.1)
         self.db.set_val(1)
 
@@ -148,6 +148,9 @@ class ExternalNode(gpi.NodeAPI):
     Dimension[n]:  For each dimension,
       factor - (desired output length)/(input length)
       length - desired output length
+    kind - what type or order of interpolation to apply.
+        'slinear', 'quadratic', and 'cubic' are all spline interpolations
+        'sinc' interpolation uses zero-padding and FFTW
     Compute - compute
     """
 
@@ -159,67 +162,179 @@ class ExternalNode(gpi.NodeAPI):
         self.ndim = 6  # underlying c-code is only 6-dim
         for i in range(self.ndim):
             self.addWidget('Interpolate_GROUP', self.dim_base_name+str(i)+']')
+        interp_modes =  ('linear', 'nearest', 'zero', 'slinear', 'quadratic', 'cubic', 'sinc')
+        self.addWidget('ComboBox', 'interpolation-mode', items=interp_modes, val='slinear')
+        windows =  ('none', 'hann', 'hamming', 'blackman', 'lanczos', 'tukey')
+        self.addWidget('ComboBox', 'window', items=windows, val='lanczos', visible=False)
+        self.addWidget('DoubleSpinBox', 'alpha', min=0.0, max=1.0, val=0.5, visible=False)
         self.addWidget('PushButton', 'compute', toggle=True)
 
         # IO Ports
         self.addInPort('in', 'NPYarray', obligation=gpi.REQUIRED)
-        self.addOutPort('out1', 'NPYarray')
+        self.addInPort('size', 'NPYarray', obligation=gpi.OPTIONAL)
+        self.addOutPort('out', 'NPYarray')
 
     def validate(self):
-        if 'in' in self.portEvents():
+        if 'in' in self.portEvents() or 'size' in self.portEvents():
             data = self.getData('in')
+            out_shape = self.getData('size')
            
             # visibility and bounds
             for i in range(self.ndim):
                 if i < len(data.shape):
                     val = {'in_len': data.shape[i]}
-                    self.setAttr(self.dim_base_name+str(i)+']', visible=True, val=val)
+
+                    # assign output lengths based on optional input array
+                    if out_shape is not None:
+                        offset = len(data.shape)-len(out_shape.shape)
+                        if offset < 0:
+                            if i < len(out_shape.shape):
+                                val['length'] = out_shape.shape[i-offset]
+                        else:
+                            if i >= offset:
+                                val['length'] = out_shape.shape[i-offset]
+
+                    self.setAttr(self.dim_base_name+str(i)+']', visible=True, quietval=val)
                 else:
                     self.setAttr(self.dim_base_name+str(i)+']',visible=False)
-           
+
+        if self.getVal('interpolation-mode') == 'sinc':
+            self.setAttr('window', visible=True)
+            if self.getVal('window') == 'tukey':
+                self.setAttr('alpha', visible=True)
+            else:
+                self.setAttr('alpha', visible=False)
+        else:
+            self.setAttr('window', visible=False)
+            self.setAttr('alpha', visible=False)
+
         return(0)
                        
     def compute(self):
-      import sys
-      import numpy as np
-      import scipy as sp
-      data_in = self.getData('in')
-      data = data_in
-      dimm = list(data_in.shape)
-      self.ndim = data_in.ndim
-      if self.getVal('compute'):
-        for i in range(self.ndim):
-          index = i
-          val = self.getVal(self.dim_base_name+str(index)+']')
-          interpnew = val['length']
-          axisnew = dimm[i]
-          dim_val = data_in.shape[i]
-          new_axisnew = axisnew-1
-          x = np.linspace(0, new_axisnew, axisnew)
-          xnew = np.linspace(0, new_axisnew, interpnew)
-          if dim_val == 1:
-            m = 0
-            for m in range(interpnew):
-              if m>0:
-                ynew = np.append(data,data,axis=i)
-                data = ynew
-              else:
-                ynew = data
-          else:
-            yinterp = interpolate.interp1d(x,data,kind='linear',axis=i)
-            ynew = yinterp(xnew)
+        data_in = self.getData('in')
+        kind = self.getVal('interpolation-mode')
 
-          outdata = ynew
-          data = ynew
-          out1 = outdata
+        self.dimm = data_in.shape
+        self.ndim = data_in.ndim
 
-        out_dim = list(out1.shape)
-        self.setData('out1', out1.astype(data_in.dtype))
-      else:
-        pass
-	    
-      return(0)
+        data_out = data_in.copy()
+        if self.getVal('compute'):
+            if kind in ('linear', 'nearest', 'zero'):
+                for i in range(self.ndim):
+                    val = self.getVal(self.dim_base_name+str(i)+']')
+                    interpnew = val['length']
+                    axisnew = self.dimm[i]
+                    x = np.linspace(0, axisnew-1, axisnew)
+                    xnew = np.linspace(0, axisnew-1, interpnew)
+                    if axisnew == 1:
+                        reps = np.ones((self.ndim,))
+                        reps[i] = interpnew
+                        ynew = np.tile(data_out, reps)
+                    elif axisnew == interpnew:
+                        continue
+                    else:
+                        yinterp = interpolate.interp1d(x, data_out,
+                                                       kind=kind, axis=i)
+                        ynew = yinterp(xnew)
+
+                    data_out = ynew
+            elif kind in ('slinear', 'quadratic', 'cubic'):
+                from scipy.ndimage.interpolation import zoom
+                orders = {'slinear': 1, 'quadratic': 2, 'cubic': 3}
+                o = orders[kind]
+
+                # if the data is complex, interp real and imaginary separately
+                if data_in.dtype in (np.complex64, np.complex128):
+                    data_real = np.real(data_in)
+                    data_imag = np.imag(data_in)
+                else:
+                    data_real = data_in
+                    data_imag = None
+
+                zoom_facs = []
+                for i in range(self.ndim):
+                    val = self.getVal(self.dim_base_name + str(i) + ']')
+                    zoom_facs.append(float(val['length']) / val['in_len'])
+
+                data_out = zoom(data_real, zoom_facs, order=o)
+
+                if data_imag is not None:
+                    data_out = data_out + 1j*zoom(data_imag, zoom_facs, order=o)
+            else:
+                # use zero-padding and FFTW to sinc-interpolate
+                import core.math.fft as ft
+                data_in_c64 = np.require(data_in,
+                                         dtype=np.complex64, requirements='C')
+
+                old_dims = np.asarray(self.dimm[::-1], dtype=np.int64)
+                new_dims = old_dims.copy()
+                fftargs = {}
+                win = np.ones(data_in.shape)
+                for i in range(self.ndim):
+                    win *= self.window(i)
+                    val = self.getVal(self.dim_base_name + str(i) + ']')
+                    new_dims[self.ndim-i-1] = np.int64(val['length'])
+                    if val['length'] == val['in_len']:
+                        fftargs['dim{}'.format(self.ndim-i)] = 0
+                    else:
+                        fftargs['dim{}'.format(self.ndim-i)] = 1
+
+                # forward FFT with original dimensions
+                fftargs['dir'] = 0
+                data_out = ft.fftw(data_in_c64, old_dims, **fftargs)
+
+                data_out *= win.astype(np.complex64)
+                # inverse FFT with new dimensions (zero-pad kspace)
+                fftargs['dir'] = 1
+                data_out = ft.fftw(data_out, new_dims, **fftargs)
+
+                if data_in.dtype in (np.float32, np.float64):
+                    data_out = np.real(data_out)
+
+            self.setData('out', data_out)
+        else:
+            pass
+
+        return(0)
 
 
     def execType(self):
         return gpi.GPI_PROCESS
+
+    def window(self, axis):
+        kind = self.getVal('window')
+        N = self.dimm[axis]
+
+        win = np.ones(N) # kind = 'none' is a rectangular window
+
+        if kind == 'hann':
+            win = np.hanning(N)
+        elif kind == 'hamming':
+            win = np.hamming(N)
+        elif kind == 'blackman':
+            win = np.blackman(N)
+        elif kind == 'lanczos':
+            n = np.arange(N)
+            win = np.sinc(2. * np.arange(N) / (N - 1) - 1)
+        elif kind == 'tukey':
+            a = self.getVal('alpha')
+            if a != 0.0:
+                l_edge = a * (N - 1) // 2
+                r_edge = round((N - 1) * (1 - a / 2))
+                n = np.arange(N)
+                win[0:l_edge] = 0.5*(1 + 
+                                np.cos(np.pi * (2*n[0:l_edge] / a / (N - 1) - 1))) 
+                win[l_edge:r_edge] = 1
+                win[r_edge::] = 0.5*(1 +
+                                np.cos(np.pi * (2*n[r_edge::] / a / (N - 1)  - 2/a + 1)))
+
+        for ax in range(self.ndim):
+            if ax < axis:
+                win = win[np.newaxis, ...]
+            elif ax > axis:
+                win = win[..., np.newaxis]
+
+        return win
+
+            
+

@@ -114,8 +114,7 @@ class ExternalNode(gpi.NodeAPI):
         self.addWidget('TextBox', 'I/O Info:')
         self.addWidget(
             'OpenFileBrowser', 'File Browser', button_title='Browse',
-            caption='Open File', directory='~/',
-            filter='raw (*.raw);;all (*)')
+            caption='Open File', filter='raw (*.raw);;all (*)')
         self.addWidget('SpinBox', 'Skip Bytes:', val=0, min=0)
         self.addWidget('ExclusiveRadioButtons', '<type>', buttons=[
                        'float', 'double', 'int', 'char','short int', 'complex<float>',
