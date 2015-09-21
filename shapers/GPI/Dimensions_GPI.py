@@ -612,7 +612,10 @@ class ExternalNode(gpi.NodeAPI):
             if self.op_buttons[op] == 'Transpose': # Transpose
                 out = data.transpose(self.trans_ind)
             if self.op_buttons[op] == 'Flip': # Flip
-                exec(self.flip_string)
+                g = globals()
+                l = locals()
+                exec(self.flip_string,g,l)
+                out = l['out']
             if self.op_buttons[op] in ['Shift', 'CircShift']:
                 temp = data
                 for i in range(data.ndim):
