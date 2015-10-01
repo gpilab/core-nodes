@@ -1,10 +1,10 @@
 # Copyright (c) 2014, Dignity Health
-# 
+#
 #     The GPI core node library is licensed under
 # either the BSD 3-clause or the LGPL v. 3.
-# 
+#
 #     Under either license, the following additional term applies:
-# 
+#
 #         NO CLINICAL USE.  THE SOFTWARE IS NOT INTENDED FOR COMMERCIAL
 # PURPOSES AND SHOULD BE USED ONLY FOR NON-COMMERCIAL RESEARCH PURPOSES.  THE
 # SOFTWARE MAY NOT IN ANY EVENT BE USED FOR ANY CLINICAL OR DIAGNOSTIC
@@ -13,12 +13,12 @@
 # TO LIFE SUPPORT OR EMERGENCY MEDICAL OPERATIONS OR USES.  LICENSOR MAKES NO
 # WARRANTY AND HAS NOR LIABILITY ARISING FROM ANY USE OF THE SOFTWARE IN ANY
 # HIGH RISK OR STRICT LIABILITY ACTIVITIES.
-# 
+#
 #     If you elect to license the GPI core node library under the LGPL the
 # following applies:
-# 
+#
 #         This file is part of the GPI core node library.
-# 
+#
 #         The GPI core node library is free software: you can redistribute it
 # and/or modify it under the terms of the GNU Lesser General Public License as
 # published by the Free Software Foundation, either version 3 of the License,
@@ -26,7 +26,7 @@
 # in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
 # the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU Lesser General Public License for more details.
-# 
+#
 #         You should have received a copy of the GNU Lesser General Public
 # License along with the GPI core node library. If not, see
 # <http://www.gnu.org/licenses/>.
@@ -39,7 +39,7 @@ import gpi
 import sys
 import numpy as np
 from scipy import interpolate
-from math import fabs, sqrt, exp 
+from math import fabs, sqrt, exp
 from numpy import linspace
 from gpi import QtCore, QtGui
 
@@ -84,7 +84,7 @@ class Interpolate_GROUP(gpi.GenericWidgetGroup):
         vbox.setContentsMargins(0, 0, 0, 0)  # we don't need margins here
         vbox.setSpacing(0)
         self.setLayout(vbox)
-        
+
     def set_val(self, val):
         """A python-dict containing: in_len, length, and compute parms. """
         sig = False
@@ -139,11 +139,11 @@ class Interpolate_GROUP(gpi.GenericWidgetGroup):
 
 class ExternalNode(gpi.NodeAPI):
     """A node to linearly interpolate in specified directions.
-    
+
     INPUT: input numpy array
-    
+
     OUTPUT: interpolated data in the specified directions.
-    
+
     WIDGETS:
     Dimension[n]:  For each dimension,
       factor - (desired output length)/(input length)
@@ -178,7 +178,7 @@ class ExternalNode(gpi.NodeAPI):
         if 'in' in self.portEvents() or 'size' in self.portEvents():
             data = self.getData('in')
             out_shape = self.getData('size')
-           
+
             # visibility and bounds
             for i in range(self.ndim):
                 if i < len(data.shape):
@@ -209,7 +209,7 @@ class ExternalNode(gpi.NodeAPI):
             self.setAttr('alpha', visible=False)
 
         return(0)
-                       
+
     def compute(self):
         data_in = self.getData('in')
         kind = self.getVal('interpolation-mode')
@@ -239,7 +239,7 @@ class ExternalNode(gpi.NodeAPI):
 
                     data_out = ynew
             elif kind in ('slinear', 'quadratic', 'cubic'):
-                from scipy.ndimage.interpolation import zoom
+                from scipy.ndimage.interpolation import map_coordinates
                 orders = {'slinear': 1, 'quadratic': 2, 'cubic': 3}
                 o = orders[kind]
 
@@ -251,15 +251,18 @@ class ExternalNode(gpi.NodeAPI):
                     data_real = data_in
                     data_imag = None
 
-                zoom_facs = []
+                new_dims = []
                 for i in range(self.ndim):
                     val = self.getVal(self.dim_base_name + str(i) + ']')
-                    zoom_facs.append(float(val['length']) / val['in_len'])
+                    new_dims.append(np.linspace(0, val['in_len']-1, val['length']))
 
-                data_out = zoom(data_real, zoom_facs, order=o)
+                coords = np.meshgrid(*new_dims, indexing='ij')
+                data_out = map_coordinates(data_real, coords, order=o)
 
                 if data_imag is not None:
-                    data_out = data_out + 1j*zoom(data_imag, zoom_facs, order=o)
+                    data_out = (data_out +
+                                1j*map_coordinates(data_real, coords, order=o))
+
             else:
                 # use zero-padding and FFTW to sinc-interpolate
                 import core.math.fft as ft
@@ -322,8 +325,8 @@ class ExternalNode(gpi.NodeAPI):
                 l_edge = a * (N - 1) // 2
                 r_edge = round((N - 1) * (1 - a / 2))
                 n = np.arange(N)
-                win[0:l_edge] = 0.5*(1 + 
-                                np.cos(np.pi * (2*n[0:l_edge] / a / (N - 1) - 1))) 
+                win[0:l_edge] = 0.5*(1 +
+                                np.cos(np.pi * (2*n[0:l_edge] / a / (N - 1) - 1)))
                 win[l_edge:r_edge] = 1
                 win[r_edge::] = 0.5*(1 +
                                 np.cos(np.pi * (2*n[r_edge::] / a / (N - 1)  - 2/a + 1)))
@@ -336,5 +339,5 @@ class ExternalNode(gpi.NodeAPI):
 
         return win
 
-            
+
 
