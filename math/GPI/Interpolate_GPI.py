@@ -261,7 +261,7 @@ class ExternalNode(gpi.NodeAPI):
 
                 if data_imag is not None:
                     data_out = (data_out +
-                                1j*map_coordinates(data_real, coords, order=o))
+                                1j*map_coordinates(data_imag, coords, order=o))
 
             else:
                 # use zero-padding and FFTW to sinc-interpolate
