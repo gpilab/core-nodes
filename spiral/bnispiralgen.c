@@ -421,7 +421,7 @@ int bnispiralgen(double* spparams, int maxarray, float *gxarray, float *gyarray,
       uy = uy/umag;
       uz = uz/umag;
       gz = (kz[i] - kz[i-1])/gamrast;
-      }
+    }
 
     /* IF CYL DST with hanning taper
     * We need to find uz.
@@ -486,7 +486,7 @@ int bnispiralgen(double* spparams, int maxarray, float *gxarray, float *gyarray,
       if (stype == spSTYPE_SPH_DST)
         kz[i+1] = sqrt(kzmax2*(1.-((kx[i+1]*kx[i+1]+ky[i+1]*ky[i+1])/krmax2))); // stay on surface of ellipsoid
       if (stype == spSTYPE_CYL_DST) {
-        krnorm = min(1.,sqrt(kx[i+1]*kx[i+1]+ky[i+1]*ky[i+1])/krmax); //
+        krnorm = min(1.,sqrt(kx[i+1]*kx[i+1]+ky[i+1]*ky[i+1])/krmax);
         kz[i+1] = kz0+kznorm*(2./M_PI)*acos(krnorm);
         }
       if (stype == spSTYPE_FLORET) /* RKR FLORET */
@@ -509,6 +509,7 @@ int bnispiralgen(double* spparams, int maxarray, float *gxarray, float *gyarray,
     } // MAIN kr loop
 
   i_end = i;
+
 
 //********************************************
 // DONE LOOPING FOR SAMPLING PORTION
@@ -629,7 +630,10 @@ int bnispiralgen(double* spparams, int maxarray, float *gxarray, float *gyarray,
 
     gsum = sqrt(gxsum*gxsum + gysum*gysum + gzsum*gzsum);
     if (stype == spSTYPE_SPH_DST) gzsum = gzsum + kzmax/sub_gamrast; /* DHW */
-    if (stype == spSTYPE_CYL_DST) gzsum = gzsum + kzmax/sub_gamrast; /* JGP just guessing, should check */
+
+    /* JGP just guessing, should check */
+    // if (stype == spSTYPE_CYL_DST) gzsum = gzsum + kzmax/sub_gamrast;
+
     gsum0 = gsum;
     ux = -gxsum/gsum;
     uy = -gysum/gsum;
