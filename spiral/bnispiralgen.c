@@ -1,11 +1,11 @@
 /*
  * Copyright (c) 2014, Dignity Health
- * 
+ *
  *     The GPI core node library is licensed under
  * either the BSD 3-clause or the LGPL v. 3.
- * 
+ *
  *     Under either license, the following additional term applies:
- * 
+ *
  *         NO CLINICAL USE.  THE SOFTWARE IS NOT INTENDED FOR COMMERCIAL
  * PURPOSES AND SHOULD BE USED ONLY FOR NON-COMMERCIAL RESEARCH PURPOSES.  THE
  * SOFTWARE MAY NOT IN ANY EVENT BE USED FOR ANY CLINICAL OR DIAGNOSTIC
@@ -14,12 +14,12 @@
  * TO LIFE SUPPORT OR EMERGENCY MEDICAL OPERATIONS OR USES.  LICENSOR MAKES NO
  * WARRANTY AND HAS NOR LIABILITY ARISING FROM ANY USE OF THE SOFTWARE IN ANY
  * HIGH RISK OR STRICT LIABILITY ACTIVITIES.
- * 
+ *
  *     If you elect to license the GPI core node library under the LGPL the
  * following applies:
- * 
+ *
  *         This file is part of the GPI core node library.
- * 
+ *
  *         The GPI core node library is free software: you can redistribute it
  * and/or modify it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the License,
@@ -27,7 +27,7 @@
  * in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
- * 
+ *
  *         You should have received a copy of the GNU Lesser General Public
  * License along with the GPI core node library. If not, see
  * <http://www.gnu.org/licenses/>.
@@ -37,7 +37,7 @@
 /*********************************************
 // Spiral Generation code customized for Philips
 **********************************************
-// Author: Jim Pipe 
+// Author: Jim Pipe
 // Date: May 2011
 // Philips-specific Revisions: June 2012
 *********************************************/
@@ -70,7 +70,7 @@
 #ifndef BNISPIRALGEN_C
 #define BNISPIRALGEN_C
 
-#include <math.h>
+#include <cmath>
 
 //#define DEBUG_FIELD
 #ifndef MAX
@@ -88,7 +88,7 @@
 #define BNISPGEN_FAILURE 0
 
 #define PHGRAST    0.0064 /* Philips' gradient raster time (ms) */
-#define subrast    8      /* number of numerical cycles per gradient raster time */ 
+#define subrast    8      /* number of numerical cycles per gradient raster time */
 
 #define spARRSIZE  25
 
@@ -139,7 +139,7 @@
 
 #include "bnispiralgmn.c"
 
-int bnispiralgen(double* spparams, int maxarray, float *gxarray, float *gyarray, float *gzarray, 
+int bnispiralgen(double* spparams, int maxarray, float *gxarray, float *gyarray, float *gzarray,
                   int *spgrad_na, int *spgrad_nb, int *spgrad_nc, int *spgrad_nd)
 {
 /************************************************************
@@ -193,12 +193,12 @@ int bnispiralgen(double* spparams, int maxarray, float *gxarray, float *gyarray,
 
   double fovxy    = spparams[spFOVXY];   /* enter in m */
   double resxy    = spparams[spRESXY];   /* enter in m : this should be true resolution */
-  double fovz     = spparams[spFOVZ];    /* enter in m */ 
+  double fovz     = spparams[spFOVZ];    /* enter in m */
   double resz     = spparams[spRESZ];    /* enter in m : this should be true resolution */
   double arms     = spparams[spARMS];    /* number of spiral interleaves*/
   double taper    = spparams[spTAPER];   /* taper for CDST */
   int   stype     = spparams[spSTYPE];   /* 0 = Archimedean
-                                            1 = Cylinder DST 
+                                            1 = Cylinder DST
                                             2 = Spherical DST
                                             3 = Hanning DST
                                             4 = Fermat:Floret */
@@ -259,7 +259,7 @@ int bnispiralgen(double* spparams, int maxarray, float *gxarray, float *gyarray,
   kz    = (double*) malloc(subrast*maxarray*sizeof(double));
   gsign = (double*) malloc(subrast*maxarray*sizeof(double));
 
-  if (kx == NULL || ky == NULL || gsign == NULL) printf ("cant allocate memory\n"); 
+  if (kx == NULL || ky == NULL || gsign == NULL) printf ("cant allocate memory\n");
 
   for (i=0;i<subrast*maxarray;i++) gsign[i] = 1.;
   for (i=0;i<subrast*maxarray;i++) kx[i] = 0.;
@@ -279,7 +279,7 @@ int bnispiralgen(double* spparams, int maxarray, float *gxarray, float *gyarray,
   if (stype == spSTYPE_CYL_DST) {
     kz0 = (1.-taper)*kzmax;
     kznorm = kzmax-kz0;
-    }
+  }
 
   /* Initialization */
   *spgrad_na = 0;
@@ -302,9 +302,9 @@ int bnispiralgen(double* spparams, int maxarray, float *gxarray, float *gyarray,
     }
   if (stype == spSTYPE_CYL_DST) {
     kz[0] = kzmax;
-    krnorm = min(1.,sqrt(kx[1]*kx[1]+ky[1]*ky[1])/krmax); // 
+    krnorm = min(1.,sqrt(kx[1]*kx[1]+ky[1]*ky[1])/krmax); //
     kz[1] = kz0 + kznorm*(2./M_PI)*acos(krnorm);
-    krnorm = min(1.,sqrt(kx[2]*kx[2]+ky[2]*ky[2])/krmax); // 
+    krnorm = min(1.,sqrt(kx[2]*kx[2]+ky[2]*ky[2])/krmax); //
     kz[2] = kz0 + kznorm*(2./M_PI)*acos(krnorm);
     }
   else if (stype == spSTYPE_FLORET) { /* RKR FLORET */
@@ -333,7 +333,7 @@ int bnispiralgen(double* spparams, int maxarray, float *gxarray, float *gyarray,
 // Start rad_spacing logic //
 /////////////////////////////
     rnorm = 2.*resxy*kmr; /* the k-space radius, normalized to go from 0 to 1 */
-    
+
     /* determine the undersample factor */
     if (rnorm <= us_0)
       rad_spacing = 1;
@@ -377,7 +377,7 @@ int bnispiralgen(double* spparams, int maxarray, float *gxarray, float *gyarray,
 /* MAKE FERMAT SPIRAL FOR FLORET*/
     if (stype == spSTYPE_FLORET && rnorm > 0.) rad_spacing *= 1./rnorm;
 
-/* Sloppy Spirals - add variability to rad_spacing for reduced aliasing coherence */ 
+/* Sloppy Spirals - add variability to rad_spacing for reduced aliasing coherence */
 // A couple different options here are commented out
 // Lots of ways to be sloppy
     if (slop_per > 0) {
@@ -423,16 +423,17 @@ int bnispiralgen(double* spparams, int maxarray, float *gxarray, float *gyarray,
       gz = (kz[i] - kz[i-1])/gamrast;
       }
 
-// IF CYL DST with hanning taper
-// We need to find uz.
-// 1.  ur = gradient direction radially, which is cos(alpha)
-// 2.  ur/uz = dkr/dkz, or
-// 2.5 uz = ur / (dkr/dkz)
-// 3.  For Hanning, kr = krmax cos[((kz-kz0)/kznorm) (pi/2)], so
-// 4.  dkr/dkz = -(pi/2)(krmax/kznorm)sin[((kz-kz0)/kznorm) (pi/2)]
-//     giving:
-//   uz = -ur*(2./M_PI)*(kznorm/krmax)/sin(((kmz-kz0)/kznorm)*(M_PI/2.));
-    if (stype == spSTYPE_CYL_DST) {
+    /* IF CYL DST with hanning taper
+    * We need to find uz.
+    * 1.  ur = gradient direction radially, which is cos(alpha)
+    * 2.  ur/uz = dkr/dkz, or
+    * 2.5 uz = ur / (dkr/dkz)
+    * 3.  For Hanning, kr = krmax cos[((kz-kz0)/kznorm) (pi/2)], so
+    * 4.  dkr/dkz = -(pi/2)(krmax/kznorm)sin[((kz-kz0)/kznorm) (pi/2)]
+    *     giving:
+    *   uz = -ur*(2./M_PI)*(kznorm/krmax)/sin(((kmz-kz0)/kznorm)*(M_PI/2.));
+    */
+    if (stype == spSTYPE_CYL_DST && taper > 0) {
       kmz = 1.5*kz[i] - 0.5*kz[i-1];
       if (kmz > kz0 + 0.001*kznorm)
         uz = -cos(alpha)*(2./M_PI)*(kznorm/krmax)/sin(((kmz-kz0)/kznorm)*(M_PI/2.));
@@ -443,7 +444,7 @@ int bnispiralgen(double* spparams, int maxarray, float *gxarray, float *gyarray,
       uy = uy/umag;
       uz = uz/umag;
       gz = (kz[i] - kz[i-1])/gamrast;
-      }
+    }
 
 /**************************/
 /*** STEP 2: Find largest gradient magnitude with available slew */
@@ -466,7 +467,7 @@ int bnispiralgen(double* spparams, int maxarray, float *gxarray, float *gyarray,
 //   gm^2 + gm (2 b) + c = 0
 // giving
 //   gm = -b +/- Sqrt(b^2 - c)
-// The variable "term" = (b^2 - c) will be positive if we can meet the desired new gradient 
+// The variable "term" = (b^2 - c) will be positive if we can meet the desired new gradient
 */
     term = dgc*dgc - (gx*gx + gy*gy + gz*gz) + (ux*gx + uy*gy + uz*gz)*(ux*gx + uy*gy + uz*gz);
 
@@ -485,7 +486,7 @@ int bnispiralgen(double* spparams, int maxarray, float *gxarray, float *gyarray,
       if (stype == spSTYPE_SPH_DST)
         kz[i+1] = sqrt(kzmax2*(1.-((kx[i+1]*kx[i+1]+ky[i+1]*ky[i+1])/krmax2))); // stay on surface of ellipsoid
       if (stype == spSTYPE_CYL_DST) {
-        krnorm = min(1.,sqrt(kx[i+1]*kx[i+1]+ky[i+1]*ky[i+1])/krmax); // 
+        krnorm = min(1.,sqrt(kx[i+1]*kx[i+1]+ky[i+1]*ky[i+1])/krmax); //
         kz[i+1] = kz0+kznorm*(2./M_PI)*acos(krnorm);
         }
       if (stype == spSTYPE_FLORET) /* RKR FLORET */
@@ -511,11 +512,11 @@ int bnispiralgen(double* spparams, int maxarray, float *gxarray, float *gyarray,
 
 //********************************************
 // DONE LOOPING FOR SAMPLING PORTION
-// recast k to g while subsampling by subrast  
+// recast k to g while subsampling by subrast
 //********************************************
   gxarray[0] = 0.;
-  gyarray[0] = 0.; 
-  gzarray[0] = 0.; 
+  gyarray[0] = 0.;
+  gzarray[0] = 0.;
   gxsum = 0.;
   gysum = 0.;
   gzsum = 0.;
@@ -543,7 +544,7 @@ int bnispiralgen(double* spparams, int maxarray, float *gxarray, float *gyarray,
 // NOW, if requested via gtype, go to g=0 and k=0
 // I've tried other ways to be faster, can't find them
 //**************************************************
-  
+
   /* RKR: add plateau before ramp for fast spoiling for FLORET */
     if (gtype == spGTYPE_FSPOIL) {
 		gz_sum_ramp = 0;
