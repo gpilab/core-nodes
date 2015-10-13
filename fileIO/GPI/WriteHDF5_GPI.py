@@ -100,6 +100,9 @@ class ExternalNode(gpi.NodeAPI):
         else:
             self.setAttr('Write Mode', button_title="Write on New Filename")
 
+        fname = self.URI(self.getVal('File Browser'))
+        self.setDetailLabel(fname)
+
         return 0
 
     def compute(self):

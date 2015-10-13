@@ -68,6 +68,12 @@ class ExternalNode(gpi.NodeAPI):
         # IO Ports
         self.addOutPort(title='out', type='NPYarray')
 
+        self.URI = gpi.TranslateFileURI
+
+    def validate(self):
+        fname = self.URI(self.getVal('File Browser'))
+        self.setDetailLabel(fname)
+
     def compute(self):
 
         import os
@@ -75,7 +81,7 @@ class ExternalNode(gpi.NodeAPI):
         import numpy as np
 
         # start file browser
-        fname = gpi.TranslateFileURI(self.getVal('File Browser'))
+        fname = self.URI(self.getVal('File Browser'))
 
         # check that the path actually exists
         if not os.path.exists(fname):

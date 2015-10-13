@@ -56,6 +56,10 @@ class ExternalNode(gpi.NodeAPI):
         # store for later use
         self.URI = gpi.TranslateFileURI
 
+    def validate(self):
+        fname = self.URI(self.getVal('File Browser'))
+        self.setDetailLabel(fname)
+
     def compute(self):
 
         import os
