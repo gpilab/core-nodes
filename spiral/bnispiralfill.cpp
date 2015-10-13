@@ -1,11 +1,11 @@
 /*
  * Copyright (c) 2014, Dignity Health
- * 
+ *
  *     The GPI core node library is licensed under
  * either the BSD 3-clause or the LGPL v. 3.
- * 
+ *
  *     Under either license, the following additional term applies:
- * 
+ *
  *         NO CLINICAL USE.  THE SOFTWARE IS NOT INTENDED FOR COMMERCIAL
  * PURPOSES AND SHOULD BE USED ONLY FOR NON-COMMERCIAL RESEARCH PURPOSES.  THE
  * SOFTWARE MAY NOT IN ANY EVENT BE USED FOR ANY CLINICAL OR DIAGNOSTIC
@@ -14,12 +14,12 @@
  * TO LIFE SUPPORT OR EMERGENCY MEDICAL OPERATIONS OR USES.  LICENSOR MAKES NO
  * WARRANTY AND HAS NOR LIABILITY ARISING FROM ANY USE OF THE SOFTWARE IN ANY
  * HIGH RISK OR STRICT LIABILITY ACTIVITIES.
- * 
+ *
  *     If you elect to license the GPI core node library under the LGPL the
  * following applies:
- * 
+ *
  *         This file is part of the GPI core node library.
- * 
+ *
  *         The GPI core node library is free software: you can redistribute it
  * and/or modify it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the License,
@@ -27,7 +27,7 @@
  * in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
- * 
+ *
  *         You should have received a copy of the GNU Lesser General Public
  * License along with the GPI core node library. If not, see
  * <http://www.gnu.org/licenses/>.
@@ -78,7 +78,8 @@ void bnispiralfill(double* spparams, int maxarray, float* gxarray, float* gyarra
   double kx,ky,kz;
   double jscale;
   double goldangle;
-  double jstep;
+  // AGA - unused, 2015-10-13
+  // double jstep;
   double kxyscale, kzscale;
 
   double ix,iy,iz;
@@ -159,7 +160,7 @@ void bnispiralfill(double* spparams, int maxarray, float* gxarray, float* gyarra
       beta = -(((double) j)-jc)*goldangle; //DHW
       cb = cos(beta);
       sb = sin(beta);
-      jscale = (2.*(double)(j)/(double)(garray.size(2)))-1.; 
+      jscale = (2.*(double)(j)/(double)(garray.size(2)))-1.;
       for(i=0;i<garray.size(1);i++) { // points
         garray(0,i,j) = cb*gxarray[i] - sb*gyarray[i];
         garray(1,i,j) = cb*gyarray[i] + sb*gxarray[i];
@@ -169,7 +170,7 @@ void bnispiralfill(double* spparams, int maxarray, float* gxarray, float* gyarra
 
 // Now integrate the gradients and scale to k-space
     for(j=0;j<garray.size(2);j++) { // arms
-      jscale = (2.*(double)(j)/(double)(garray.size(2)))-1.; 
+      jscale = (2.*(double)(j)/(double)(garray.size(2)))-1.;
       ktmp(0,0,j,0) = kxyscale*garray(0,0,j);
       ktmp(1,0,j,0) = kxyscale*garray(1,0,j);
       if(spinout == 0)
@@ -196,7 +197,7 @@ void bnispiralfill(double* spparams, int maxarray, float* gxarray, float* gyarra
       beta = -(((double) j)-jc)*goldangle; //DHW
       cb = cos(beta);
       sb = sin(beta);
-      jscale = (2.*(double)(j)/(double)(garray.size(2)))-1.; 
+      jscale = (2.*(double)(j)/(double)(garray.size(2)))-1.;
       for(i=0;i<garray.size(1);i++) { // points
         garray(0,i,j) = cb*gxarray[i] - sb*gyarray[i];
         garray(1,i,j) = cb*gyarray[i] + sb*gxarray[i];
@@ -206,13 +207,13 @@ void bnispiralfill(double* spparams, int maxarray, float* gxarray, float* gyarra
 
 // Now integrate the gradients and scale to k-space
     for(j=0;j<garray.size(2);j++) { // arms
-      jscale = (2.*(double)(j)/(double)(garray.size(2)))-1.; 
+      jscale = (2.*(double)(j)/(double)(garray.size(2)))-1.;
       ktmp(0,0,j,0) = kxyscale*garray(0,0,j);
       ktmp(1,0,j,0) = kxyscale*garray(1,0,j);
       if(spinout == 0)
-        ktmp(2,0,j,0) = jscale*0.5*(0.8*pow(6./M_PI,1./3.)); 
+        ktmp(2,0,j,0) = jscale*0.5*(0.8*pow(6./M_PI,1./3.));
       else
-        ktmp(2,0,j,0) = 0; 
+        ktmp(2,0,j,0) = 0;
       for(i=1;i<garray.size(1);i++) { // points
         ktmp(0,i,j,0) = ktmp(0,i-1,j,0) + kxyscale*garray(0,i,j);
         ktmp(1,i,j,0) = ktmp(1,i-1,j,0) + kxyscale*garray(1,i,j);
@@ -230,7 +231,7 @@ void bnispiralfill(double* spparams, int maxarray, float* gxarray, float* gyarra
 
   if (spparams[spSTYPE] == 3) { // FLORET
     int hubs = ktmp.size(3);
-    int arms = garray.size(2) / hubs;
+    unsigned int arms = garray.size(2) / hubs;
     // alpha0 = 0.25*M_PI; // hardcoded for hubs to cover +/- 45 degrees
     alphastep = 2.*alpha0/(double)(arms);
     int jc = round(garray.size(2)/2);
@@ -242,24 +243,24 @@ void bnispiralfill(double* spparams, int maxarray, float* gxarray, float* gyarra
     uint64_t subind;
 
     for(j=0;j<arms;j++) { // arms
-      /* RKR re-order the FLORET arms to allow smooth transitions between 
+      /* RKR re-order the FLORET arms to allow smooth transitions between
       * interleaves */
       if(rebin)
       {
           subind = j % setlength;
           setind = j / setlength;
-          curset = (setind * 13) % 34; 
+          curset = (setind * 13) % 34;
           if (setind % 2 == 1)
           {
               subind = setlength - 1 - subind;
           }
           curind = subind * 34 + curset;
-        beta = -((double) curind)*goldangle; 
+        beta = -((double) curind)*goldangle;
       }
       else
       {
           curind = j;
-          beta = -(((double) j)-jc)*goldangle; 
+          beta = -(((double) j)-jc)*goldangle;
       }
       cb = cos(beta);
       sb = sin(beta);
@@ -336,7 +337,7 @@ void bnispiralfill(double* spparams, int maxarray, float* gxarray, float* gyarra
   } // FLORET
 
 //*************************************************************************************
-// interpolate ktmp to kout 
+// interpolate ktmp to kout
 //*************************************************************************************
 // consider simplifying kz interp for ARCH and CYL DST (it's just a constant for fixed k)
 // also, consider greatly simplifying for ARCH (calculate over 1 kz plane, copy to rest)

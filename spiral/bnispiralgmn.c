@@ -1,11 +1,11 @@
 /*
  * Copyright (c) 2014, Dignity Health
- * 
+ *
  *     The GPI core node library is licensed under
  * either the BSD 3-clause or the LGPL v. 3.
- * 
+ *
  *     Under either license, the following additional term applies:
- * 
+ *
  *         NO CLINICAL USE.  THE SOFTWARE IS NOT INTENDED FOR COMMERCIAL
  * PURPOSES AND SHOULD BE USED ONLY FOR NON-COMMERCIAL RESEARCH PURPOSES.  THE
  * SOFTWARE MAY NOT IN ANY EVENT BE USED FOR ANY CLINICAL OR DIAGNOSTIC
@@ -14,12 +14,12 @@
  * TO LIFE SUPPORT OR EMERGENCY MEDICAL OPERATIONS OR USES.  LICENSOR MAKES NO
  * WARRANTY AND HAS NOR LIABILITY ARISING FROM ANY USE OF THE SOFTWARE IN ANY
  * HIGH RISK OR STRICT LIABILITY ACTIVITIES.
- * 
+ *
  *     If you elect to license the GPI core node library under the LGPL the
  * following applies:
- * 
+ *
  *         This file is part of the GPI core node library.
- * 
+ *
  *         The GPI core node library is free software: you can redistribute it
  * and/or modify it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the License,
@@ -27,7 +27,7 @@
  * in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
- * 
+ *
  *         You should have received a copy of the GNU Lesser General Public
  * License along with the GPI core node library. If not, see
  * <http://www.gnu.org/licenses/>.
@@ -37,7 +37,7 @@
 /*********************************************
  * spiral waveform post moment compenstation.
 **********************************************
- * Author: Zhiqiang Li 
+ * Author: Zhiqiang Li
  * Date: August 2012
  *********************************************/
 
@@ -70,7 +70,7 @@ void gradmoment_trap(int nslope, int nflattop, int nstart, double amp,
     double gdwell, double *m0_end, double *m1_end);
 
 int gradmomentcomp_oneaxis(double As, double m1s, int spgrad_nb, int maxlen, double gdwell,
-    double maxgrad, double maxslew, int postscaling, int *n1m, int *n2m, double *am, 
+    double maxgrad, double maxslew, int postscaling, int *n1m, int *n2m, double *am,
     int *n1r, int *n2r, double *ar);
 
 int gradmomentcomp(float *garrayx, float *garrayy, float *garrayz, int spgrad_nb,
@@ -79,7 +79,7 @@ int gradmomentcomp(float *garrayx, float *garrayy, float *garrayz, int spgrad_nb
 
 /**********************************************************************
  * Funtion:     gradmomentcom
- * Description: 0th and 1st order gradient moment compensation. The 
+ * Description: 0th and 1st order gradient moment compensation. The
  *              waveform for compensation will be added to existing
  *              waveform.
  * Parameters:
@@ -95,7 +95,7 @@ int gradmomentcomp(float *garrayx, float *garrayy, float *garrayz, int spgrad_nb
  *              (O) *spgrad_nc: length of array till end of middle gradient
  *              (O) *spgrad_nd: length of array till end of right gradient
  * Return:      0 (Failure) or 1 (Success)
- *********************************************************************/ 
+ *********************************************************************/
 int gradmomentcomp(float *garrayx, float *garrayy, float *garrayz, int spgrad_nb,
     int maxlen, double gdwell, double maxgrad_0, double maxslew_0, int postscaling,
     int stretchingflag, int *spgrad_nc, int *spgrad_nd)
@@ -135,8 +135,9 @@ int gradmomentcomp(float *garrayx, float *garrayy, float *garrayz, int spgrad_nb
     double ar_x = 0.0;
     double ar_y = 0.0;
     double ar_z = 0.0;
-    double A    = 0.0;
-    double m1   = 0.0;
+    // AGA - unused 2015-10-13
+    // double A    = 0.0;
+    // double m1   = 0.0;
     double As_x = 0.0;
     double As_y = 0.0;
     double As_z = 0.0;
@@ -547,7 +548,7 @@ int gradmomentcomp(float *garrayx, float *garrayy, float *garrayz, int spgrad_nb
 }
 /**********************************************************************
  * Funtion:     gradmomentcomp_oneaxis
- * Description: 0th and 1st order gradient moment compensation. The 
+ * Description: 0th and 1st order gradient moment compensation. The
  *              waveform for compensation will be added to existing
  *              waveform.
  * Parameters:
@@ -813,7 +814,7 @@ int gradmomentcomp_oneaxis(double As, double m1s, int spgrad_nb, int maxlen, dou
                 /* reduce gradient with positive amp */
                 if (Am > 0)
                 {
-                   (*am) *= (-As - Ar)/Am; 
+                   (*am) *= (-As - Ar)/Am;
                 }
                 else if (Ar > 0)
                 {
@@ -841,7 +842,7 @@ int gradmomentcomp_oneaxis(double As, double m1s, int spgrad_nb, int maxlen, dou
 }
 
 /**********************************************************************
- * Funtion:     solution_analytical     
+ * Funtion:     solution_analytical
  * Description: analytically find the waveform information (only for
  *              trap/triangle or trap/trap combination)
  * Parameters:  (I) G_type: desired combination (either trap/trap
@@ -901,7 +902,7 @@ int solution_analytical(int G_type, double As, double m1s, double maxgrad,
 }
 
 /**********************************************************************
- * Funtion:     solution_search 
+ * Funtion:     solution_search
  * Description: search for gradient waveform that can compensate the
  *              0th/1st order gradient moments. This is used for
  *              triangle/triangle combination
@@ -1062,7 +1063,7 @@ int solution_search(int G_flag, int init_N_bot, int init_N_up, double init_m1_bo
 
 /**********************************************************************
  * Funtion:     solution_pos_neg
- * Description: 
+ * Description:
  *              Determine a solution with a postive middle gradient
  *              and a negative right gradient.
  * Parameters:
@@ -1217,7 +1218,7 @@ int solution_pos_neg(double As, double m1s, double maxgrad,
 }
 
 /**********************************************************************
- * Funtion:     gradtrap 
+ * Funtion:     gradtrap
  * Description: determine amplitue/duration of a trapezoid/triangle,
  *              given the desired area.
  * Parameters:
@@ -1240,7 +1241,7 @@ void gradtrap(double gdwell, double maxgrad, double area, double Ac,
   /* In this code, the assumption is:
    * the leading ramp is: 0, 1, 2, ..., (nslope-1).
    * the ending ramp is : (nslope-1), ..., 2, 1, 0.
-   * For trapezoid, the amplitude of the flat top 
+   * For trapezoid, the amplitude of the flat top
    * is maxgrad.
    * For triangle, the duration of the flat top is
    * set to 1, with amplitude = maxgrad for critical
@@ -1286,7 +1287,7 @@ void gradtrap(double gdwell, double maxgrad, double area, double Ac,
 }
 
 /**********************************************************************
- * Funtion:     gradmoment_array 
+ * Funtion:     gradmoment_array
  * Description: Calculate the 0th/1st order moment arbitrary gradient
  *              waveform stored in an array.
  * Parameters:
@@ -1353,7 +1354,7 @@ void gradmoment_array(int arraysize, double gdwell, int nstart, float *garray,
 }
 
 /**********************************************************************
- * Funtion:     gradmoment_trap 
+ * Funtion:     gradmoment_trap
  * Description: Calculate 0th/1st order gradient moment of a trapezoid
  *              (or triangle, which has nflattop = 1)
  * Parameters:
