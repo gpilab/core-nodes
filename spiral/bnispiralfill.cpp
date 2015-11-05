@@ -172,10 +172,7 @@ void bnispiralfill(double* spparams, int maxarray, float* gxarray, float* gyarra
       jscale = (2.*(double)(j)/(double)(garray.size(2)))-1.; 
       ktmp(0,0,j,0) = kxyscale*garray(0,0,j);
       ktmp(1,0,j,0) = kxyscale*garray(1,0,j);
-      if(spinout == 0)
-        ktmp(2,0,j,0) = jscale*0.5;
-      else
-        ktmp(2,0,j,0) = jscale*0.5*(1.-spparams[spTAPER]);
+      ktmp(2,0,j,0) = jscale*0.5*(1.-spparams[spTAPER]);
       for(i=1;i<garray.size(1);i++) { // points
         ktmp(0,i,j,0) = ktmp(0,i-1,j,0) + kxyscale*garray(0,i,j);
         ktmp(1,i,j,0) = ktmp(1,i-1,j,0) + kxyscale*garray(1,i,j);

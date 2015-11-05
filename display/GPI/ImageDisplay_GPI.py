@@ -208,6 +208,8 @@ class ExternalNode(gpi.NodeAPI):
                     dimfunc = 0
                 self.setAttr('Extra Dimension', buttons=['Slice', 'Tile'], val=dimfunc)
             else:
+                if data.dtype == 'uint8':
+                    dimfunc = 2
                 self.setAttr('Extra Dimension', buttons=['Slice', 'Tile', 'RGB(A)'], val=dimfunc)
 
             if dimfunc == 0:
