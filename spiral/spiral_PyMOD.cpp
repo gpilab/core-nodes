@@ -96,6 +96,7 @@ PYFI_FUNC(coords)
     PYFI_POSARG(double, slper);
     PYFI_POSARG(long,   gtype);
     PYFI_POSARG(long,   spinout);
+    PYFI_POSARG(long,   numCalPnts);
 
     /* temp vars */
     long maxarray = 100000;
@@ -232,6 +233,28 @@ PYFI_FUNC(coords)
     /* DHW change gxarray gyarray and gzarray for spiral in and spiral inout options */
     long i;
     if (*spinout > 0) {
+      /* insert addtional calbration points */
+      if ((*spinout > 1) && (*numCalPnts > 0))
+      {
+          for (i = spgrad_nd-1; i >=0; i--)
+          {
+              gxarray[i+(*numCalPnts)] = gxarray[i];
+              gyarray[i+(*numCalPnts)] = gyarray[i];
+              gzarray[i+(*numCalPnts)] = gzarray[i];
+          }
+          for (i = 0; i < (*numCalPnts); i++)
+          {
+              gxarray[i] = 0.0;
+              gyarray[i] = 0.0;
+              gzarray[i] = 0.0;
+          }
+          spgrad_na = spgrad_na + (*numCalPnts);
+          spgrad_nb = spgrad_nb + (*numCalPnts);
+          spgrad_nc = spgrad_nc + (*numCalPnts);
+          spgrad_nd = spgrad_nd + (*numCalPnts);
+      }
+      /* end of inserting calibraton points */
+
       /* first move the spiral out waveform spgrad_nd points forward */
       for(i=0; i<spgrad_nd; i++) {
         gxarray[i+spgrad_nd] = gxarray[i];
@@ -245,11 +268,19 @@ PYFI_FUNC(coords)
         gzarray[i] = -gzarray[2*spgrad_nd-1-i];
         }
        
-      if (*spinout ==3) // same traj for spiral inout 
+      if (*spinout ==3 || *spinout == 5) // same traj for spiral inout 
         for(i=0; i<spgrad_nd; i++) {
           gxarray[i+spgrad_nd] = -gxarray[i+spgrad_nd];
           gyarray[i+spgrad_nd] = -gyarray[i+spgrad_nd];
           }
+      if (*spinout >= 4) // rot2 or same2
+      {
+          for(i=0; i<2*spgrad_nd; i++)
+          {
+              gxarray[i] = -gxarray[i];
+              gyarray[i] = -gyarray[i];
+          }
+      }
       }
    
 //********

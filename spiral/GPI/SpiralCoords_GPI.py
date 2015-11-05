@@ -161,7 +161,8 @@ class ExternalNode(gpi.NodeAPI):
                        buttons=['SPIRAL ONLY', 'G -> 0', 'M0 -> 0', 'M1 -> 0', 'Fast Spoil'], val=2)
 
         self.addWidget('ExclusivePushButtons', 'spinout',
-                       buttons=['OUT', 'IN', 'INOUT 180R', 'INOUT SAME'], val=0)
+                       buttons=['OUT', 'IN', 'INOUT 180R', 'INOUT SAME', 'INOUT ROT2', 'INOUT SAME2'], val=0)
+        self.addWidget('SpinBox', 'Num Calibration Points', val=0, min=0, max=512)
 
         # IO Ports
         self.addInPort('params_in', 'DICT', obligation=gpi.OPTIONAL)
@@ -232,6 +233,13 @@ class ExternalNode(gpi.NodeAPI):
             spinout = int(inparam['spINOUT_ON'][0])
             spinout += int(inparam['spINOUT_OPT'][0])
             self.setAttr('spinout',      val=spinout)
+
+            if spinout > 1: # in-out
+                self.setAttr('Num Calibration Points', visible=True)
+                if inparam.has_key('spEXTRA_GRAD_PNT'):
+                    self.setAttr('Num Calibration Points', val=int(0.5*float(inparam['spEXTRA_GRAD_PNT'][0])))
+            else:
+                self.setAttr('Num Calibration Points', visible=False)
 
             # FLORET params
             if inparam.has_key('spHUBS'):
@@ -326,6 +334,11 @@ class ExternalNode(gpi.NodeAPI):
         slper = self.getVal('Sloppy Sp. Per (0:off)')
         gtype = self.getVal('gtype')
         spinout = self.getVal('spinout')
+        if spinout > 1:
+            numCalPnts = self.getVal('Num Calibration Points')
+        else:
+            numCalPnts = 0
+
 
         # read num of data points from parameter txt file
         numREADPTS = 0
@@ -399,7 +412,7 @@ class ExternalNode(gpi.NodeAPI):
                 grd_out, crds_out = sp.coords(
                     dwell, xdely, ydely, zdely, mslew, mgrad, gamma, fovxy, fovz,
                     resxy, resz, stype, narms, taper, hubs, alpha0, rebin, us_0, us_1, us_r,
-                    utype, mgfrq, t2mch, slper, gtype, spinout)
+                    utype, mgfrq, t2mch, slper, gtype, spinout, numCalPnts)
 
             # Report Back to User
             nsamp = np.array(crds_out.shape)[2]
