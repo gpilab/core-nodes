@@ -222,11 +222,11 @@ class ExternalNode(gpi.NodeAPI):
                          val=int(float(inparam['spUSTYPE'][0])))
             self.setAttr('gtype',
                          val=int(float(inparam['spGTYPE'][0])))
-            if inparam.has_key('spMGFRQ'):
+            if 'spMGFRQ' in inparam:
                 self.setAttr('Max G Freq (kHz)',
                              val=(float(inparam['spMGFRQ'][0])))
 
-            if inparam.has_key('spT2MATCH'):
+            if 'spT2MATCH' in inparam:
                 self.setAttr('T2 Match (ms)',
                              val=(float(inparam['spT2MATCH'][0])))
 
@@ -242,15 +242,15 @@ class ExternalNode(gpi.NodeAPI):
                 self.setAttr('Num Calibration Points', visible=False)
 
             # FLORET params
-            if inparam.has_key('spHUBS'):
+            if 'spHUBS' in inparam:
                 hubs = int(float(inparam['spHUBS'][0]))
             else:
                 hubs = self.getVal('# of Hubs')
-            if inparam.has_key('spALPHA0'):
+            if 'spALPHA0' in inparam:
                 alpha0 = float(inparam['spALPHA0'][0])
             else:
                 alpha0 = self.getVal('Alpha0')
-            if inparam.has_key('spFLORETbin'):
+            if 'spFLORETbin' in inparam:
                 rebin = float(inparam['spFLORETbin'][0])
             else:
                 rebin = self.getVal('FLORET Rebin')
@@ -344,7 +344,7 @@ class ExternalNode(gpi.NodeAPI):
         numREADPTS = 0
         inparam = self.getData('params_in')
         if (inparam is not None):
-            if inparam.has_key('spREADPTS'):
+            if 'spREADPTS' in inparam:
                 numREADPTS = int(float(inparam['spREADPTS'][0]))
 
         if self.getVal('compute'):

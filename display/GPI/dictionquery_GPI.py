@@ -43,7 +43,7 @@ np.set_printoptions(linewidth=256)
 
 # flatten a nested dictionary
 def unwrap_dict(din, dout):
-    for k in din.items():
+    for k in list(din.items()):
         if type(k[1]) == type(dict()):
             dout[k[0]] = k[1]
             unwrap_dict(din[k[0]], dout)
@@ -207,9 +207,9 @@ class ExternalNode(gpi.NodeAPI):
             dflat = dict()
             dflat = unwrap_dict(indat, dflat)
             for key in keys:
-                if key in dflat.keys(): 
+                if key in list(dflat.keys()): 
                     try:
-                        for subkey in dflat[key].keys():
+                        for subkey in list(dflat[key].keys()):
                             if ('numpy' in str(type(dflat[key][subkey])) or
                                 'list' in str(type(dflat[key][subkey]))):
                                 listlen = len(dflat[key][subkey])
@@ -222,7 +222,7 @@ class ExternalNode(gpi.NodeAPI):
                             if listlen > maxlen:
                                 maxlen = listlen
         else:
-            for item in indat.items():
+            for item in list(indat.items()):
                 if ('numpy' in str(type(item[1])) or 'list' in str(type(item[1]))):
                     listlen = len(item[1])
                     if listlen > maxlen:
@@ -262,11 +262,11 @@ class ExternalNode(gpi.NodeAPI):
             dflat = dict()
             dflat = unwrap_dict(indat, dflat)
             for key in keys:
-                if key in dflat.keys():
+                if key in list(dflat.keys()):
                     if 'dict' in str(type(dflat[key])):
                         report = report + str(key)+':\n'
                     try:
-                        for subkey in dflat[key].keys():
+                        for subkey in list(dflat[key].keys()):
                             if ('list' in str(type(dflat[key][subkey])) or
                                 'numpy' in str(type(dflat[key][subkey]))):
                                 report = report + str(subkey) + ' = '\
@@ -284,7 +284,7 @@ class ExternalNode(gpi.NodeAPI):
                                     + str(dflat[key]) + "\n"
 
         else:
-            for item in indat.items():
+            for item in list(indat.items()):
                 if ('list' in str(type(item[1])) or 'numpy' in str(type(item[1]))):
                     report = report + str(item[0]) + ' = ' + str(item[1][minl:maxl]) + "\n"
                 else:

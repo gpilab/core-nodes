@@ -106,7 +106,7 @@ class ExternalNode(gpi.NodeAPI):
 
         try:
             self.setAttr('Status', val='Running input user code.')
-            exec code
+            exec(code)
             self.setAttr('Status', val='User code executed successfully.')
             self.setAttr('Status', val='Ready.')
 

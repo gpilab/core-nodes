@@ -107,7 +107,7 @@ class ExternalNode(gpi.NodeAPI):
           datdiff = data1-data2
           rssd = np.sqrt(np.sum(datdiff*np.conj(datdiff)))
           dot = np.sum(data1*np.conj(data2))
-	  
+      
         else: # Data are real-valued
           if normalize:
             rss1 = np.sqrt(np.sum(data1*data1))
@@ -121,7 +121,7 @@ class ExternalNode(gpi.NodeAPI):
           dot = np.sum(data1*data2)
 
         self.setData('diff',datdiff)
-	info = "RSS Difference = "+str(rssd)+'\n\n'+"Dot Product ="+str(dot)
-	self.setAttr('Info', val=info)
-	
+        info = "RSS Difference = "+str(rssd)+'\n\n'+"Dot Product ="+str(dot)
+        self.setAttr('Info', val=info)
+    
         return(0)

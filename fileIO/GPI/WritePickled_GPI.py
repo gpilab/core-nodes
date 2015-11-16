@@ -36,7 +36,7 @@
 # Date: 2012 Nov 02
 
 import gpi
-import cPickle as pic
+import pickle as pic
 
 class ExternalNode(gpi.NodeAPI):
     """Implements the python pickle (cPickle) module for serializing py-objects
@@ -66,6 +66,8 @@ class ExternalNode(gpi.NodeAPI):
         # IO Ports
         self.addInPort('in','PASS')
 
+        self.URI = gpi.TranslateFileURI
+
     def validate(self):
 
         if self.getVal('Write Mode'):
@@ -73,15 +75,18 @@ class ExternalNode(gpi.NodeAPI):
         else:
             self.setAttr('Write Mode', button_title="Write on New Filename")
 
+        fname = self.URI(self.getVal('File Browser'))
+        self.setDetailLabel(fname)
+
         return 0
 
     def compute(self):
 
-        import cPickle as pic
+        import pickle as pic
 
         if self.getVal('Write Mode') or self.getVal('Write Now') or ('File Browser' in self.widgetEvents()):
 
-            fname = gpi.TranslateFileURI(self.getVal('File Browser'))
+            fname = self.URI(self.getVal('File Browser'))
             if not fname.endswith('.pickle'):
                 fname += '.pickle'
 

@@ -51,11 +51,11 @@ class GPITabBar(QtGui.QTabBar):
             self.removeTab(0)
 
     def addTabsFromList(self, names):
-        for i in xrange(len(names)):
+        for i in range(len(names)):
             self.addTab(str(names[i]))
 
     def labels(self):
-        return [str(self.tabText(i)) for i in xrange(self.count())]
+        return [str(self.tabText(i)) for i in range(self.count())]
 
     def mousePressEvent(self, event):
         self._labels_at_press = self.labels()
@@ -122,7 +122,7 @@ class ExternalNode(gpi.NodeAPI):
         # the widget doesn't have the same dims as the data then reset the
         # widget with the new length
         if len(order) != data.ndim:
-            self.setAttr('Dimension Order', quietval=[str(i) for i in xrange(data.ndim)])
+            self.setAttr('Dimension Order', quietval=[str(i) for i in range(data.ndim)])
 
         # automatically transpose if ndim = 2
         if data.ndim < 3:
@@ -144,7 +144,7 @@ class ExternalNode(gpi.NodeAPI):
         # setup the transpose indices (automatically transpose if ndim = 2)
         trans_ind = data.ndim*[0]
         if data.ndim > 2:
-            for i in xrange(len(order)):
+            for i in range(len(order)):
                 trans_ind[i] = int(order[i])
         else:
             trans_ind = [1, 0]

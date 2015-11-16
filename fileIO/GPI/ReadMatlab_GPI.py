@@ -67,6 +67,8 @@ class ExternalNode(gpi.NodeAPI):
             self.log.node("Path does not exist: "+str(fname))
             return 0
 
+        self.setDetailLabel(fname)
+
         all_names = []
         import scipy.io
         try:

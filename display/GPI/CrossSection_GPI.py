@@ -127,7 +127,7 @@ class MatplotDisplay2(gpi.GenericWidgetGroup):
             from matplotlib.backend_bases import key_press_handler
             key_press_handler(event, self.canvas, self.mpl_toolbar)
         except:
-            print "key_press_handler import failed. -old matplotlib version."
+            print("key_press_handler import failed. -old matplotlib version.")
 
 
 # WIDGET

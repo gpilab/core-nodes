@@ -173,7 +173,7 @@ class ExternalNode(gpi.NodeAPI):
             data = self.getData('in')
 
             # visibility and bounds
-            for i in xrange(self.ndim):
+            for i in range(self.ndim):
                 if i < len(data.shape):
                     val = {'in_len': data.shape[-i - 1]}
                     self.setAttr(self.dim_base_name + str(-i - 1) + ']',
@@ -222,13 +222,13 @@ class ExternalNode(gpi.NodeAPI):
                         temp = np.insert(temp, temp.shape[-i - 1] *
                                          np.ones(zpad_after), 0.0, (-i - 1))
                     elif zpad_after < 0:
-                        temp = np.delete(temp, range(temp.shape[-i - 1] +
-                                         zpad_after, temp.shape[-i - 1]), (-i - 1))
+                        temp = np.delete(temp, list(range(temp.shape[-i - 1] +
+                                         zpad_after, temp.shape[-i - 1])), (-i - 1))
                     if zpad_before > 0:
                         temp = np.insert(temp, np.zeros(zpad_before), 0.0,
                                          (-i - 1))
                     elif zpad_before < 0:
-                        temp = np.delete(temp, range(-zpad_before), (-i - 1))
+                        temp = np.delete(temp, list(range(-zpad_before)), (-i - 1))
 
             out = np.fft.fftshift(np.fft.fftn(np.fft.ifftshift(temp),
                                               axes=ifftAxes))

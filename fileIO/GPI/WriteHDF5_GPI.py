@@ -100,6 +100,9 @@ class ExternalNode(gpi.NodeAPI):
         else:
             self.setAttr('Write Mode', button_title="Write on New Filename")
 
+        fname = self.URI(self.getVal('File Browser'))
+        self.setDetailLabel(fname)
+
         return 0
 
     def compute(self):
@@ -127,9 +130,9 @@ class ExternalNode(gpi.NodeAPI):
                 data = self.getData('in')
                 f = h5py.File(fname, "a")
 
-                if label in f.keys():
-                    label = unique_name(label, f.keys())
-                    print "dataset label already exists in file, using \'"+label+"\'"
+                if label in list(f.keys()):
+                    label = unique_name(label, list(f.keys()))
+                    print("dataset label already exists in file, using \'"+label+"\'")
 
                 dset = f.create_dataset(label, data=data, **kwargs)
                 f.close()
@@ -138,9 +141,9 @@ class ExternalNode(gpi.NodeAPI):
                 data = self.getData('in')
                 f = h5py.File(fname, "a")
 
-                if label in f.keys():
-                    label = unique_name(label, f.keys())
-                    print "dataset label already exists in file, using \'"+label+"\'"
+                if label in list(f.keys()):
+                    label = unique_name(label, list(f.keys()))
+                    print("dataset label already exists in file, using \'"+label+"\'")
 
                 dset = f.create_dataset(label, data=data)
                 f.close()

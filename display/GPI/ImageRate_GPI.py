@@ -374,7 +374,7 @@ class ExternalNode(gpi.NodeAPI):
 
             # randomize the order how the slices will be presented, use a defined seed point to make the order reproducible. 
             random.seed(0)
-            slice_order = range(nr_slices)
+            slice_order = list(range(nr_slices))
             random.shuffle(slice_order)
          
             analysis_array = self.getData('analysis_array').copy()
@@ -434,7 +434,7 @@ class ExternalNode(gpi.NodeAPI):
 
         # randomize the order how the slices will be presented, use a defined seed point to make the order reproducible. 
         random.seed(0)
-        slice_order = range(nr_slices)
+        slice_order = list(range(nr_slices))
         random.shuffle(slice_order)
 
         # once all 3 options have been selected, store results, move to next slice, and reset the 3 widgets

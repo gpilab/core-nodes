@@ -105,16 +105,16 @@ class ExternalNode(gpi.NodeAPI):
         # the path to the gpi.py main script
         self.log.node("gpi.py path:"+gpi.defines.GPI_CWD)
 
-        print "template validation"
-        print "DoubleSpinBox: ", self.getVal('MyDoubleSpinBox')
-        print "DoubleSpinBox: ", self.getVal('MyDoubleSpinBox2')
-        print "SpinBox: ", self.getVal('MySpinBox')
-        print "SpinBox2: ", self.getVal('MySpinBox2')
+        print("template validation")
+        print("DoubleSpinBox: ", self.getVal('MyDoubleSpinBox'))
+        print("DoubleSpinBox: ", self.getVal('MyDoubleSpinBox2'))
+        print("SpinBox: ", self.getVal('MySpinBox'))
+        print("SpinBox2: ", self.getVal('MySpinBox2'))
 
         # check for misc event types, these can also be used in compute
-        print self.getEvents() # super set of events
-        print self.portEvents()
-        print self.widgetEvents()
+        print(self.getEvents()) # super set of events
+        print(self.portEvents())
+        print(self.widgetEvents())
 
         # validate widget bounds
         data = self.getData('MyNPYarray')
@@ -132,7 +132,7 @@ class ExternalNode(gpi.NodeAPI):
 
         self.log.node("hello from node level logger, running compute()")
 
-        print "template compute"
+        print("template compute")
 
         # GETTING WIDGET INFO
         val = self.getVal('MyPushButton')

@@ -1006,7 +1006,7 @@ class ExternalNode(gpi.NodeAPI):
         self.addWidget('MatplotDisplay', 'Plot')
 
         # IO Ports
-        self.inport_range = range(0, 8)
+        self.inport_range = list(range(0, 8))
         for i in self.inport_range:
             self.addInPort('in' + str(i), 'NPYarray', obligation=gpi.OPTIONAL)
 

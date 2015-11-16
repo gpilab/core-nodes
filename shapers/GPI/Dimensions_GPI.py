@@ -193,7 +193,7 @@ class ExternalNode(gpi.NodeAPI):
                 # calculate indices of editable dimensions based on selection
                 j = 0
                 k = 0
-                data_ind = range(len(data.shape) + len(sel))
+                data_ind = list(range(len(data.shape) + len(sel)))
                 self.shape = [1] * (len(data_ind))
                 self.ndim = len(self.shape)
                 vis_ind = [1] * (2 * len(sel))
@@ -229,7 +229,7 @@ class ExternalNode(gpi.NodeAPI):
                         break
                 # calculate indices of editable dimensions based on selection
                 j = 0
-                data_ind = range(len(data.shape) + len(sel))
+                data_ind = list(range(len(data.shape) + len(sel)))
                 self.shape = [1] * (len(data_ind))
                 self.ndim = len(self.shape)
                 vis_ind = [1] * (len(sel))
@@ -286,9 +286,9 @@ class ExternalNode(gpi.NodeAPI):
             elif self.op_buttons[op] == 'Transpose': # Transpose
                 self.ndim = data.ndim
                 self.shape = list(data.shape)
-                self.trans_ind = range(-data.ndim, 0)
+                self.trans_ind = list(range(-data.ndim, 0))
                 if self.portEvents():
-                    count_trans_ind = range(-data.ndim, 0)
+                    count_trans_ind = list(range(-data.ndim, 0))
                     for i in range(data.ndim):
                         trans_ind = self.getVal(self.dim_base_name
                                                          +str(-i-1)+']')
@@ -302,7 +302,7 @@ class ExternalNode(gpi.NodeAPI):
                     dup_count = max([count_trans_ind.count(i)
                                 for i in count_trans_ind])
                     if dup_count > 1:
-                        self.trans_ind = range(-data.ndim, 0)
+                        self.trans_ind = list(range(-data.ndim, 0))
 
             elif self.op_buttons[op] == 'Flip': # Flip
                 self.shape = list(data.shape)
@@ -479,7 +479,7 @@ class ExternalNode(gpi.NodeAPI):
                     self.size = np.prod(self.shape)
                     sel = self.getVal('Selection')
                     k = 0
-                    data_ind = range(self.ndim)
+                    data_ind = list(range(self.ndim))
                     val = self.getVal(event)
                     for i in sel:
                         data_ind.remove(i+k)
@@ -504,7 +504,7 @@ class ExternalNode(gpi.NodeAPI):
                                       val=self.shape[linked_index])
                     self.size = np.prod(self.shape)
                 if self.op_buttons[op] == 'Transpose':
-                    count_trans_ind = range(-data.ndim, 0)
+                    count_trans_ind = list(range(-data.ndim, 0))
                     for i in range(data.ndim):
                         trans_ind = self.getVal(self.dim_base_name+
                                                          str(-i-1)+']')
@@ -534,7 +534,7 @@ class ExternalNode(gpi.NodeAPI):
             self.setAttr('Compute', val=0)
             self.info_message = "The output and input sizes must match\n"
         if self.op_buttons[op] == 'Transpose':
-            count_trans_ind = range(-data.ndim, 0)
+            count_trans_ind = list(range(-data.ndim, 0))
             for i in range(data.ndim):
                 trans_ind = self.getVal(self.dim_base_name+
                                                  str(-i-1)+']')
@@ -612,7 +612,10 @@ class ExternalNode(gpi.NodeAPI):
             if self.op_buttons[op] == 'Transpose': # Transpose
                 out = data.transpose(self.trans_ind)
             if self.op_buttons[op] == 'Flip': # Flip
-                exec self.flip_string
+                g = globals()
+                l = locals()
+                exec(self.flip_string,g,l)
+                out = l['out']
             if self.op_buttons[op] in ['Shift', 'CircShift']:
                 temp = data
                 for i in range(data.ndim):
@@ -621,15 +624,15 @@ class ExternalNode(gpi.NodeAPI):
                     if self.op_buttons[op] == 'Shift':
                         if shift <= 0:
                             shift = max(0, -shift)
-                            del_range = range(shift)
+                            del_range = list(range(shift))
                             insert_vals = [data.shape[-i-1]] * shift
                             temp = np.insert(temp, insert_vals, 0, axis = -i-1)
                             temp = np.delete(temp, del_range, axis = -i-1)
                         else:
                             shift = min(shift, data.shape[-i-1])
                             insert_vals = [0] * shift
-                            del_range = range(data.shape[-i-1] - shift,
-                                              data.shape[-i-1] + 1)
+                            del_range = list(range(data.shape[-i-1] - shift,
+                                              data.shape[-i-1] + 1))
                             temp = np.delete(temp, del_range, axis = -i-1)
                             temp = np.insert(temp, insert_vals, 0, axis = -i-1)
 

@@ -133,7 +133,7 @@ class ExternalNode(gpi.NodeAPI):
         # Set Collapse all if # dimensions = 1
         if data.ndim == 1:
             self.setAttr('Collapse All', val=1)
-            print str(self.dim) 
+            print(str(self.dim)) 
 
         # Check for Start Index to never exceed Stop Index
         I_maxval = self.getVal('Dimension Start_Index')

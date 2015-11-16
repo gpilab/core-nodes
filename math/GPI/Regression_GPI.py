@@ -172,7 +172,7 @@ class ExternalNode(gpi.NodeAPI):
         data = self.getData('dataIn')
         coords = self.getData('coordsIn')
         if coords is None:
-            coords = np.array(range(data.shape[-1]))
+            coords = np.array(list(range(data.shape[-1])))
 
         mode = self.getVal('Mode')
         compute = self.getVal('Compute')
