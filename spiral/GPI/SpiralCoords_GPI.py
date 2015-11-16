@@ -1,10 +1,10 @@
 # Copyright (c) 2014, Dignity Health
-# 
+#
 #     The GPI core node library is licensed under
 # either the BSD 3-clause or the LGPL v. 3.
-# 
+#
 #     Under either license, the following additional term applies:
-# 
+#
 #         NO CLINICAL USE.  THE SOFTWARE IS NOT INTENDED FOR COMMERCIAL
 # PURPOSES AND SHOULD BE USED ONLY FOR NON-COMMERCIAL RESEARCH PURPOSES.  THE
 # SOFTWARE MAY NOT IN ANY EVENT BE USED FOR ANY CLINICAL OR DIAGNOSTIC
@@ -13,12 +13,12 @@
 # TO LIFE SUPPORT OR EMERGENCY MEDICAL OPERATIONS OR USES.  LICENSOR MAKES NO
 # WARRANTY AND HAS NOR LIABILITY ARISING FROM ANY USE OF THE SOFTWARE IN ANY
 # HIGH RISK OR STRICT LIABILITY ACTIVITIES.
-# 
+#
 #     If you elect to license the GPI core node library under the LGPL the
 # following applies:
-# 
+#
 #         This file is part of the GPI core node library.
-# 
+#
 #         The GPI core node library is free software: you can redistribute it
 # and/or modify it under the terms of the GNU Lesser General Public License as
 # published by the Free Software Foundation, either version 3 of the License,
@@ -26,7 +26,7 @@
 # in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
 # the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU Lesser General Public License for more details.
-# 
+#
 #         You should have received a copy of the GNU Lesser General Public
 # License along with the GPI core node library. If not, see
 # <http://www.gnu.org/licenses/>.
@@ -236,7 +236,7 @@ class ExternalNode(gpi.NodeAPI):
 
             if spinout > 1: # in-out
                 self.setAttr('Num Calibration Points', visible=True)
-                if inparam.has_key('spEXTRA_GRAD_PNT'):
+                if 'spEXTRA_GRAD_PNT' in inparam:
                     self.setAttr('Num Calibration Points', val=int(0.5*float(inparam['spEXTRA_GRAD_PNT'][0])))
             else:
                 self.setAttr('Num Calibration Points', visible=False)
@@ -281,7 +281,7 @@ class ExternalNode(gpi.NodeAPI):
 
         arm_0 = self.getData('arm_0')
         # arm_0 = np.insert(np.diff(arm_0,0),0,0)
-        
+
         # convert units to ms, kHz, m, mT
         dwell = 0.001 * self.getVal('AD dwell time (us)')
         xdely = 0.001 * self.getVal('x delay (us)')
@@ -309,7 +309,7 @@ class ExternalNode(gpi.NodeAPI):
         try:
             alpha0 = np.pi * self.getVal('Alpha0') / 180.0
         except:
-            alpha0 = 0.25 * np.pi 
+            alpha0 = 0.25 * np.pi
 
         try:
             rebin = self.getVal('FLORET Rebin')
@@ -356,7 +356,7 @@ class ExternalNode(gpi.NodeAPI):
 
             # determine k-space coordinates based on input of first arm
             # TODO: doesn't handle spinout or FLORET rebinning (RKR)
-            if arm_0 is not None: 
+            if arm_0 is not None:
                 npts = arm_0.shape[0]
                 crds_out = np.zeros((hubs,narms,npts,3))
 
@@ -405,7 +405,7 @@ class ExternalNode(gpi.NodeAPI):
 
                 else:
                     pass
-                    
+
                 self.log.warn("True gradient waveform output not (yet) implemented for calculation based on initial spiral arm!")
                 grd_out = np.diff(crds_out, axis=-2)
             else:
