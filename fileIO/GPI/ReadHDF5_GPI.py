@@ -1,10 +1,10 @@
 # Copyright (c) 2014, Dignity Health
-# 
+#
 #     The GPI core node library is licensed under
 # either the BSD 3-clause or the LGPL v. 3.
-# 
+#
 #     Under either license, the following additional term applies:
-# 
+#
 #         NO CLINICAL USE.  THE SOFTWARE IS NOT INTENDED FOR COMMERCIAL
 # PURPOSES AND SHOULD BE USED ONLY FOR NON-COMMERCIAL RESEARCH PURPOSES.  THE
 # SOFTWARE MAY NOT IN ANY EVENT BE USED FOR ANY CLINICAL OR DIAGNOSTIC
@@ -13,12 +13,12 @@
 # TO LIFE SUPPORT OR EMERGENCY MEDICAL OPERATIONS OR USES.  LICENSOR MAKES NO
 # WARRANTY AND HAS NOR LIABILITY ARISING FROM ANY USE OF THE SOFTWARE IN ANY
 # HIGH RISK OR STRICT LIABILITY ACTIVITIES.
-# 
+#
 #     If you elect to license the GPI core node library under the LGPL the
 # following applies:
-# 
+#
 #         This file is part of the GPI core node library.
-# 
+#
 #         The GPI core node library is free software: you can redistribute it
 # and/or modify it under the terms of the GNU Lesser General Public License as
 # published by the Free Software Foundation, either version 3 of the License,
@@ -26,7 +26,7 @@
 # in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
 # the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU Lesser General Public License for more details.
-# 
+#
 #         You should have received a copy of the GNU Lesser General Public
 # License along with the GPI core node library. If not, see
 # <http://www.gnu.org/licenses/>.
@@ -72,8 +72,10 @@ class ExternalNode(gpi.NodeAPI):
             # check that the path actually exists
             if not os.path.exists(fname):
                 self.log.node("Path does not exist: "+str(fname))
-                return 0
+                return 1
+
             f = h5py.File(fname, "r")
+            self.setDetailLabel(fname)
 
             # show available keys
             all_names = []
@@ -86,10 +88,6 @@ class ExternalNode(gpi.NodeAPI):
             f.close()
 
         return 0
-
-    def validate(self):
-        fname = self.URI(self.getVal('File Browser'))
-        self.setDetailLabel(fname)
 
     def compute(self):
         import time
@@ -132,7 +130,7 @@ class ExternalNode(gpi.NodeAPI):
         f = h5py.File(fname, "r")
 
         setname = self.getVal('dataset')
-        
+
         # assuming the dataset is a numpy array
         data = f[setname].value
         self.setData('out', data)
