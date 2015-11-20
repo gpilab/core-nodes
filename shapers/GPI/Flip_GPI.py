@@ -37,7 +37,7 @@
 
 import numpy as np
 import gpi
-from gpi import QtGui
+
 
 class NonExclusivePushButtons2(gpi.NonExclusivePushButtons):
     valueChanged = gpi.Signal()
@@ -47,7 +47,6 @@ class NonExclusivePushButtons2(gpi.NonExclusivePushButtons):
 
     # overwrite set_val
     def set_val(self, value):
-        """int or list(int,int,...) | The position of the chosen button (zero-based, int or list)."""
         if type(value) is not list:
             value = [value]
 
@@ -91,7 +90,7 @@ class ExternalNode(gpi.NodeAPI):
         self.button_labels = ['-2', '-1']
         self.addWidget('NonExclusivePushButtons2', 'Flip Dimensions:',
                        buttons=self.button_labels, val=[])
-                       
+
         # IO Ports
         self.addInPort('in', 'NPYarray', obligation=gpi.REQUIRED)
         self.addOutPort('out', 'NPYarray')
@@ -103,20 +102,27 @@ class ExternalNode(gpi.NodeAPI):
         data = self.getData('in')
         fdims = self.getVal('Flip Dimensions:')
 
+        # find max selected dim
+        if self.portEvents() and len(fdims) > 0:
+            max_fdim = max([-int(dim) for dim in fdims])
+            if max_fdim > data.ndim:
+                self.log.warn('Data dimensionality has changed! The selected \
+flip dimensions are not supported by current data \
+dimensionality.')
+                return(1)
+
+        # update dim button labels, remove buttons if only 1D
         dim_buttons = list(np.arange(-data.ndim, 0).astype('str'))
         if data.ndim > 1:
             self.setAttr('Flip Dimensions:', buttons=dim_buttons, val=fdims,
-                             visible=True)
+                         visible=True)
         else:
             fdims = ['-1']
             self.setAttr('Flip Dimensions:', val=fdims, visible=False)
 
-
         return(0)
 
     def compute(self):
-
-        import numpy as np
 
         data = self.getData('in')
         fdims = self.getVal('Flip Dimensions:')
@@ -131,7 +137,7 @@ class ExternalNode(gpi.NodeAPI):
 
         g = globals()
         l = locals()
-        exec(flip_string,g,l)
+        exec(flip_string, g, l)
         out = l['out']
         self.setData('out', out)
 
