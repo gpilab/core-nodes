@@ -35,6 +35,7 @@
 # Author: Nick Zwart, Jim Pipe
 # Date: 2012oct28, 2013Dec
 
+
 import numpy as np
 import gpi
 
@@ -57,6 +58,7 @@ class ExternalNode(gpi.NodeAPI):
     Dimension - when in_array populated, lets user pick dimension to for step to span
     Randomize - output value is either RANDOM or LINEAR, the latter = Minimum + step*(Step Size)
     LOOP - when selected, step runs from 0 to "Number of Steps"-1
+    Continuous - when selected, step returns to 0 after reaching "Number of Steps" and continues to run
     Minimum - value corresponding to step=0 for LINEAR mode, or minimum range of output for RANDOM mode
     Maximum - value corresponding to last step for LINEAR mode, or maximum range of output for RANDOM mode
     Step Size - change in value per step for LINEAR mode
@@ -75,6 +77,7 @@ class ExternalNode(gpi.NodeAPI):
         self.addWidget('Slider', 'Dimension', val=0, visible = False)
         self.addWidget('PushButton', 'Randomize', button_title='LINEAR', toggle=True)
         self.addWidget('PushButton', 'LOOP', button_title='OFF', val=0, toggle=True)
+        self.addWidget('PushButton', 'Continuous', button_title='OFF', val=0, toggle=True)
         self.addWidget('DoubleSpinBox', 'Minimum', val=0, decimals=5)
         self.addWidget('DoubleSpinBox', 'Maximum', val=0, decimals=5)
         self.addWidget('DoubleSpinBox', 'Step Size', val=0, decimals=5)
@@ -92,11 +95,17 @@ class ExternalNode(gpi.NodeAPI):
 
         # change button Titles with toggle
         status = self.getVal('LOOP')
+        loop_over = self.getVal('Continuous')
 
         if status:
           self.setAttr('LOOP', button_title='ON')
         else:
           self.setAttr('LOOP', button_title='OFF')
+        
+        if loop_over:
+          self.setAttr('Continuous', button_title='ON')
+        else:
+          self.setAttr('Continuous', button_title='OFF')
 
           # ONLY CHANGE THINGS IF STATUS IS OFF...
           indat = self.getData('in_array')
@@ -154,6 +163,7 @@ class ExternalNode(gpi.NodeAPI):
         indat = self.getData('in_array')
         status = self.getVal('LOOP')
         cstep = self.getVal('step')
+        loop_over = self.getVal('Continuous')
 
         # Mode depends on whether input port is populated
         if indat is None:
@@ -180,8 +190,14 @@ class ExternalNode(gpi.NodeAPI):
               cstep += 1
               self.setAttr('step',quietval=cstep)
             else:
-              self.setAttr('LOOP', quietval=False, button_title='OFF')
-              status = False
+                if loop_over:
+                    cstep = 0
+                    self.setAttr('step', quietval=cstep)
+                else:
+                    self.setAttr('LOOP', quietval=False, button_title='OFF')
+                    status = False
+                    self.setAttr('Continuous', quietval=False, button_title='OFF')
+                    loop_over = False
 
         # If user changed value manually, reflect that
         if 'Value' in self.widgetEvents():
@@ -211,7 +227,7 @@ class ExternalNode(gpi.NodeAPI):
         self.setData('dict_for_Reduce', dict_reduce)
 
         # logic for looping
-        if status and (cstep < nstep-1):
+        if status and (cstep <= nstep-1):
           self.setReQueue(True)
         else:
           self.setReQueue(False)
