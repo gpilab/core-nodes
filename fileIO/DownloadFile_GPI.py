@@ -2,6 +2,7 @@
 # Date: 2015-12-18 13:36
 
 import gpi
+import os
 import shutil
 import tempfile
 import urllib.request
@@ -46,6 +47,15 @@ class ExternalNode(gpi.NodeAPI):
             self.setAttr('save file', visible=True)
         else:
             self.setAttr('save file', visible=False)
+
+        # don't overwrite an existing file
+        if os.path.exists(self.getVal('save file')):
+            self.log.error("For safety, this node will not overwrite existing "
+                           + "files. ")
+            self.log.error("If you really want to overwrite the file "
+                           + self.getVal('save file')
+                           + " please delete it manually.")
+            return 1
 
         # clear the path if the URL has changed
         # this will cause a re-download when the URL is changed
