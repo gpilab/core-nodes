@@ -117,3 +117,6 @@ class ExternalNode(gpi.NodeAPI):
         self.setData('path', out)
 
         return 0
+
+    def execType(self):
+        return gpi.GPI_THREAD
