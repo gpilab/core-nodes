@@ -73,9 +73,10 @@ class ExternalNode(gpi.NodeAPI):
         data = self.getData('in')
         self.setAttr('Theta (deg)', max=1000., min=-1000.0)
         ddim = (data.ndim)
-       
+        
         if ('in' in self.portEvents()):
-          self.setAttr('Plane of Rotation:', buttons=self.dim_buttons, val=0)
+          if ddim == 2 or self.getVal('Plane of Rotation:') > ddim-2:
+            self.setAttr('Plane of Rotation:', buttons=self.dim_buttons, val=0)
         if ddim == 2:
           self.dim_buttons = ['[0-1]']
         if ddim == 3:
