@@ -249,6 +249,9 @@ class ExternalNode(gpi.NodeAPI):
                 self.setAttr('# Columns', visible=False)
 
         else:
+            if dimfunc > 1:
+                dimfunc = 0
+                self.setAttr('Extra Dimension', buttons=['Slice', 'Tile'], val=dimfunc)
             self.setAttr('Extra Dimension', visible=False)
             self.setAttr('Slice/Tile Dimension', visible=False)
             self.setAttr('Slice', visible=False)
