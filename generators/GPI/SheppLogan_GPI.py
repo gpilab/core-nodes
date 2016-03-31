@@ -52,6 +52,7 @@ class ExternalNode(gpi.NodeAPI):
         self.addWidget('TextBox', 'Info')
         self.addWidget('SpinBox', 'Size', val=128, min=1, max=8192)
         self.addWidget('PushButton','Compute', toggle=True, val=True)
+        self.addWidget('SpinBox', 'Bandlimit iterations', val=0, min=0)
 
         # IO Ports
         self.addOutPort('out', 'NPYarray')
@@ -64,6 +65,7 @@ class ExternalNode(gpi.NodeAPI):
     def compute(self):
 
         #from phantom import phantom
+        itr = self.getVal('Bandlimit iterations')
 
         # visibility
         if self.getVal('Compute'):
@@ -71,10 +73,99 @@ class ExternalNode(gpi.NodeAPI):
             n = self.getVal('Size')
             out = phantom(n)
 
+            out = self.condition(out, itr)
+
             self.setData('out', out)
 
         return(0)
 
+    def condition(self, data, iter=0):
+        import numpy as np
+
+        # don't condition
+        if iter == 0:
+            return data
+
+        # recast to fftw reqs.
+        orig_type = data.dtype
+        data = data.astype(np.complex64, copy=False)
+
+        band = self.window2(data.shape, windowpct=10, widthpct=100)
+
+        # band limit in both domains
+        for i in range(iter):
+            data *= band # image space
+            data = self.fft2(data, dir=0)
+            data *= band # k-space
+            data = self.fft2(data, dir=1)
+
+        # keep original type
+        data = np.abs(data).astype(orig_type, copy=False)
+
+        return data
+
+    def fft2(self, data, dir=0, zp=1, out_shape=[], tx_ON=True):
+        # data: np.complex64
+        # dir: int (0 or 1)
+        # zp: float (>1)
+
+        # simplify the fftw wrapper
+        import numpy as np
+        import core.math.fft as corefft
+
+        # generate output dim size array
+        # fortran dimension ordering
+        outdims = list(data.shape)
+        if len(out_shape):
+            outdims = out_shape
+        else:
+            for i in range(len(outdims)):
+                outdims[i] = int(outdims[i]*zp)
+        outdims.reverse()
+        outdims = np.array(outdims, dtype=np.int64)
+
+        # load fft arguments
+        kwargs = {}
+        kwargs['dir'] = dir
+
+        # transform or just zeropad
+        if tx_ON:
+            kwargs['dim1'] = 1
+            kwargs['dim2'] = 1
+        else:
+            kwargs['dim1'] = 0
+            kwargs['dim2'] = 0
+
+        return corefft.fftw(data, outdims, **kwargs)
+
+    def window2(self, shape, windowpct=100.0, widthpct=100.0, stopVal=0, passVal=1):
+        # 2D hanning window just like shapes
+        #   OUTPUT: 2D float32 circularly symmetric hanning
+
+        import numpy as np
+
+        # window function width
+        bnd = 100.0/widthpct
+
+        # generate coords for each dimension
+        x = np.linspace(-bnd, bnd, shape[-1], endpoint=(shape[-1] % 2 != 0))
+        y = np.linspace(-bnd, bnd, shape[-2], endpoint=(shape[-2] % 2 != 0))
+
+        # create a 2D grid with coordinates then get radial coords
+        xx, yy = np.meshgrid(x,y)
+        radius = np.sqrt(xx*xx + yy*yy)
+
+        # calculate hanning
+        windIdx = radius <= 1.0
+        passIdx = radius <= (1.0 - (windowpct/100.0))
+        func = 0.5 * (1.0 - np.cos(np.pi * (1.0 - radius[windIdx]) / (windowpct/100.0)))
+
+        # populate output array
+        out = np.zeros(shape, dtype=np.float32)
+        out[windIdx] = stopVal + func * (passVal - stopVal)
+        out[passIdx] = passVal
+
+        return out
 
 ## Copyright (C) 2010  Alex Opie  <lx_op@orcon.net.nz>
 ##
