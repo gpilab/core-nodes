@@ -1,10 +1,10 @@
 # Copyright (c) 2014, Dignity Health
-# 
+#
 #     The GPI core node library is licensed under
 # either the BSD 3-clause or the LGPL v. 3.
-# 
+#
 #     Under either license, the following additional term applies:
-# 
+#
 #         NO CLINICAL USE.  THE SOFTWARE IS NOT INTENDED FOR COMMERCIAL
 # PURPOSES AND SHOULD BE USED ONLY FOR NON-COMMERCIAL RESEARCH PURPOSES.  THE
 # SOFTWARE MAY NOT IN ANY EVENT BE USED FOR ANY CLINICAL OR DIAGNOSTIC
@@ -13,12 +13,12 @@
 # TO LIFE SUPPORT OR EMERGENCY MEDICAL OPERATIONS OR USES.  LICENSOR MAKES NO
 # WARRANTY AND HAS NOR LIABILITY ARISING FROM ANY USE OF THE SOFTWARE IN ANY
 # HIGH RISK OR STRICT LIABILITY ACTIVITIES.
-# 
+#
 #     If you elect to license the GPI core node library under the LGPL the
 # following applies:
-# 
+#
 #         This file is part of the GPI core node library.
-# 
+#
 #         The GPI core node library is free software: you can redistribute it
 # and/or modify it under the terms of the GNU Lesser General Public License as
 # published by the Free Software Foundation, either version 3 of the License,
@@ -26,7 +26,7 @@
 # in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
 # the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU Lesser General Public License for more details.
-# 
+#
 #         You should have received a copy of the GNU Lesser General Public
 # License along with the GPI core node library. If not, see
 # <http://www.gnu.org/licenses/>.
@@ -52,18 +52,24 @@ class ExternalNode(gpi.NodeAPI):
     """
 
     def initUI(self):
+        # operations
+        self.op_labels = ['Add', 'Subtract', 'Multiply', 'Divide', 'Power',
+                          'Exponential', 'LogN', 'Log10', 'Reciprocal',
+                          'Conjugate', 'Magnitude', 'Sin', 'Cos', 'Tan',
+                          'arcSin', 'arcCos', 'arcTan', 'arcTan2', 'Max',
+                          'Min', '>', '<', '==', '!=', '>=', '<=']
+        self.op = [np.add, np.subtract, np.multiply, np.divide, np.power,
+                   np.exp, np.log, np.log10, np.reciprocal, np.conj, np.abs,
+                   np.sin, np.cos, np.tan, np.arcsin, np.arccos, np.arctan,
+                   np.arctan2, np.maximum, np.minimum, np.greater, np.less,
+                   np.equal, np.not_equal, np.greater_equal, np.less_equal]
 
         # Widgets
         self.inputs = 0
         self.addWidget('ExclusivePushButtons', 'Mode', buttons=[
                        'Standard', 'Trigonometric', 'Comparison'], val = 0)
-        self.addWidget('ExclusiveRadioButtons', 'Operation', buttons=[
-                       'Add', 'Subtract', 'Multiply', 'Divide', 'Power',
-                       'Exponential', 'LogN', 'Log10', 'Reciprocal', 
-                       'Conjugate', 'Magnitude', 'Sin', 'Cos', 'Tan', 'arcSin', 'arcCos',
-                       'arcTan', 'arcTan2', 'Max', 'Min', '>', '<', '==',
-                       '!=', '>=', '<='],
-                       val=0)
+        self.addWidget('ExclusiveRadioButtons', 'Operation',
+                       buttons=self.op_labels, val=0)
         self.addWidget('DoubleSpinBox', 'Scalar', val=0.0, decimals = 5)
         self.addWidget('PushButton', 'compute', toggle=True, val=1)
 
@@ -72,12 +78,6 @@ class ExternalNode(gpi.NodeAPI):
         self.addInPort('inRight', 'NPYarray', obligation=gpi.OPTIONAL)
         self.addOutPort('out', 'NPYarray')
 
-        # operations
-        self.op = [np.add, np.subtract, np.multiply, np.divide, np.power,
-                   np.exp, np.log, np.log10, np.reciprocal, np.conj, np.abs,
-                   np.sin, np.cos, np.tan, np.arcsin, np.arccos, np.arctan,
-                   np.arctan2, np.maximum, np.minimum, np.greater, np.less,
-                   np.equal, np.not_equal, np.greater_equal, np.less_equal]
 
     def validate(self):
         '''update the widgets based on the input arrays
@@ -98,38 +98,38 @@ class ExternalNode(gpi.NodeAPI):
 
         if self.inputs is 2:
             if self.func is 0:
-                self.setAttr('Operation', buttons=['Add', 'Subtract',
-                                  'Multiply', 'Divide', 'Power'])
+                self.op_labels = ['Add', 'Subtract', 'Multiply', 'Divide',
+                                 'Power']
                 self.op = [np.add, np.subtract, np.multiply, np.divide,
                            np.power]
             elif self.func is 1:
-                self.setAttr('Operation', buttons=['arcTan2'])
+                self.op_labels = ['arcTan2']
                 self.op = [np.arctan2]
             else:
-                self.setAttr('Operation', buttons=['Max', 'Min', '>',
-                                  '<', '==', '!=', '>=', '<='])
+                self.op_labels = ['Max', 'Min', '>', '<', '==', '!=', '>=',
+                                 '<=']
                 self.op = [np.maximum, np.minimum, np.greater, np.less,
                            np.equal, np.not_equal, np.greater_equal,
                            np.less_equal]
         elif self.inputs is 1:
             if self.func is 0:
-                self.setAttr('Operation', buttons=['Add', 'Subtract',
-                                  'Multiply', 'Divide', 'Power', 'Exponential',
-                                  'LogN', 'Log10', 'Reciprocal', 'Conjugate',
-                                  'Magnitude'])
+                self.op_labels = ['Add', 'Subtract', 'Multiply', 'Divide',
+                                 'Power', 'Exponential', 'LogN', 'Log10',
+                                 'Reciprocal', 'Conjugate', 'Magnitude']
                 self.op = [np.add, np.subtract, np.multiply, np.divide, np.power,
                            np.exp, np.log, np.log10, np.reciprocal, np.conj,
                            np.abs]
             elif self.func is 1:
-                self.setAttr('Operation', buttons=['Sin', 'Cos', 'Tan',
-                                  'arcSin', 'arcCos', 'arcTan'])
+                self.op_labels = ['Sin', 'Cos', 'Tan', 'arcSin', 'arcCos',
+                                 'arcTan']
                 self.op = [np.sin, np.cos, np.tan, np.arcsin, np.arccos,
                            np.arctan]
             else:
-                self.setAttr('Operation', buttons=['>', '<', '==', '!=',
-                                  '>=', '<='])
+                self.op_labels = ['>', '<', '==', '!=', '>=', '<=']
                 self.op = [np.greater, np.less, np.equal, np.not_equal,
                            np.greater_equal, np.less_equal]
+
+        self.setAttr('Operation', buttons=self.op_labels)
 
         if self.getVal('Operation') > len(self.op):
             self.setAttr('Operation', val=0)
@@ -141,7 +141,16 @@ class ExternalNode(gpi.NodeAPI):
             self.setAttr('Scalar', visible=True)
         else:
             self.setAttr('Scalar', visible=False)
-        return(0)
+
+        # set the detail label
+        if self.getAttr('Scalar', 'visible'):
+            self.setDetailLabel("{}, scalar = {}".format(
+                                    self.op_labels[self.getVal('Operation')],
+                                    self.getVal('Scalar')))
+        else:
+            self.setDetailLabel(self.op_labels[self.getVal('Operation')])
+
+        return 0
 
     def compute(self):
 
