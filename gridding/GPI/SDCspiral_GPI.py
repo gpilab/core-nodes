@@ -108,6 +108,13 @@ class ExternalNode(gpi.NodeAPI):
         numiter = self.getVal('Iterations')
         taper = self.getVal('Taper')
         crds   = self.getData('crds')
+  
+        # flip the coords if spiralin
+        ktrace = crds[0,:,0]*crds[0,:,0] + crds[0,:,1]*crds[0,:,1]
+        spiralin = 0
+        if ktrace[-1] < ktrace[0]:
+            crds[:,:,:] = crds[:,::-1,:]
+            spiralin = 1
 
         if self.getVal('computenow'):
 
@@ -117,6 +124,9 @@ class ExternalNode(gpi.NodeAPI):
             sdc = sd.twod_sdcsp(crds,numiter,taper,mtx_xy)
           if crds.shape[-1] == 3:
             sdc = sd.threed_sdcsp(crds,numiter,taper,mtx_xy, mtx_z)
+
+          if spiralin:
+            sdc = sdc[:,::-1]   
 
           self.setData('sdc', sdc)
 
