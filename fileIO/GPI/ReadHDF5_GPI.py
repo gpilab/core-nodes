@@ -55,6 +55,8 @@ class ExternalNode(gpi.NodeAPI):
             'OpenFileBrowser', 'File Browser', button_title='Browse',
             caption='Open File', filter='hdf5 (*.hdf5);;hdf5 (*.h5)')
         self.addWidget('ComboBox', 'dataset')
+        self.addWidget('PushButton', 'reload datasets')
+        self.addWidget('PushButton', 'read', toggle=True, val=False)
         # self.addWidget('StringBox', 'set-name', val='gpidata')
 
         # IO Ports
@@ -62,30 +64,36 @@ class ExternalNode(gpi.NodeAPI):
 
         # store for later use
         self.URI = gpi.TranslateFileURI
-        self.setname = None
+        self.fname = None
 
     def validate(self):
+        self.fname = self.URI(self.getVal('File Browser'))
 
-        if 'File Browser' in self.widgetEvents():
-            fname = self.URI(self.getVal('File Browser'))
+        if ('File Browser' in self.widgetEvents()
+             or 'reload datasets' in self.widgetEvents()):
+            self.setAttr('read', val=False)
 
             # check that the path actually exists
-            if not os.path.exists(fname):
-                self.log.node("Path does not exist: "+str(fname))
+            if not os.path.exists(self.fname):
+                self.log.node("Path does not exist: " + self.fname)
                 return 1
 
-            f = h5py.File(fname, "r")
-            self.setDetailLabel(fname)
+            f = h5py.File(self.fname, "r")
 
             # show available keys
-            all_names = []
-            def append_if_dataset(name,obj):
-                if isinstance(obj,h5py.Dataset):
-                    all_names.append(name)
+            self.dataset_names = []
+            def append_if_dataset(name, obj):
+                if isinstance(obj, h5py.Dataset):
+                    self.dataset_names.append(name)
             f.visititems(append_if_dataset)
-            self.setAttr('dataset',items=all_names)
+            self.setAttr('dataset', items=self.dataset_names)
 
             f.close()
+
+        if self.getVal('dataset') is not None:
+            self.setDetailLabel(self.fname + "::" + self.getVal('dataset'))
+        else:
+            self.setDetailLabel(self.fname)
 
         return 0
 
@@ -93,17 +101,13 @@ class ExternalNode(gpi.NodeAPI):
         import time
         import numpy as np
 
-        # start file browser
-        fname = self.URI(self.getVal('File Browser'))
-
         # check that the path actually exists
-        if not os.path.exists(fname):
-            self.log.node("Path does not exist: "+str(fname))
+        if self.fname is None or not os.path.exists(self.fname):
+            self.log.node("Path does not exist: " + str(self.fname))
             return 0
 
-
         # show some file stats
-        fstats = os.stat(fname)
+        fstats = os.stat(self.fname)
         # creation
         ctime = time.strftime('%d/%m/20%y', time.localtime(fstats.st_ctime))
         # mod time
@@ -127,14 +131,15 @@ class ExternalNode(gpi.NodeAPI):
         self.setAttr('I/O Info:',val=info)
 
         # get file pointer
-        f = h5py.File(fname, "r")
+        f = h5py.File(self.fname, "r")
 
         setname = self.getVal('dataset')
 
-        # assuming the dataset is a numpy array
-        data = f[setname].value
-        self.setData('out', data)
+        if self.getVal('read'):
+            # assuming the dataset is a numpy array
+            data = f[setname].value
+            self.setData('out', data)
 
-        f.close()
+            f.close()
 
         return 0
