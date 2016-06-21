@@ -169,6 +169,7 @@ class ExternalNode(gpi.NodeAPI):
         self.addInPort('arm_0', 'NPYarray', obligation=gpi.OPTIONAL)
         self.addOutPort('crds_out', 'NPYarray')
         self.addOutPort('grd_out', 'NPYarray')
+        self.addOutPort('kmag_trace', 'NPYarray')
 
     def validate(self):
 
@@ -441,5 +442,6 @@ class ExternalNode(gpi.NodeAPI):
 
             self.setData('crds_out', crds_out)
             self.setData('grd_out', grd_out)
+            self.setData('kmag_trace', np.sqrt(np.sum(crds_out[0,...]**2, axis=-1)))
 
         return(0)
