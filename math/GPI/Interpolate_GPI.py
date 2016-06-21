@@ -219,7 +219,7 @@ class ExternalNode(gpi.NodeAPI):
 
         data_out = data_in.copy()
         if self.getVal('compute'):
-            if kind in ('linear', 'nearest', 'zero'):
+            if kind in ('linear', 'nearest'):
                 for i in range(self.ndim):
                     val = self.getVal(self.dim_base_name+str(i)+']')
                     interpnew = val['length']
@@ -238,9 +238,9 @@ class ExternalNode(gpi.NodeAPI):
                         ynew = yinterp(xnew)
 
                     data_out = ynew
-            elif kind in ('slinear', 'quadratic', 'cubic'):
+            elif kind in ('zero', 'slinear', 'quadratic', 'cubic'):
                 from scipy.ndimage.interpolation import map_coordinates
-                orders = {'slinear': 1, 'quadratic': 2, 'cubic': 3}
+                orders = {'zero': 0, 'slinear': 1, 'quadratic': 2, 'cubic': 3}
                 o = orders[kind]
 
                 # if the data is complex, interp real and imaginary separately
@@ -273,6 +273,7 @@ class ExternalNode(gpi.NodeAPI):
                 new_dims = old_dims.copy()
                 fftargs = {}
                 win = np.ones(data_in.shape)
+                scale = 1
                 for i in range(self.ndim):
                     win *= self.window(i)
                     val = self.getVal(self.dim_base_name + str(i) + ']')
@@ -281,6 +282,7 @@ class ExternalNode(gpi.NodeAPI):
                         fftargs['dim{}'.format(self.ndim-i)] = 0
                     else:
                         fftargs['dim{}'.format(self.ndim-i)] = 1
+                        scale *= val['length'] / val['in_len']
 
                 # forward FFT with original dimensions
                 fftargs['dir'] = 0
@@ -293,6 +295,10 @@ class ExternalNode(gpi.NodeAPI):
 
                 if data_in.dtype in (np.float32, np.float64):
                     data_out = np.real(data_out)
+
+                # data needs to be scaled since we changed the size between the
+                # forward and inverse FT
+                data_out *= scale
 
             self.setData('out', data_out)
         else:
