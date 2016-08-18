@@ -87,7 +87,9 @@ class ExternalNode(gpi.NodeAPI):
     def initUI(self):
 
         # Widgets
-        self.button_labels = ['-2', '-1']
+        self.ndim = 9  # 9 for now
+        self.button_labels = [str(dim) for dim in (list(range(-9,0)))]
+        # self.button_labels = ['-2', '-1']
         self.addWidget('NonExclusivePushButtons2', 'Flip Dimensions:',
                        buttons=self.button_labels, val=[])
 
