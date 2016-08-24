@@ -1,10 +1,10 @@
 # Copyright (c) 2014, Dignity Health
-# 
+#
 #     The GPI core node library is licensed under
 # either the BSD 3-clause or the LGPL v. 3.
-# 
+#
 #     Under either license, the following additional term applies:
-# 
+#
 #         NO CLINICAL USE.  THE SOFTWARE IS NOT INTENDED FOR COMMERCIAL
 # PURPOSES AND SHOULD BE USED ONLY FOR NON-COMMERCIAL RESEARCH PURPOSES.  THE
 # SOFTWARE MAY NOT IN ANY EVENT BE USED FOR ANY CLINICAL OR DIAGNOSTIC
@@ -13,12 +13,12 @@
 # TO LIFE SUPPORT OR EMERGENCY MEDICAL OPERATIONS OR USES.  LICENSOR MAKES NO
 # WARRANTY AND HAS NOR LIABILITY ARISING FROM ANY USE OF THE SOFTWARE IN ANY
 # HIGH RISK OR STRICT LIABILITY ACTIVITIES.
-# 
+#
 #     If you elect to license the GPI core node library under the LGPL the
 # following applies:
-# 
+#
 #         This file is part of the GPI core node library.
-# 
+#
 #         The GPI core node library is free software: you can redistribute it
 # and/or modify it under the terms of the GNU Lesser General Public License as
 # published by the Free Software Foundation, either version 3 of the License,
@@ -26,7 +26,7 @@
 # in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
 # the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU Lesser General Public License for more details.
-# 
+#
 #         You should have received a copy of the GNU Lesser General Public
 # License along with the GPI core node library. If not, see
 # <http://www.gnu.org/licenses/>.
@@ -225,19 +225,19 @@ class ExternalNode(gpi.NodeAPI):
                 ncol = self.getVal('# Columns')
                 nrow = self.getVal('# Rows')
                 N = data.shape[dimval]
-                if '# Rows' in self.widgetEvents():
-                    while (int(N) % int(nrow) != 0 and nrow > 1):
-                        nrow = nrow - 1
-                    ncol = np.ceil(float(N) / nrow)
-                if '# Columns' in self.widgetEvents():
-                    while (int(N) % int(ncol) != 0 and ncol > 1):
-                        ncol = ncol - 1
-                    nrow = np.ceil(float(N) / ncol)
-                if (nrow * ncol != N or 'Slice/Tile Dimension' in self.widgetEvents()):
-                    nrow = int(np.sqrt(N))
-                    while (int(N) % int(nrow) != 0 and nrow > 1):
-                        nrow = nrow - 1
-                    ncol = np.ceil(float(N) / nrow)
+
+                # set the default to something sane, i.e. square-ish
+                if (ncol == 1 and nrow == 1
+                    or 'Slice/Tile Dimension' in self.widgetEvents()):
+                    ncol = np.round(np.sqrt(N))
+
+                # make sure there are at least enough tiles
+                if nrow * ncol < N:
+                    nrow = np.ceil(N / ncol)
+
+                # don't add extra blank tiles if they're not needed
+                while nrow * ncol - N >= ncol:
+                    nrow -= 1
 
                 self.setAttr('# Columns', visible=True, val=ncol)
                 self.setAttr('# Rows', visible=True, val=nrow)
@@ -261,7 +261,7 @@ class ExternalNode(gpi.NodeAPI):
         self.setAttr('L W F C:',visible=(dimfunc != 2))
         self.setAttr('Gamma',visible=(dimfunc != 2))
         self.setAttr('Fix Range',visible=(dimfunc != 2))
-      
+
         if dimfunc == 2:
           self.setAttr('Complex Display',visible=False)
           self.setAttr('Color Map',visible=False)
@@ -318,7 +318,7 @@ class ExternalNode(gpi.NodeAPI):
         dimfunc = self.getVal('Extra Dimension')
         dimval = self.getVal('Slice/Tile Dimension')
         if data.ndim == 3 and dimfunc < 2:
-            if dimfunc == 0:
+            if dimfunc == 0: # slice data
                 slval = self.getVal('Slice')-1
                 if dimval == 0:
                     data = data[slval,...]
@@ -326,27 +326,22 @@ class ExternalNode(gpi.NodeAPI):
                     data = data[:,slval,:]
                 else:
                     data = data[...,slval]
-            else:
+            else: # tile data
                 ncol = self.getVal('# Columns')
                 nrow = self.getVal('# Rows')
-                if dimval == 0:
-                    dim1 = data.shape[1]
-                    dim2 = data.shape[2]
-                    data.shape = [nrow, ncol, dim1, dim2]
-                    data = np.ascontiguousarray(np.transpose(data, (0,2,1,3)))
-                    data.shape = [dim1*nrow, dim2*ncol]
-                elif dimval == 1:
-                    dim1 = data.shape[0]
-                    dim2 = data.shape[2]
-                    data.shape = [dim1, nrow, ncol, dim2]
-                    data = np.ascontiguousarray(np.transpose(data, (1,0,2,3)))
-                    data.shape = [dim1*nrow, dim2*ncol]
-                else: 
-                    dim1 = data.shape[0]
-                    dim2 = data.shape[1]
-                    data.shape = [dim1, dim2, nrow, ncol]
-                    data = np.ascontiguousarray(np.transpose(data, (2,0,3,1)))
-                    data.shape = [dim1*nrow, dim2*ncol]
+
+                # add some blank tiles
+                data = np.rollaxis(data, dimval)
+                N, xres, yres = data.shape
+                N_new = ncol * nrow
+                pad_vals = ((0, N_new - N), (0, 0), (0, 0))
+                data = np.pad(data, pad_vals, mode='constant')
+
+                # from http://stackoverflow.com/a/13990648/333308
+                data = np.reshape(data, (nrow, ncol, xres, yres))
+                data = np.swapaxes(data, 1, 2)
+                data = np.reshape(data, (nrow*xres, ncol*yres))
+
 
         # Read in parameters, make a little floor:ceiling adjustment
         gamma = self.getVal('Gamma')
@@ -537,7 +532,7 @@ class ExternalNode(gpi.NodeAPI):
 
               if cmap == 1: # IceFire
                 hue = 4.*(data/256.)
-                hindex0 =                          hue < 1. 
+                hindex0 =                          hue < 1.
                 hindex1 = np.logical_and(hue >= 1.,hue < 2.)
                 hindex2 = np.logical_and(hue >= 2.,hue < 3.)
                 hindex3 = np.logical_and(hue >= 3.,hue < 4.)
@@ -560,7 +555,7 @@ class ExternalNode(gpi.NodeAPI):
 
               elif cmap == 2: # Fire
                 hue = 4.*(data/256.)
-                hindex0 =                          hue < 1. 
+                hindex0 =                          hue < 1.
                 hindex1 = np.logical_and(hue >= 1.,hue < 2.)
                 hindex2 = np.logical_and(hue >= 2.,hue < 3.)
                 hindex3 = np.logical_and(hue >= 3.,hue < 4.)
@@ -583,7 +578,7 @@ class ExternalNode(gpi.NodeAPI):
 
               elif cmap == 3: # Hot
                 hue = 3.*(data/256.)
-                hindex0 =                          hue < 1. 
+                hindex0 =                          hue < 1.
                 hindex1 = np.logical_and(hue >= 1.,hue < 2.)
                 hindex2 = np.logical_and(hue >= 2.,hue < 3.)
 
@@ -630,7 +625,7 @@ class ExternalNode(gpi.NodeAPI):
 
               elif cmap == 5: # BGR
                 hue = 4.*(data/256.)
-                hindex0 =                          hue < 1. 
+                hindex0 =                          hue < 1.
                 hindex1 = np.logical_and(hue >= 1.,hue < 2.)
                 hindex2 = np.logical_and(hue >= 2.,hue < 3.)
                 hindex3 = np.logical_and(hue >= 3.,hue < 4.)
@@ -660,9 +655,9 @@ class ExternalNode(gpi.NodeAPI):
             red = np.zeros(data.shape)
             green = np.zeros(data.shape)
             blue = np.zeros(data.shape)
-            red[sign<=0] = data[sign<=0] 
-            blue[sign<=0] = data[sign<=0] 
-            green[sign>=0] = data[sign>=0] 
+            red[sign<=0] = data[sign<=0]
+            blue[sign<=0] = data[sign<=0]
+            green[sign>=0] = data[sign>=0]
 
             red = red.astype(np.uint8)
             green = green.astype(np.uint8)
