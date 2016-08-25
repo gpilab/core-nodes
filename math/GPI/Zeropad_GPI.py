@@ -157,6 +157,7 @@ class ExternalNode(gpi.NodeAPI):
             self.addWidget('FFTW_GROUP', self.dim_base_name +
                            str(-i - 1) + ']')
 
+        self.addWidget('ExclusivePushButtons','Domain', buttons=['Transform','Image'],val=0)
         self.addWidget('PushButton', 'compute', toggle=True)
 
         # IO Ports
@@ -208,7 +209,8 @@ class ExternalNode(gpi.NodeAPI):
                     fftAxes = (-i - 1,)
                     ifftAxes = ifftAxes + (-i - 1,)
 
-                    temp = np.fft.fftshift(np.fft.ifftn(np.fft.ifftshift(temp),
+                    if self.getVal('Domain') == 0:
+                        temp = np.fft.fftshift(np.fft.ifftn(np.fft.ifftshift(temp),
                                                         axes=fftAxes))
 
                     zpad_length = val['length'] - temp.shape[-i - 1]
@@ -230,8 +232,11 @@ class ExternalNode(gpi.NodeAPI):
                     elif zpad_before < 0:
                         temp = np.delete(temp, list(range(-zpad_before)), (-i - 1))
 
-            out = np.fft.fftshift(np.fft.fftn(np.fft.ifftshift(temp),
+            if self.getVal('Domain') == 0:
+                out = np.fft.fftshift(np.fft.fftn(np.fft.ifftshift(temp),
                                               axes=ifftAxes))
+            else:
+                out = temp
             self.setData('out', out)
 
         else:
