@@ -279,14 +279,18 @@ class ExternalNode(gpi.NodeAPI):
 
           if np.iscomplexobj(data):
             self.setAttr('Complex Display',visible=True)
-            self.setAttr('Color Map',buttons=self.complex_cmaps,
-                         collapsed=self.getAttr('Color Map', 'collapsed'))
             scalarvis = self.getVal('Complex Display') != 4
           else:
             self.setAttr('Complex Display',visible=False)
+            scalarvis = True
+
+          if scalarvis:
             self.setAttr('Color Map',buttons=self.real_cmaps,
                          collapsed=self.getAttr('Color Map', 'collapsed'))
-            scalarvis = True
+          else:
+            self.setAttr('Color Map',buttons=self.complex_cmaps,
+                         collapsed=self.getAttr('Color Map', 'collapsed'))
+
           self.setAttr('Scalar Display',visible=scalarvis)
           self.setAttr('Edge Pixels',visible=not scalarvis)
           self.setAttr('Black Pixels',visible=not scalarvis)
@@ -360,7 +364,11 @@ class ExternalNode(gpi.NodeAPI):
             self.setAttr('Color Map', buttons=self.complex_cmaps,
                          collapsed=self.getAttr('Color Map', 'collapsed'),
                          val=0)
-          elif self.getAttr('Color Map', 'buttons') is not self.real_cmaps:
+          # elif self.getAttr('Color Map', 'buttons') != self.real_cmaps:
+          # there is no "get_buttons" method, so for now this will reset the
+          # colormap whenever "Complex Display" is changed
+          # this could/will be added in a future framework update
+          else:
             self.setAttr('Color Map', buttons=self.real_cmaps,
                          collapsed=self.getAttr('Color Map', 'collapsed'),
                          val=0)
@@ -464,14 +472,10 @@ class ExternalNode(gpi.NodeAPI):
           if cmap != 3:
             phase_norm = (phase_norm - 0.25) % 1
           colorized = 255 * cm.gray(mag_norm) * phase_cmap(phase_norm)
-          print(np.min(colorized), np.max(colorized))
           red = colorized[...,0]
           green = colorized[...,1]
           blue = colorized[...,2]
           alpha = colorized[...,3]
-          # red *= 255/np.max(red)
-          # green *= 255/np.max(green)
-          # red *= 255/np.max(red)
 
         # DISPLAY SCALAR DATA
         elif dimfunc != 2:
