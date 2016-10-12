@@ -470,7 +470,7 @@ class ExternalNode(gpi.NodeAPI):
           phase_norm = (phase + 180) / 360
           # phase shift to match old look better
           if cmap != 3:
-            phase_norm = (phase_norm - 0.25) % 1
+            phase_norm = (phase_norm - 1/3) % 1
           colorized = 255 * cm.gray(mag_norm) * phase_cmap(phase_norm)
           red = colorized[...,0]
           green = colorized[...,1]
