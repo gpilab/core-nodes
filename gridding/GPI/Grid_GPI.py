@@ -1,10 +1,10 @@
 # Copyright (c) 2014, Dignity Health
-# 
+#
 #     The GPI core node library is licensed under
 # either the BSD 3-clause or the LGPL v. 3.
-# 
+#
 #     Under either license, the following additional term applies:
-# 
+#
 #         NO CLINICAL USE.  THE SOFTWARE IS NOT INTENDED FOR COMMERCIAL
 # PURPOSES AND SHOULD BE USED ONLY FOR NON-COMMERCIAL RESEARCH PURPOSES.  THE
 # SOFTWARE MAY NOT IN ANY EVENT BE USED FOR ANY CLINICAL OR DIAGNOSTIC
@@ -13,12 +13,12 @@
 # TO LIFE SUPPORT OR EMERGENCY MEDICAL OPERATIONS OR USES.  LICENSOR MAKES NO
 # WARRANTY AND HAS NOR LIABILITY ARISING FROM ANY USE OF THE SOFTWARE IN ANY
 # HIGH RISK OR STRICT LIABILITY ACTIVITIES.
-# 
+#
 #     If you elect to license the GPI core node library under the LGPL the
 # following applies:
-# 
+#
 #         This file is part of the GPI core node library.
-# 
+#
 #         The GPI core node library is free software: you can redistribute it
 # and/or modify it under the terms of the GNU Lesser General Public License as
 # published by the Free Software Foundation, either version 3 of the License,
@@ -26,7 +26,7 @@
 # in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
 # the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU Lesser General Public License for more details.
-# 
+#
 #         You should have received a copy of the GNU Lesser General Public
 # License along with the GPI core node library. If not, see
 # <http://www.gnu.org/licenses/>.
@@ -50,12 +50,12 @@ class ExternalNode(gpi.NodeAPI):
     params_in - optional dictionary from (e.g.) spiralcoords, to automatically specify the effective matrix
 
     OUTPUTS:
-    gridded data, which is M+E dimensions, where 
+    gridded data, which is M+E dimensions, where
                   M is 1, 2 or 3, depending on last dimension of coords input (i.e. 1D, 2D, or 3D)
                     The size of these M dimensions is 1.5 times the given effective matrix
                   E is (# input data dims) - (Dims per set widget value)
                     E represents slices, coils, etc., which don't get gridded together.
-                  
+
     WIDGETS:
     Dims per Set - How many dimensions get gridded into the same space (and the space is determined by the last dim of coords)
                    Remaining dimensions are independent, e.g. for slices, coils, etc.
@@ -71,7 +71,7 @@ class ExternalNode(gpi.NodeAPI):
       Note on Input dimensions: If coords is N dimensions, with the last used for the 2D/3D information,
                                   1) weights must have N-1 dimensions, of the same shape as corresponding coords
                                   2) data can have N-1 or more dimensions (of correct shape)
-                                  3) If data has extra dimension (the first dimensions), data from each index 
+                                  3) If data has extra dimension (the first dimensions), data from each index
                                        in these dimensions are gridded using the same coords and weights
 
       Examples:  2D Spiral Gridding, 4-channel coil, 22 slices, 32 arms, 4056 points per interleaf
@@ -112,13 +112,13 @@ class ExternalNode(gpi.NodeAPI):
                        obligation=gpi.REQUIRED)
         self.addInPort('weighting', 'NPYarray', dtype=[np.float32, np.float64],
                        obligation=gpi.OPTIONAL)
-        self.addInPort('params_in', 'DICT', obligation = gpi.OPTIONAL)          
+        self.addInPort('params_in', 'DICT', obligation = gpi.OPTIONAL)
         self.addOutPort('out', 'NPYarray', dtype=[np.complex64, np.complex128])
 
     def validate(self):
         ''' DHW check if input data, coords and weight have the correct dimentions and sizes.
-        ''' 
-        
+        '''
+
         data = self.getData('data')
         crds = self.getData('coords')
         wghts = self.getData('weighting')
@@ -136,24 +136,24 @@ class ExternalNode(gpi.NodeAPI):
           if data.ndim < crds.ndim - 1:
             self.log.warn("# of dimensions of data to small")
             return 1
-          else: 
+          else:
             for i in range(crds.ndim-1):
               if data.shape[-i-1] != crds.shape[-i-2]:
                 self.log.warn("sizes of data and cords don't match")
                 return 1
-        
+
         if wghts is not None:
           if wghts.ndim != crds.ndim - 1:
             self.log.warn("# of dimensions of weights must match crds")
             return 1
-          else: 
+          else:
             for i in range(crds.ndim-1):
               if crds.shape[i] != wghts.shape[i]:
                 self.log.warn("sizes of weights and coords don't match")
                 return 1
 
-        # Auto Matrix calculation: extra 25% assumes "true resolution"          
-        if (inparam is not None):                                               
+        # Auto Matrix calculation: extra 25% assumes "true resolution"
+        if (inparam is not None):
 
           # header check
           if 'headerType' in inparam:
@@ -169,12 +169,12 @@ class ExternalNode(gpi.NodeAPI):
             return 1
 
           mtx_xy = 1.25*float(inparam['spFOVXY'][0])/float(inparam['spRESXY'][0])
-          self.setAttr('Eff MTX XY', val = mtx_xy)                   
-          if crds.shape[-1] == 3:                                               
-            mtx_z  = float(inparam['spFOVZ'][0]) /float(inparam['spRESZ'][0])   
-            if int(float(inparam['spSTYPE'][0])) in [2,3]: #SDST, FLORET        
-              mtx_z *= 1.25                                                     
-            self.setAttr('Eff MTX Z', val = mtx_z)                   
+          self.setAttr('Eff MTX XY', val = mtx_xy)
+          if crds.shape[-1] == 3:
+            mtx_z  = float(inparam['spFOVZ'][0]) /float(inparam['spRESZ'][0])
+            if int(float(inparam['spSTYPE'][0])) in [2,3]: #SDST, FLORET
+              mtx_z *= 1.25
+            self.setAttr('Eff MTX Z', val = mtx_z)
 
           # Auto offset calculation.  Values reported in mm, change to # pixels
           m_off = 0.001*float(inparam['m_offc'][0])
@@ -183,7 +183,7 @@ class ExternalNode(gpi.NodeAPI):
           yoff = p_off*float(mtx_xy)/float(inparam['spFOVXY'][0])
           self.setAttr('dx (pixels)', val=xoff)
           self.setAttr('dy (pixels)', val=yoff)
-          if crds.shape[-1] == 3:                                               
+          if crds.shape[-1] == 3:
             s_off = 0.001*float(inparam['s_offc'][0])
             zoff = s_off*float(mtx_z) /float(inparam['spFOVZ'][0])
             # shift half pixel when the number of slices is even with
@@ -218,7 +218,7 @@ class ExternalNode(gpi.NodeAPI):
         npts = 1
         for i in range(dps):
           npts *= crdshape[maxi-i]
-        ncsets = crds[...,0].size/npts
+        ncsets = crds[...,0].size//npts
 
         # Make data or reshape it
         if data is None:
@@ -229,7 +229,7 @@ class ExternalNode(gpi.NodeAPI):
         else:
           in_dtype = data.dtype  # make the out-type the same as the in-type
           datshape = np.array(data.shape)
-          ndsets = data.size/crds[...,0].size
+          ndsets = data.size//crds[...,0].size
           # Reshape data to be 3 dimensional
           # force single precision
           data = np.reshape(data.astype(np.complex64),(ndsets,ncsets,npts))
@@ -255,15 +255,15 @@ class ExternalNode(gpi.NodeAPI):
         outdim1 = outdim
         if crds.shape[crds.ndim-1] == 3: # For Distributed Spirals
             outdim1 = np.array([mtx_z,mtx_xy,mtx_xy],dtype=np.int64)
-       
-        outshape = np.append([ndsets*ncsets], outdim1) 
+
+        outshape = np.append([ndsets*ncsets], outdim1)
         out = np.zeros(outshape,  dtype = in_dtype)
 
         # Grid it
-        for i in range(int(ndsets)):
-          for j in range(int(ncsets)):
+        for i in range(ndsets):
+          for j in range(ncsets):
             outset = gd.grid(crds[j,...],data[i,j,...],wghts[j,...],outdim,dx,dy,dz)
-            out[i*ncsets+j,...] = outset.astype(in_dtype) 
+            out[i*ncsets+j,...] = outset.astype(in_dtype)
 
         # RESHAPE OUTPUT
         if datshape.size == dps:
