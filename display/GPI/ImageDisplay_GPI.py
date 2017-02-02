@@ -239,6 +239,7 @@ class ExternalNode(gpi.NodeAPI):
                     nrow = np.ceil(N / ncol)
 
                 # don't add extra blank tiles if they're not needed
+                # TODO: same thing, but for columns
                 while nrow * ncol - N >= ncol:
                     nrow -= 1
 
