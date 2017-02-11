@@ -159,7 +159,9 @@ class ExternalNode(gpi.NodeAPI):
           if 'headerType' in inparam:
 
             # check if the header is for spiral
-            if inparam['headerType'] != 'BNIspiral':
+            if 'spParams' in inparam:
+                inparam = inparam['spParams']
+            elif inparam['headerType'] != 'BNIspiral':
                 self.log.warn("wrong header type")
                 return 1
 

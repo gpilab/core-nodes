@@ -101,13 +101,23 @@ class ExternalNode(gpi.NodeAPI):
         # Auto Matrix calculation: extra 25% assumes "true resolution"
         # A more robust version will check to see if this is spiral, etc...
         if (inparam is not None):
-          mtx_xy = 1.25*float(inparam['spFOVXY'][0])/float(inparam['spRESXY'][0])
-          self.setAttr('Effective MTX XY', val = mtx_xy)
-          if crds.shape[-1] == 3:
-            mtx_z  = float(inparam['spFOVZ'][0]) /float(inparam['spRESZ'][0])
-            if int(float(inparam['spSTYPE'][0])) in [2,3]: #SDST, FLORET
-              mtx_z *= 1.25
-            self.setAttr('Effective MTX Z', val = mtx_z)
+            if 'headerType' in inparam:
+                if 'spParams' in inparam:
+                    inparam = inparam['spParams']
+                elif inparam['headerType'] != 'BNIspiral':
+                    self.log.warn("wrong header type")
+                    return 1
+            else:
+                self.log.warn("wrong header type")
+                return 1
+
+            mtx_xy = 1.25*float(inparam['spFOVXY'][0])/float(inparam['spRESXY'][0])
+            self.setAttr('Effective MTX XY', val = mtx_xy)
+            if crds.shape[-1] == 3:
+              mtx_z  = float(inparam['spFOVZ'][0]) /float(inparam['spRESZ'][0])
+              if int(float(inparam['spSTYPE'][0])) in [2,3]: #SDST, FLORET
+                mtx_z *= 1.25
+              self.setAttr('Effective MTX Z', val = mtx_z)
 
     def compute(self):
 
