@@ -158,6 +158,12 @@ class ExternalNode(gpi.NodeAPI):
 
         data1 = self.getData('inLeft')
         data2 = self.getData('inRight')
+
+        if data1 is not None and data1.dtype == bool:
+            data1 = data1.astype(np.float)
+        if data2 is not None and data2.dtype == bool:
+            data2 = data2.astype(np.float)
+
         operation = self.op[self.getVal('Operation')]
 
         if self.getVal('compute'):
