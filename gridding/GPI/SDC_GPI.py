@@ -102,22 +102,39 @@ class ExternalNode(gpi.NodeAPI):
         # A more robust version will check to see if this is spiral, etc...
         if (inparam is not None):
             if 'headerType' in inparam:
-                if 'spParams' in inparam:
-                    inparam = inparam['spParams']
-                elif inparam['headerType'] != 'BNIspiral':
+                # old ReadPhilips param output
+                if inparam['headerType'] == 'BNIspiral':
+                    mtx_xy = (1.25*float(inparam['spFOVXY'][0])/
+                              float(inparam['spRESXY'][0]))
+                    stype = int(float(inparam['spSTYPE'][0]))
+                    if crds.shape[-1] == 3:
+                        mtx_z  = (float(inparam['spFOVZ'][0])/
+                                  float(inparam['spRESZ'][0]))
+                        if stype in [2,3]:  # SDST, FLORET
+                            mtx_z *= 1.25
+                        self.setAttr('Effective MTX Z', val=mtx_z)
+
+                # new ReadPhilips param output
+                elif inparam['headerType'] == 'spparams':
+                    stype = inparam['SPIRAL_TYPE']
+                    mtx_xy = (1.25*inparam['FOV_CM'][0] / inparam['RES_CM'][0])
+                    if crds.shape[-1] == 3:
+                        mtx_z = (inparam['FOV_CM'][2] / inparam['RES_CM'][2])
+                        if stype in [2,3]:  # SDST, FLORET
+                            mtx_z *= 1.25
+                        self.setAttr('Effective MTX Z', val=mtx_z)
+                    else:
+                        self.log.warn("wrong header type")
+                        return 1
+                else:
                     self.log.warn("wrong header type")
                     return 1
             else:
+                # if there is no header type, then its also the wrong type
                 self.log.warn("wrong header type")
                 return 1
 
-            mtx_xy = 1.25*float(inparam['spFOVXY'][0])/float(inparam['spRESXY'][0])
             self.setAttr('Effective MTX XY', val = mtx_xy)
-            if crds.shape[-1] == 3:
-              mtx_z  = float(inparam['spFOVZ'][0]) /float(inparam['spRESZ'][0])
-              if int(float(inparam['spSTYPE'][0])) in [2,3]: #SDST, FLORET
-                mtx_z *= 1.25
-              self.setAttr('Effective MTX Z', val = mtx_z)
 
     def compute(self):
 

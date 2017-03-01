@@ -155,45 +155,66 @@ class ExternalNode(gpi.NodeAPI):
         # Auto Matrix calculation: extra 25% assumes "true resolution"
         if (inparam is not None):
 
-          # header check
-          if 'headerType' in inparam:
+            # header check
+            if 'headerType' in inparam:
+                # old ReadPhilips param output
+                if inparam['headerType'] == 'BNIspiral':
+                    mtx_xy = (1.25*float(inparam['spFOVXY'][0])/
+                              float(inparam['spRESXY'][0]))
+                    stype = int(float(inparam['spSTYPE'][0]))
+                    if crds.shape[-1] == 3:
+                        mtx_z  = (float(inparam['spFOVZ'][0])/
+                                  float(inparam['spRESZ'][0]))
+                        if stype in [2,3]:  # SDST, FLORET
+                            mtx_z *= 1.25
+                        self.setAttr('Eff MTX Z', val=mtx_z)
 
-            # check if the header is for spiral
-            if 'spParams' in inparam:
-                inparam = inparam['spParams']
-            elif inparam['headerType'] != 'BNIspiral':
+                    # Auto offset calculation.  Values reported in mm, change to # pixels
+                    m_off = 0.001*float(inparam['m_offc'][0])
+                    p_off = 0.001*float(inparam['p_offc'][0])
+                    xoff = m_off*float(mtx_xy)/float(inparam['spFOVXY'][0])
+                    yoff = p_off*float(mtx_xy)/float(inparam['spFOVXY'][0])
+                    if crds.shape[-1] == 3:
+                        s_off = 0.001*float(inparam['s_offc'][0])
+                        zoff = s_off*float(mtx_z) /float(inparam['spFOVZ'][0])
+
+                # new ReadPhilips param output
+                elif inparam['headerType'] == 'spparams':
+                    # these off-center values are already in pixels
+                    stype = inparam['SPIRAL_TYPE']
+                    xoff = inparam['FOV_OFFC_PIXELS'][0]
+                    yoff = inparam['FOV_OFFC_PIXELS'][1]
+                    zoff = inparam['FOV_OFFC_PIXELS'][2]
+
+                    mtx_xy = (1.25*inparam['FOV_CM'][0] / inparam['RES_CM'][0])
+                    if crds.shape[-1] == 3:
+                        mtx_z = (inparam['FOV_CM'][2] / inparam['RES_CM'][2])
+                        if stype in [2,3]:  # SDST, FLORET
+                            mtx_z *= 1.25
+                            zoff *= 1.25
+                        self.setAttr('Eff MTX Z', val=mtx_z)
+                    else:
+                        self.log.warn("wrong header type")
+                        return 1
+                else:
+                    self.log.warn("wrong header type")
+                    return 1
+
+                self.setAttr('Eff MTX XY', val = mtx_xy)
+                self.setAttr('dx (pixels)', val=xoff)
+                self.setAttr('dy (pixels)', val=yoff)
+
+                # shift half pixel when the number of slices is even with
+                # distributed spirals. ZQL
+                if crds.shape[-1] == 3:
+                    if stype in [1,2] and int(self.getVal('Eff MTX Z'))%2 == 0:
+                        zoff = zoff - 0.5
+                    self.setAttr('dz (pixels)', val=zoff)
+                    
+            else:
+                # if there is no header type, then its also the wrong type
                 self.log.warn("wrong header type")
                 return 1
-
-          else:
-            # if there is no header type, then its also the wrong type
-            self.log.warn("wrong header type")
-            return 1
-
-          mtx_xy = 1.25*float(inparam['spFOVXY'][0])/float(inparam['spRESXY'][0])
-          self.setAttr('Eff MTX XY', val = mtx_xy)
-          if crds.shape[-1] == 3:
-            mtx_z  = float(inparam['spFOVZ'][0]) /float(inparam['spRESZ'][0])
-            if int(float(inparam['spSTYPE'][0])) in [2,3]: #SDST, FLORET
-              mtx_z *= 1.25
-            self.setAttr('Eff MTX Z', val = mtx_z)
-
-          # Auto offset calculation.  Values reported in mm, change to # pixels
-          m_off = 0.001*float(inparam['m_offc'][0])
-          p_off = 0.001*float(inparam['p_offc'][0])
-          xoff = m_off*float(mtx_xy)/float(inparam['spFOVXY'][0])
-          yoff = p_off*float(mtx_xy)/float(inparam['spFOVXY'][0])
-          self.setAttr('dx (pixels)', val=xoff)
-          self.setAttr('dy (pixels)', val=yoff)
-          if crds.shape[-1] == 3:
-            s_off = 0.001*float(inparam['s_offc'][0])
-            zoff = s_off*float(mtx_z) /float(inparam['spFOVZ'][0])
-            # shift half pixel when the number of slices is even with
-            # distributed spirals. ZQL
-            if (int(float(inparam['spSTYPE'][0])) in [1,2]) and \
-              (int(self.getVal('Eff MTX Z'))%2 == 0):
-              zoff = zoff - 0.5
-            self.setAttr('dz (pixels)', val=zoff)
 
         return 0
 
