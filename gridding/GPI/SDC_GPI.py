@@ -123,9 +123,6 @@ class ExternalNode(gpi.NodeAPI):
                         if stype in [2,3]:  # SDST, FLORET
                             mtx_z *= 1.25
                         self.setAttr('Effective MTX Z', val=mtx_z)
-                    else:
-                        self.log.warn("wrong header type")
-                        return 1
                 else:
                     self.log.warn("wrong header type")
                     return 1

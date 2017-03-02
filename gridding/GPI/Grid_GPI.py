@@ -193,9 +193,6 @@ class ExternalNode(gpi.NodeAPI):
                             mtx_z *= 1.25
                             zoff *= 1.25
                         self.setAttr('Eff MTX Z', val=mtx_z)
-                    else:
-                        self.log.warn("wrong header type")
-                        return 1
                 else:
                     self.log.warn("wrong header type")
                     return 1
