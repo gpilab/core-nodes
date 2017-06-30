@@ -275,12 +275,12 @@ class ExternalNode(gpi.NodeAPI):
                 win = np.ones(data_in.shape)
                 scale = 1
                 for i in range(self.ndim):
-                    win *= self.window(i)
                     val = self.getVal(self.dim_base_name + str(i) + ']')
                     new_dims[self.ndim-i-1] = np.int64(val['length'])
                     if val['length'] == val['in_len']:
                         fftargs['dim{}'.format(self.ndim-i)] = 0
                     else:
+                        win *= self.window(i)
                         fftargs['dim{}'.format(self.ndim-i)] = 1
                         scale *= val['length'] / val['in_len']
 
