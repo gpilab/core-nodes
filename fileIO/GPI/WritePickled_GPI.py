@@ -36,7 +36,7 @@
 # Date: 2012 Nov 02
 
 import gpi
-import cPickle as pic
+import pickle as pic
 
 class ExternalNode(gpi.NodeAPI):
     """Implements the python pickle (cPickle) module for serializing py-objects
@@ -59,12 +59,14 @@ class ExternalNode(gpi.NodeAPI):
        # Widgets
         self.addWidget('SaveFileBrowser', 'File Browser',
                 button_title='Browse', caption='Save File (*.pickle)',
-                directory='~/', filter='pickled (*.pickle)')
+                filter='pickled (*.pickle)')
         self.addWidget('PushButton', 'Write Mode', button_title='Write on New Filename', toggle=True)
         self.addWidget('PushButton', 'Write Now', button_title='Write Right Now', toggle=False)
 
         # IO Ports
         self.addInPort('in','PASS')
+
+        self.URI = gpi.TranslateFileURI
 
     def validate(self):
 
@@ -73,15 +75,18 @@ class ExternalNode(gpi.NodeAPI):
         else:
             self.setAttr('Write Mode', button_title="Write on New Filename")
 
+        fname = self.URI(self.getVal('File Browser'))
+        self.setDetailLabel(fname)
+
         return 0
 
     def compute(self):
 
-        import cPickle as pic
+        import pickle as pic
 
         if self.getVal('Write Mode') or self.getVal('Write Now') or ('File Browser' in self.widgetEvents()):
 
-            fname = gpi.TranslateFileURI(self.getVal('File Browser'))
+            fname = self.URI(self.getVal('File Browser'))
             if not fname.endswith('.pickle'):
                 fname += '.pickle'
 

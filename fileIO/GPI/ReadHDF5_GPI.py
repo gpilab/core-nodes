@@ -1,10 +1,10 @@
 # Copyright (c) 2014, Dignity Health
-# 
+#
 #     The GPI core node library is licensed under
 # either the BSD 3-clause or the LGPL v. 3.
-# 
+#
 #     Under either license, the following additional term applies:
-# 
+#
 #         NO CLINICAL USE.  THE SOFTWARE IS NOT INTENDED FOR COMMERCIAL
 # PURPOSES AND SHOULD BE USED ONLY FOR NON-COMMERCIAL RESEARCH PURPOSES.  THE
 # SOFTWARE MAY NOT IN ANY EVENT BE USED FOR ANY CLINICAL OR DIAGNOSTIC
@@ -13,12 +13,12 @@
 # TO LIFE SUPPORT OR EMERGENCY MEDICAL OPERATIONS OR USES.  LICENSOR MAKES NO
 # WARRANTY AND HAS NOR LIABILITY ARISING FROM ANY USE OF THE SOFTWARE IN ANY
 # HIGH RISK OR STRICT LIABILITY ACTIVITIES.
-# 
+#
 #     If you elect to license the GPI core node library under the LGPL the
 # following applies:
-# 
+#
 #         This file is part of the GPI core node library.
-# 
+#
 #         The GPI core node library is free software: you can redistribute it
 # and/or modify it under the terms of the GNU Lesser General Public License as
 # published by the Free Software Foundation, either version 3 of the License,
@@ -26,7 +26,7 @@
 # in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
 # the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU Lesser General Public License for more details.
-# 
+#
 #         You should have received a copy of the GNU Lesser General Public
 # License along with the GPI core node library. If not, see
 # <http://www.gnu.org/licenses/>.
@@ -53,9 +53,10 @@ class ExternalNode(gpi.NodeAPI):
         self.addWidget('TextBox', 'I/O Info:')
         self.addWidget(
             'OpenFileBrowser', 'File Browser', button_title='Browse',
-            caption='Open File', directory='~/',
-            filter='hdf5 (*.hdf5);;hdf5 (*.h5)')
+            caption='Open File', filter='hdf5 (*.hdf5);;hdf5 (*.h5)')
         self.addWidget('ComboBox', 'dataset')
+        self.addWidget('PushButton', 'reload datasets')
+        self.addWidget('PushButton', 'read', toggle=True, val=False)
         # self.addWidget('StringBox', 'set-name', val='gpidata')
 
         # IO Ports
@@ -63,28 +64,36 @@ class ExternalNode(gpi.NodeAPI):
 
         # store for later use
         self.URI = gpi.TranslateFileURI
-        self.setname = None
+        self.fname = None
 
     def validate(self):
+        self.fname = self.URI(self.getVal('File Browser'))
 
-        if 'File Browser' in self.widgetEvents():
-            fname = self.URI(self.getVal('File Browser'))
+        if ('File Browser' in self.widgetEvents()
+             or 'reload datasets' in self.widgetEvents()):
+            self.setAttr('read', val=False)
 
             # check that the path actually exists
-            if not os.path.exists(fname):
-                self.log.node("Path does not exist: "+str(fname))
-                return 0
-            f = h5py.File(fname, "r")
+            if not os.path.exists(self.fname):
+                self.log.node("Path does not exist: " + self.fname)
+                return 1
+
+            f = h5py.File(self.fname, "r")
 
             # show available keys
-            all_names = []
-            def append_if_dataset(name,obj):
-                if isinstance(obj,h5py.Dataset):
-                    all_names.append(name)
+            self.dataset_names = []
+            def append_if_dataset(name, obj):
+                if isinstance(obj, h5py.Dataset):
+                    self.dataset_names.append(name)
             f.visititems(append_if_dataset)
-            self.setAttr('dataset',items=all_names)
+            self.setAttr('dataset', items=self.dataset_names)
 
             f.close()
+
+        if self.getVal('dataset') is not None:
+            self.setDetailLabel(self.fname + "::" + self.getVal('dataset'))
+        else:
+            self.setDetailLabel(self.fname)
 
         return 0
 
@@ -92,17 +101,13 @@ class ExternalNode(gpi.NodeAPI):
         import time
         import numpy as np
 
-        # start file browser
-        fname = self.URI(self.getVal('File Browser'))
-
         # check that the path actually exists
-        if not os.path.exists(fname):
-            self.log.node("Path does not exist: "+str(fname))
+        if self.fname is None or not os.path.exists(self.fname):
+            self.log.node("Path does not exist: " + str(self.fname))
             return 0
 
-
         # show some file stats
-        fstats = os.stat(fname)
+        fstats = os.stat(self.fname)
         # creation
         ctime = time.strftime('%d/%m/20%y', time.localtime(fstats.st_ctime))
         # mod time
@@ -126,14 +131,15 @@ class ExternalNode(gpi.NodeAPI):
         self.setAttr('I/O Info:',val=info)
 
         # get file pointer
-        f = h5py.File(fname, "r")
+        f = h5py.File(self.fname, "r")
 
         setname = self.getVal('dataset')
-        
-        # assuming the dataset is a numpy array
-        data = f[setname].value
-        self.setData('out', data)
 
-        f.close()
+        if self.getVal('read'):
+            # assuming the dataset is a numpy array
+            data = f[setname].value
+            self.setData('out', data)
+
+            f.close()
 
         return 0

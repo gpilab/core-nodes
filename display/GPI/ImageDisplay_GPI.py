@@ -1,10 +1,10 @@
 # Copyright (c) 2014, Dignity Health
-# 
+#
 #     The GPI core node library is licensed under
 # either the BSD 3-clause or the LGPL v. 3.
-# 
+#
 #     Under either license, the following additional term applies:
-# 
+#
 #         NO CLINICAL USE.  THE SOFTWARE IS NOT INTENDED FOR COMMERCIAL
 # PURPOSES AND SHOULD BE USED ONLY FOR NON-COMMERCIAL RESEARCH PURPOSES.  THE
 # SOFTWARE MAY NOT IN ANY EVENT BE USED FOR ANY CLINICAL OR DIAGNOSTIC
@@ -13,12 +13,12 @@
 # TO LIFE SUPPORT OR EMERGENCY MEDICAL OPERATIONS OR USES.  LICENSOR MAKES NO
 # WARRANTY AND HAS NOR LIABILITY ARISING FROM ANY USE OF THE SOFTWARE IN ANY
 # HIGH RISK OR STRICT LIABILITY ACTIVITIES.
-# 
+#
 #     If you elect to license the GPI core node library under the LGPL the
 # following applies:
-# 
+#
 #         This file is part of the GPI core node library.
-# 
+#
 #         The GPI core node library is free software: you can redistribute it
 # and/or modify it under the terms of the GNU Lesser General Public License as
 # published by the Free Software Foundation, either version 3 of the License,
@@ -26,7 +26,7 @@
 # in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
 # the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU Lesser General Public License for more details.
-# 
+#
 #         You should have received a copy of the GNU Lesser General Public
 # License along with the GPI core node library. If not, see
 # <http://www.gnu.org/licenses/>.
@@ -170,11 +170,18 @@ class ExternalNode(gpi.NodeAPI):
         # Widgets
         self.addWidget('ExclusivePushButtons','Complex Display',
                        buttons=['R','I','M','P','C'], val=4)
+        self.real_cmaps = ['Gray','IceFire','Fire','Hot','HOT2','BGR']
+        self.complex_cmaps = ['HSV','HSL','HUSL','CoolWarm']
         self.addWidget('ExclusivePushButtons','Color Map',
-                       buttons=['Gray','IceFire','Fire','Hot','HOT2','BGR'], val=0, collapsed=True)
+                       buttons=self.real_cmaps, val=0, collapsed=True)
         self.addWidget('SpinBox', 'Edge Pixels', min=0)
         self.addWidget('SpinBox', 'Black Pixels', min=0)
         self.addWidget('DisplayBox', 'Viewport:')
+        self.addWidget('Slider', 'Slice', min=1, val=1)
+        self.addWidget('ExclusivePushButtons', 'Slice/Tile Dimension', buttons=['0', '1', '2'], val=0)
+        self.addWidget('ExclusivePushButtons', 'Extra Dimension', buttons=['Slice', 'Tile', 'RGB(A)'], val=0)
+        self.addWidget('SpinBox', '# Columns', val=1)
+        self.addWidget('SpinBox', '# Rows', val=1)
         self.addWidget('WindowLevel', 'L W F C:', collapsed=True)
         self.addWidget('ExclusivePushButtons','Scalar Display',
                        buttons=['Pass','Mag','Sign'], val=0)
@@ -186,25 +193,80 @@ class ExternalNode(gpi.NodeAPI):
         self.addWidget('DoubleSpinBox', 'Range Max')
 
         # IO Ports
-        self.addInPort('in', 'NPYarray')
+        self.addInPort('in', 'NPYarray', drange=(2,3))
         self.addOutPort('out', 'NPYarray')
+        self.addOutPort('temp', 'NPYarray')
 
     def validate(self):
 
         # Complex or Scalar?
         data = self.getData('in')
+        dimfunc = self.getVal('Extra Dimension')
 
-        if data.ndim is not 2:
-          if ((data.ndim is not 3) or
-              (data.shape[-1] is not 3) and (data.shape[-1] is not 4)):
-            self.log.warn("data must be 2D or 3D with the last dim=3 or 4")
-            return 1
+        if data.ndim == 3:
+            dimval = self.getVal('Slice/Tile Dimension')
+            self.setAttr('Extra Dimension', visible=True)
+            if data.shape[-1] not in [3, 4]:
+                if dimfunc > 1:
+                    dimfunc = 0
+                self.setAttr('Extra Dimension', buttons=['Slice', 'Tile'], val=dimfunc)
+            else:
+                if data.dtype == 'uint8':
+                    dimfunc = 2
+                self.setAttr('Extra Dimension', buttons=['Slice', 'Tile', 'RGB(A)'], val=dimfunc)
 
-        self.setAttr('L W F C:',visible=(data.ndim==2))
-        self.setAttr('Gamma',visible=(data.ndim==2))
-        self.setAttr('Fix Range',visible=(data.ndim==2))
-      
-        if data.ndim is 3:
+            if dimfunc == 0:
+                slval = self.getVal('Slice')
+                self.setAttr('Slice/Tile Dimension', visible=True)
+                if slval > data.shape[dimval]:
+                    slval = data.shape[dimval]
+                self.setAttr('Slice', visible=True, min=1, max=data.shape[dimval], val=slval)
+                self.setAttr('# Rows', visible=False)
+                self.setAttr('# Columns', visible=False)
+            elif dimfunc == 1:
+                self.setAttr('Slice/Tile Dimension', visible=True)
+                ncol = self.getVal('# Columns')
+                nrow = self.getVal('# Rows')
+                N = data.shape[dimval]
+
+                # set the default to something sane, i.e. square-ish
+                if (ncol == 1 and nrow == 1
+                    or 'Slice/Tile Dimension' in self.widgetEvents()):
+                    ncol = np.round(np.sqrt(N))
+
+                # make sure there are at least enough tiles
+                if nrow * ncol < N:
+                    nrow = np.ceil(N / ncol)
+
+                # don't add extra blank tiles if they're not needed
+                # TODO: same thing, but for columns
+                while nrow * ncol - N >= ncol:
+                    nrow -= 1
+
+                self.setAttr('# Columns', visible=True, val=ncol)
+                self.setAttr('# Rows', visible=True, val=nrow)
+                self.setAttr('Slice', visible=False)
+            else:
+                self.setAttr('Slice/Tile Dimension', visible=False)
+                self.setAttr('Slice', visible=False)
+                self.setAttr('# Rows', visible=False)
+                self.setAttr('# Columns', visible=False)
+
+        else:
+            if dimfunc > 1:
+                dimfunc = 0
+                self.setAttr('Extra Dimension', buttons=['Slice', 'Tile'], val=dimfunc)
+            self.setAttr('Extra Dimension', visible=False)
+            self.setAttr('Slice/Tile Dimension', visible=False)
+            self.setAttr('Slice', visible=False)
+            self.setAttr('# Rows', visible=False)
+            self.setAttr('# Columns', visible=False)
+
+        self.setAttr('L W F C:',visible=(dimfunc != 2))
+        self.setAttr('Gamma',visible=(dimfunc != 2))
+        self.setAttr('Fix Range',visible=(dimfunc != 2))
+
+        if dimfunc == 2: # RGBA
           self.setAttr('Complex Display',visible=False)
           self.setAttr('Color Map',visible=False)
           self.setAttr('Scalar Display',visible=False)
@@ -222,7 +284,14 @@ class ExternalNode(gpi.NodeAPI):
           else:
             self.setAttr('Complex Display',visible=False)
             scalarvis = True
-          self.setAttr('Color Map',visible=scalarvis)
+
+          if scalarvis:
+            self.setAttr('Color Map',buttons=self.real_cmaps,
+                         collapsed=self.getAttr('Color Map', 'collapsed'))
+          else:
+            self.setAttr('Color Map',buttons=self.complex_cmaps,
+                         collapsed=self.getAttr('Color Map', 'collapsed'))
+
           self.setAttr('Scalar Display',visible=scalarvis)
           self.setAttr('Edge Pixels',visible=not scalarvis)
           self.setAttr('Black Pixels',visible=not scalarvis)
@@ -233,6 +302,7 @@ class ExternalNode(gpi.NodeAPI):
             self.setAttr('Zero Ref',visible=scalarvis)
 
           self.setAttr('Range Min',visible=scalarvis)
+          self.setAttr('Range Max',visible=scalarvis)
 
           zval = self.getVal('Zero Ref')
           if zval == 1:
@@ -251,14 +321,59 @@ class ExternalNode(gpi.NodeAPI):
 
         import math
         import numpy as np
+        from matplotlib import cm
 
         # make a copy for changes
         data = self.getData('in').copy()
+
+        # get extra dimension parameters and modify data
+        dimfunc = self.getVal('Extra Dimension')
+        dimval = self.getVal('Slice/Tile Dimension')
+        if data.ndim == 3 and dimfunc < 2:
+            if dimfunc == 0: # slice data
+                slval = self.getVal('Slice')-1
+                if dimval == 0:
+                    data = data[slval,...]
+                elif dimval == 1:
+                    data = data[:,slval,:]
+                else:
+                    data = data[...,slval]
+            else: # tile data
+                ncol = self.getVal('# Columns')
+                nrow = self.getVal('# Rows')
+
+                # add some blank tiles
+                data = np.rollaxis(data, dimval)
+                N, xres, yres = data.shape
+                N_new = ncol * nrow
+                pad_vals = ((0, N_new - N), (0, 0), (0, 0))
+                data = np.pad(data, pad_vals, mode='constant')
+
+                # from http://stackoverflow.com/a/13990648/333308
+                data = np.reshape(data, (nrow, ncol, xres, yres))
+                data = np.swapaxes(data, 1, 2)
+                data = np.reshape(data, (nrow*xres, ncol*yres))
+
 
         # Read in parameters, make a little floor:ceiling adjustment
         gamma = self.getVal('Gamma')
         lval = self.getAttr('L W F C:', 'val')
         cval = self.getVal('Complex Display')
+
+        if 'Complex Display' in self.widgetEvents():
+          if cval == 4:
+            self.setAttr('Color Map', buttons=self.complex_cmaps,
+                         collapsed=self.getAttr('Color Map', 'collapsed'),
+                         val=0)
+          # elif self.getAttr('Color Map', 'buttons') != self.real_cmaps:
+          # there is no "get_buttons" method, so for now this will reset the
+          # colormap whenever "Complex Display" is changed
+          # this could/will be added in a future framework update
+          else:
+            self.setAttr('Color Map', buttons=self.real_cmaps,
+                         collapsed=self.getAttr('Color Map', 'collapsed'),
+                         val=0)
+
         cmap = self.getVal('Color Map')
         sval = self.getVal('Scalar Display')
         zval = self.getVal('Zero Ref')
@@ -290,15 +405,15 @@ class ExternalNode(gpi.NodeAPI):
           dmask = np.ones(data.shape)
           new_min = data_range*flor + data_min
           new_max = data_range*ceil + data_min
-          mag = np.minimum(np.maximum(mag,new_min*dmask),new_max*dmask)
+          mag = np.clip(mag, new_min, new_max)
 
           if new_max > new_min:
             if (gamma == 1): # Put in check for gamma=1, the common use case, just to save time
-              mag = 255.*(mag - new_min)/(new_max-new_min)
+              mag = (mag - new_min)/(new_max-new_min)
             else:
-              mag = 255.*pow((mag - new_min)/(new_max-new_min),gamma)
+              mag = pow((mag - new_min)/(new_max-new_min),gamma)
           else:
-            mag = 255.*np.ones(mag.shape)
+            mag = np.ones(mag.shape)
 
           # ADD BORDERS
           edgpix = self.getVal('Edge Pixels')
@@ -316,7 +431,7 @@ class ExternalNode(gpi.NodeAPI):
             frame[:,0:edgpix] = frame[:,w2-edgpix:w2] = True
 
             mag2[edgpix+blkpix:edgpix+blkpix+h,edgpix+blkpix:edgpix+blkpix+w] = mag
-            mag2[frame] = 255.
+            mag2[frame] = 1
 
             phase2[edgpix+blkpix:edgpix+blkpix+h,edgpix+blkpix:edgpix+blkpix+w] = phase
             xloc = np.tile(np.linspace(-1.,1.,w2),(h2,1))
@@ -326,54 +441,45 @@ class ExternalNode(gpi.NodeAPI):
             mag = mag2
             phase = phase2
 
-          # NOW COLORIZE
-          hue = (phase+180.)/60. # hue goes from 0 to 6
+          # now colorize!
+          if cmap == 0: # HSV
+            phase_cmap = cm.hsv
+          elif cmap == 1: # HSL
+            try:
+              import seaborn as sns
+            except:
+              self.log.warn("Seaborn (required for HSL map) not available! Falling back on HSV.")
+              phase_cmap = cm.hsv
+            else: # from http://stackoverflow.com/a/34557535/333308
+              import matplotlib.colors as col
+              hlsmap = col.ListedColormap(sns.color_palette("hls", 256))
+              phase_cmap = hlsmap
+          elif cmap == 2: #HUSL
+            try:
+              import seaborn as sns
+            except:
+              self.log.warn("Seaborn (required for HUSL map) not available! Falling back on HSV.")
+              phase_cmap = cm.hsv
+            else: # from http://stackoverflow.com/a/34557535/333308
+              import matplotlib.colors as col
+              huslmap = col.ListedColormap(sns.color_palette("husl", 256))
+              phase_cmap = huslmap
+          elif cmap == 3: # coolwarm
+            phase_cmap = cm.coolwarm
 
-          rd = np.zeros(mag.shape)
-          gn = np.zeros(mag.shape)
-          be = np.zeros(mag.shape)
-          zmask = np.zeros(mag.shape)
-
-          hindex0 =                         hue < 1
-          hindex1 = np.logical_and(hue >= 1,hue < 2)
-          hindex2 = np.logical_and(hue >= 2,hue < 3)
-          hindex3 = np.logical_and(hue >= 3,hue < 4)
-          hindex4 = np.logical_and(hue >= 4,hue < 5)
-          hindex5 =                hue >= 5
-
-          rd[hindex0]   = mag[hindex0]
-          gn[hindex0] = (mag*hue)[hindex0]
-          be[hindex0]  = zmask[hindex0]
-
-          rd[hindex1]   = (mag*(2.-hue))[hindex1]
-          gn[hindex1] = mag[hindex1]
-          be[hindex1]  = zmask[hindex1]
-
-          rd[hindex2]   = zmask[hindex2]
-          gn[hindex2] = mag[hindex2]
-          be[hindex2]  = (mag*(hue-2.))[hindex2]
-
-          rd[hindex3]   = zmask[hindex3]
-          gn[hindex3] = (mag*(4.-hue))[hindex3]
-          be[hindex3]  = mag[hindex3]
-
-          rd[hindex4]   = (mag*(hue-4.))[hindex4]
-          gn[hindex4] = zmask[hindex4]
-          be[hindex4]  = mag[hindex4]
-
-          rd[hindex5]   = mag[hindex5]
-          gn[hindex5] = zmask[hindex5]
-          be[hindex5]  = (mag*(6.-hue))[hindex5]
-
-          # Don't know what is going on!!!
-          # the colors get rotated, so I am pre-swapping them to get the right color... :-/
-          blue = np.uint8(rd)
-          red = np.uint8(gn)
-          green = np.uint8(be)
-          alpha = np.uint8(255.*np.ones(blue.shape))
+          mag_norm = mag
+          phase_norm = (phase + 180) / 360
+          # phase shift to match old look better
+          if cmap != 3:
+            phase_norm = (phase_norm - 1/3) % 1
+          colorized = 255 * cm.gray(mag_norm) * phase_cmap(phase_norm)
+          red = colorized[...,0]
+          green = colorized[...,1]
+          blue = colorized[...,2]
+          alpha = colorized[...,3]
 
         # DISPLAY SCALAR DATA
-        elif data.ndim is 2:
+        elif dimfunc != 2:
 
           if np.iscomplexobj(data):
             if cval == 0: # Real
@@ -444,7 +550,7 @@ class ExternalNode(gpi.NodeAPI):
 
               if cmap == 1: # IceFire
                 hue = 4.*(data/256.)
-                hindex0 =                          hue < 1. 
+                hindex0 =                          hue < 1.
                 hindex1 = np.logical_and(hue >= 1.,hue < 2.)
                 hindex2 = np.logical_and(hue >= 2.,hue < 3.)
                 hindex3 = np.logical_and(hue >= 3.,hue < 4.)
@@ -467,7 +573,7 @@ class ExternalNode(gpi.NodeAPI):
 
               elif cmap == 2: # Fire
                 hue = 4.*(data/256.)
-                hindex0 =                          hue < 1. 
+                hindex0 =                          hue < 1.
                 hindex1 = np.logical_and(hue >= 1.,hue < 2.)
                 hindex2 = np.logical_and(hue >= 2.,hue < 3.)
                 hindex3 = np.logical_and(hue >= 3.,hue < 4.)
@@ -490,7 +596,7 @@ class ExternalNode(gpi.NodeAPI):
 
               elif cmap == 3: # Hot
                 hue = 3.*(data/256.)
-                hindex0 =                          hue < 1. 
+                hindex0 =                          hue < 1.
                 hindex1 = np.logical_and(hue >= 1.,hue < 2.)
                 hindex2 = np.logical_and(hue >= 2.,hue < 3.)
 
@@ -537,7 +643,7 @@ class ExternalNode(gpi.NodeAPI):
 
               elif cmap == 5: # BGR
                 hue = 4.*(data/256.)
-                hindex0 =                          hue < 1. 
+                hindex0 =                          hue < 1.
                 hindex1 = np.logical_and(hue >= 1.,hue < 2.)
                 hindex2 = np.logical_and(hue >= 2.,hue < 3.)
                 hindex3 = np.logical_and(hue >= 3.,hue < 4.)
@@ -567,9 +673,9 @@ class ExternalNode(gpi.NodeAPI):
             red = np.zeros(data.shape)
             green = np.zeros(data.shape)
             blue = np.zeros(data.shape)
-            red[sign<=0] = data[sign<=0] 
-            blue[sign<=0] = data[sign<=0] 
-            green[sign>=0] = data[sign>=0] 
+            red[sign<=0] = data[sign<=0]
+            blue[sign<=0] = data[sign<=0]
+            green[sign>=0] = data[sign>=0]
 
             red = red.astype(np.uint8)
             green = green.astype(np.uint8)
@@ -578,13 +684,18 @@ class ExternalNode(gpi.NodeAPI):
 
         # DISPLAY RGB image
         else:
-          red   = data[:,:,2].astype(np.uint8)
-          green = data[:,:,1].astype(np.uint8)
-          blue  = data[:,:,0].astype(np.uint8)
-          if(data.ndim is 3 and data.shape[-1] is 4) :
-              alpha = data[:,:,3].astype(np.uint8)
-          else :
-              alpha = 255.*np.ones(blue.shape)
+
+          if data.shape[-1] > 3:
+            red   = data[:,:,0].astype(np.uint8)
+            green = data[:,:,1].astype(np.uint8)
+            blue  = data[:,:,2].astype(np.uint8)
+            if(data.ndim is 3 and data.shape[-1] is 4) :
+                alpha = data[:,:,3].astype(np.uint8)
+            else:
+                alpha = 255.*np.ones(blue.shape)
+          else:
+              self.log.warn("input veclen of "+str(data.shape[-1])+" is incompatible")
+              return 1
 
         h, w = red.shape[:2]
         image1 = np.zeros((h, w, 4), dtype=np.uint8)
@@ -598,9 +709,9 @@ class ExternalNode(gpi.NodeAPI):
 
         #send the RGB values to the output port
         imageTru = np.zeros((h, w, 4), dtype=np.uint8)
-        imageTru[:, :, 2] = red
+        imageTru[:, :, 0] = red
         imageTru[:, :, 1] = green
-        imageTru[:, :, 0] = blue
+        imageTru[:, :, 2] = blue
         imageTru[:, :, 3] = alpha
         image.ndarray = imageTru
         if image.isNull():

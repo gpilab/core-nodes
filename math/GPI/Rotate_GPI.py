@@ -73,19 +73,20 @@ class ExternalNode(gpi.NodeAPI):
         data = self.getData('in')
         self.setAttr('Theta (deg)', max=1000., min=-1000.0)
         ddim = (data.ndim)
-       
+        
         if ('in' in self.portEvents()):
-	  self.setAttr('Plane of Rotation:', buttons=self.dim_buttons, val=0)
+          if ddim == 2 or self.getVal('Plane of Rotation:') > ddim-2:
+            self.setAttr('Plane of Rotation:', buttons=self.dim_buttons, val=0)
         if ddim == 2:
-	  self.dim_buttons = ['[0-1]']
-	if ddim == 3:
-	  self.dim_buttons = ['[0-1]','[1-2]','[0-2]']
-	if ddim == 4:
-	  self.dim_buttons = ['[0-1]','[1-2]', '[0-2]', '[1-3]', '[2-3]', '[0-3]']
-	if ddim == 5:
-	  self.dim_buttons = ['[0-1]', '[1-2]', '[0-2]', '[1-3]', '[2-3]', '[0-3]','[0-4]', '[1-4]', '[2-4]', '[3-4]']  
-	op = self.getVal('Plane of Rotation:')
-	self.setAttr('Plane of Rotation:', buttons=self.dim_buttons, val=op)
+          self.dim_buttons = ['[0-1]']
+        if ddim == 3:
+          self.dim_buttons = ['[0-1]','[1-2]','[0-2]']
+        if ddim == 4:
+          self.dim_buttons = ['[0-1]','[1-2]', '[0-2]', '[1-3]', '[2-3]', '[0-3]']
+        if ddim == 5:
+          self.dim_buttons = ['[0-1]', '[1-2]', '[0-2]', '[1-3]', '[2-3]', '[0-3]','[0-4]', '[1-4]', '[2-4]', '[3-4]']  
+        op = self.getVal('Plane of Rotation:')
+        self.setAttr('Plane of Rotation:', buttons=self.dim_buttons, val=op)
         
         return(0)
 
@@ -100,70 +101,70 @@ class ExternalNode(gpi.NodeAPI):
         op = self.getVal('Plane of Rotation:')
         mode_val = self.getVal('Mode')
         
-	if op == 0:
-	    ax0 = 0
-	    ax1 = 1
-	    
-	if op == 1:
-	    ax0 = 1
-	    ax1 = 2
-	    
-	if op == 2:
-	    ax0 = 0
-	    ax1 = 2 
-	    
-	if op == 3:
-	    ax0 = 1
-	    ax1 = 3
-	    
-	if op == 4:
-	    ax0 = 2
-	    ax1 = 3
-	    
-	if op == 5:
-	    ax0 = 0
-	    ax1 = 3 
-	    
-	if op == 6:
-	    ax0 = 0
-	    ax1 = 4
-	    
-	if op == 7:
-	    ax0 = 1
-	    ax1 = 4
-	    
-	if op == 8:
-	    ax0 = 2
-	    ax1 = 4   
-	    
-	if op == 9:
-	    ax0 = 3
-	    ax1 = 4       
-	    
+        if op == 0:
+            ax0 = 0
+            ax1 = 1
+            
+        if op == 1:
+            ax0 = 1
+            ax1 = 2
+            
+        if op == 2:
+            ax0 = 0
+            ax1 = 2 
+            
+        if op == 3:
+            ax0 = 1
+            ax1 = 3
+            
+        if op == 4:
+            ax0 = 2
+            ax1 = 3
+            
+        if op == 5:
+            ax0 = 0
+            ax1 = 3 
+            
+        if op == 6:
+            ax0 = 0
+            ax1 = 4
+            
+        if op == 7:
+            ax0 = 1
+            ax1 = 4
+            
+        if op == 8:
+            ax0 = 2
+            ax1 = 4   
+            
+        if op == 9:
+            ax0 = 3
+            ax1 = 4       
+            
         if np.iscomplexobj(data):
           if mode_val == 0:
-	    RD = scnd.rotate(data.real,Theta,(ax0,ax1), reshape=value, order = valueorder, mode='constant')
-	    ID = scnd.rotate(data.imag,Theta,(ax0,ax1), reshape=value, order = valueorder, mode='constant')
-	  elif mode_val == 1:
-	    RD = scnd.rotate(data.real,Theta,(ax0,ax1), reshape=value, order = valueorder, mode='nearest')
-	    ID = scnd.rotate(data.imag,Theta,(ax0,ax1), reshape=value, order = valueorder, mode='nearest')
-	  elif mode_val == 2:
-	    RD = scnd.rotate(data.real,Theta,(ax0,ax1), reshape=value, order = valueorder, mode='reflect')  
-	    ID = scnd.rotate(data.imag,Theta,(ax0,ax1), reshape=value, order = valueorder, mode='reflect')  
-	  elif mode_val == 3:
-	    RD = scnd.rotate(data.real,Theta,(ax0,ax1), reshape=value, order = valueorder, mode='wrap') 
-	    ID = scnd.rotate(data.imag,Theta,(ax0,ax1), reshape=value, order = valueorder, mode='wrap') 
+            RD = scnd.rotate(data.real,Theta,(ax0,ax1), reshape=value, order = valueorder, mode='constant')
+            ID = scnd.rotate(data.imag,Theta,(ax0,ax1), reshape=value, order = valueorder, mode='constant')
+          elif mode_val == 1:
+            RD = scnd.rotate(data.real,Theta,(ax0,ax1), reshape=value, order = valueorder, mode='nearest')
+            ID = scnd.rotate(data.imag,Theta,(ax0,ax1), reshape=value, order = valueorder, mode='nearest')
+          elif mode_val == 2:
+            RD = scnd.rotate(data.real,Theta,(ax0,ax1), reshape=value, order = valueorder, mode='reflect')  
+            ID = scnd.rotate(data.imag,Theta,(ax0,ax1), reshape=value, order = valueorder, mode='reflect')  
+          elif mode_val == 3:
+            RD = scnd.rotate(data.real,Theta,(ax0,ax1), reshape=value, order = valueorder, mode='wrap') 
+            ID = scnd.rotate(data.imag,Theta,(ax0,ax1), reshape=value, order = valueorder, mode='wrap') 
           out = RD + 1j*ID
         else:
           if mode_val == 0:
-	    out = scnd.rotate(data,Theta,(ax0,ax1), reshape=value, order = valueorder, mode='constant')
-	  elif mode_val == 1:
-	    out = scnd.rotate(data,Theta,(ax0,ax1), reshape=value, order = valueorder, mode='nearest')
-	  elif mode_val == 2:
-	    out = scnd.rotate(data,Theta,(ax0,ax1), reshape=value, order = valueorder, mode='reflect')  
-	  elif mode_val == 3:
-	    out = scnd.rotate(data,Theta,(ax0,ax1), reshape=value, order = valueorder, mode='wrap') 
-	
+            out = scnd.rotate(data,Theta,(ax0,ax1), reshape=value, order = valueorder, mode='constant')
+          elif mode_val == 1:
+            out = scnd.rotate(data,Theta,(ax0,ax1), reshape=value, order = valueorder, mode='nearest')
+          elif mode_val == 2:
+            out = scnd.rotate(data,Theta,(ax0,ax1), reshape=value, order = valueorder, mode='reflect')  
+          elif mode_val == 3:
+            out = scnd.rotate(data,Theta,(ax0,ax1), reshape=value, order = valueorder, mode='wrap') 
+        
         self.setData('out', out.astype(data.dtype))
 
         return(0)

@@ -1,10 +1,10 @@
 # Copyright (c) 2014, Dignity Health
-# 
+#
 #     The GPI core node library is licensed under
 # either the BSD 3-clause or the LGPL v. 3.
-# 
+#
 #     Under either license, the following additional term applies:
-# 
+#
 #         NO CLINICAL USE.  THE SOFTWARE IS NOT INTENDED FOR COMMERCIAL
 # PURPOSES AND SHOULD BE USED ONLY FOR NON-COMMERCIAL RESEARCH PURPOSES.  THE
 # SOFTWARE MAY NOT IN ANY EVENT BE USED FOR ANY CLINICAL OR DIAGNOSTIC
@@ -13,12 +13,12 @@
 # TO LIFE SUPPORT OR EMERGENCY MEDICAL OPERATIONS OR USES.  LICENSOR MAKES NO
 # WARRANTY AND HAS NOR LIABILITY ARISING FROM ANY USE OF THE SOFTWARE IN ANY
 # HIGH RISK OR STRICT LIABILITY ACTIVITIES.
-# 
+#
 #     If you elect to license the GPI core node library under the LGPL the
 # following applies:
-# 
+#
 #         This file is part of the GPI core node library.
-# 
+#
 #         The GPI core node library is free software: you can redistribute it
 # and/or modify it under the terms of the GNU Lesser General Public License as
 # published by the Free Software Foundation, either version 3 of the License,
@@ -26,7 +26,7 @@
 # in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
 # the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU Lesser General Public License for more details.
-# 
+#
 #         You should have received a copy of the GNU Lesser General Public
 # License along with the GPI core node library. If not, see
 # <http://www.gnu.org/licenses/>.
@@ -59,7 +59,7 @@ class ExternalNode(gpi.NodeAPI):
             FLORET is FLORET...
     # of spiral arms - allows floating point entry
                        for ARCH this is rounded to integer
-                       for CYL and SPH DST and FLORET, which share arms across ky and kz, this is the effective arms per plane
+                       for CYL, SPH DST and FLORET, which share arms across ky and kz, this is the effective arms per plane
                        and can be a floating point number (giving greater flexibility in choosing the total number of arms vs.
                        readout duration)
     usamp st (0-1) - the relative value of kr at which undersampling begins (0 at the center, 1 at the edge of collected k-space)
@@ -121,7 +121,7 @@ class ExternalNode(gpi.NodeAPI):
                        val=150.0, min=0.01, decimals=6)
         self.addWidget('DoubleSpinBox', 'MaxGrd (mT/m)',
                        val=40.0, min=0.01, decimals=6)
-        self.addWidget('DoubleSpinBox', 'Gam (kHz/mT/ms)',
+        self.addWidget('DoubleSpinBox', 'Gam (kHz/mT)',
                        val=42.577, min=0.01, decimals=6)
 
         self.addWidget('DoubleSpinBox', 'Fov X-Y (cm)',
@@ -135,6 +135,7 @@ class ExternalNode(gpi.NodeAPI):
 
         self.addWidget('ExclusivePushButtons', 'stype',
                        buttons=['ARCH', 'CYL DST', 'SPH DST', 'FLORET'], val=0)
+        self.addWidget('DoubleSpinBox', 'Taper', val=0.0, min=0.0, max = 1.0)
         self.addWidget('DoubleSpinBox', '# of Spiral Arms', val=16.0, min=0.0)
 
         self.addWidget('SpinBox', '# of Hubs', val=3, min=1, max=3)
@@ -160,13 +161,15 @@ class ExternalNode(gpi.NodeAPI):
                        buttons=['SPIRAL ONLY', 'G -> 0', 'M0 -> 0', 'M1 -> 0', 'Fast Spoil'], val=2)
 
         self.addWidget('ExclusivePushButtons', 'spinout',
-                       buttons=['OUT', 'IN', 'INOUT 180R', 'INOUT SAME'], val=0)
+                       buttons=['OUT', 'IN', 'INOUT 180R', 'INOUT SAME', 'INOUT ROT2', 'INOUT SAME2'], val=0)
+        self.addWidget('SpinBox', 'Num Calibration Points', val=0, min=0, max=512)
 
         # IO Ports
         self.addInPort('params_in', 'DICT', obligation=gpi.OPTIONAL)
         self.addInPort('arm_0', 'NPYarray', obligation=gpi.OPTIONAL)
         self.addOutPort('crds_out', 'NPYarray')
         self.addOutPort('grd_out', 'NPYarray')
+        self.addOutPort('kmag_trace', 'NPYarray')
 
     def validate(self):
 
@@ -193,7 +196,7 @@ class ExternalNode(gpi.NodeAPI):
                          val=float(inparam['spSLEWMAX'][0]))
             self.setAttr('MaxGrd (mT/m)',
                          val=float(inparam['spGMAX'][0]))
-            self.setAttr('Gam (kHz/mT/ms)',
+            self.setAttr('Gam (kHz/mT)',
                          val=float(inparam['spGAMMA'][0]))
 
             self.setAttr('Fov X-Y (cm)',
@@ -220,11 +223,11 @@ class ExternalNode(gpi.NodeAPI):
                          val=int(float(inparam['spUSTYPE'][0])))
             self.setAttr('gtype',
                          val=int(float(inparam['spGTYPE'][0])))
-            if inparam.has_key('spMGFRQ'):
+            if 'spMGFRQ' in inparam:
                 self.setAttr('Max G Freq (kHz)',
                              val=(float(inparam['spMGFRQ'][0])))
 
-            if inparam.has_key('spT2MATCH'):
+            if 'spT2MATCH' in inparam:
                 self.setAttr('T2 Match (ms)',
                              val=(float(inparam['spT2MATCH'][0])))
 
@@ -232,16 +235,23 @@ class ExternalNode(gpi.NodeAPI):
             spinout += int(inparam['spINOUT_OPT'][0])
             self.setAttr('spinout',      val=spinout)
 
+            if spinout > 1: # in-out
+                self.setAttr('Num Calibration Points', visible=True)
+                if 'spEXTRA_GRAD_PNT' in inparam:
+                    self.setAttr('Num Calibration Points', val=int(0.5*float(inparam['spEXTRA_GRAD_PNT'][0])))
+            else:
+                self.setAttr('Num Calibration Points', visible=False)
+
             # FLORET params
-            if inparam.has_key('spHUBS'):
+            if 'spHUBS' in inparam:
                 hubs = int(float(inparam['spHUBS'][0]))
             else:
                 hubs = self.getVal('# of Hubs')
-            if inparam.has_key('spALPHA0'):
+            if 'spALPHA0' in inparam:
                 alpha0 = float(inparam['spALPHA0'][0])
             else:
                 alpha0 = self.getVal('Alpha0')
-            if inparam.has_key('spFLORETbin'):
+            if 'spFLORETbin' in inparam:
                 rebin = float(inparam['spFLORETbin'][0])
             else:
                 rebin = self.getVal('FLORET Rebin')
@@ -254,6 +264,8 @@ class ExternalNode(gpi.NodeAPI):
                 self.setAttr('Alpha0', visible=False)
                 self.setAttr('FLORET Rebin', visible=False, val=0)
 
+        self.setAttr('Taper', visible=(self.getVal('stype') == 1)) # CDST
+
         if self.getVal('stype') == 3:
             rebin = self.getVal('FLORET Rebin')
             self.setAttr('# of Hubs', visible=True)
@@ -264,14 +276,13 @@ class ExternalNode(gpi.NodeAPI):
             self.setAttr('Alpha0', visible=False)
             self.setAttr('FLORET Rebin', visible=False, val=0)
 
-
     def compute(self):
 
         import numpy as np
 
         arm_0 = self.getData('arm_0')
         # arm_0 = np.insert(np.diff(arm_0,0),0,0)
-        
+
         # convert units to ms, kHz, m, mT
         dwell = 0.001 * self.getVal('AD dwell time (us)')
         xdely = 0.001 * self.getVal('x delay (us)')
@@ -280,7 +291,7 @@ class ExternalNode(gpi.NodeAPI):
 
         mslew = self.getVal('MaxSlw (mT/m/ms)')
         mgrad = self.getVal('MaxGrd (mT/m)')
-        gamma = self.getVal('Gam (kHz/mT/ms)')
+        gamma = self.getVal('Gam (kHz/mT)')
 
         fovxy = 0.01 * self.getVal('Fov X-Y (cm)')
         fovz = 0.01 * self.getVal('Fov Z (cm)')
@@ -289,6 +300,7 @@ class ExternalNode(gpi.NodeAPI):
 
         stype = self.getVal('stype')
         narms = self.getVal('# of Spiral Arms')
+        taper = self.getVal('Taper')
 
         try:
             hubs = self.getVal('# of Hubs')
@@ -298,7 +310,7 @@ class ExternalNode(gpi.NodeAPI):
         try:
             alpha0 = np.pi * self.getVal('Alpha0') / 180.0
         except:
-            alpha0 = 0.25 * np.pi 
+            alpha0 = 0.25 * np.pi
 
         try:
             rebin = self.getVal('FLORET Rebin')
@@ -323,12 +335,17 @@ class ExternalNode(gpi.NodeAPI):
         slper = self.getVal('Sloppy Sp. Per (0:off)')
         gtype = self.getVal('gtype')
         spinout = self.getVal('spinout')
+        if spinout > 1:
+            numCalPnts = self.getVal('Num Calibration Points')
+        else:
+            numCalPnts = 0
+
 
         # read num of data points from parameter txt file
         numREADPTS = 0
         inparam = self.getData('params_in')
         if (inparam is not None):
-            if inparam.has_key('spREADPTS'):
+            if 'spREADPTS' in inparam:
                 numREADPTS = int(float(inparam['spREADPTS'][0]))
 
         if self.getVal('compute'):
@@ -340,7 +357,7 @@ class ExternalNode(gpi.NodeAPI):
 
             # determine k-space coordinates based on input of first arm
             # TODO: doesn't handle spinout or FLORET rebinning (RKR)
-            if arm_0 is not None: 
+            if arm_0 is not None:
                 npts = arm_0.shape[0]
                 crds_out = np.zeros((hubs,narms,npts,3))
 
@@ -358,7 +375,7 @@ class ExternalNode(gpi.NodeAPI):
                         beta = -arm*goldangle
                         crds_out[0,arm,:,0] = np.cos(beta)*arm_0[:,0] - np.sin(beta)*arm_0[:,1]
                         crds_out[0,arm,:,1] = np.cos(beta)*arm_0[:,1] + np.sin(beta)*arm_0[:,0]
-                        crds_out[0,arm,:,2] = arm/narms - .5
+                        crds_out[0,arm,:,2] = -(2*arm/narms - 1)*arm_0[:,2]
 
                 elif stype == 2: # spherical distributed spirals
                     for arm in range(np.int(narms)):
@@ -389,14 +406,14 @@ class ExternalNode(gpi.NodeAPI):
 
                 else:
                     pass
-                    
+
                 self.log.warn("True gradient waveform output not (yet) implemented for calculation based on initial spiral arm!")
                 grd_out = np.diff(crds_out, axis=-2)
             else:
                 grd_out, crds_out = sp.coords(
                     dwell, xdely, ydely, zdely, mslew, mgrad, gamma, fovxy, fovz,
-                    resxy, resz, stype, narms, hubs, alpha0, rebin, us_0, us_1, us_r,
-                    utype, mgfrq, t2mch, slper, gtype, spinout)
+                    resxy, resz, stype, narms, taper, hubs, alpha0, rebin, us_0, us_1, us_r,
+                    utype, mgfrq, t2mch, slper, gtype, spinout, numCalPnts)
 
             # Report Back to User
             nsamp = np.array(crds_out.shape)[2]
@@ -425,5 +442,6 @@ class ExternalNode(gpi.NodeAPI):
 
             self.setData('crds_out', crds_out)
             self.setData('grd_out', grd_out)
+            self.setData('kmag_trace', np.sqrt(np.sum(crds_out[0,...]**2, axis=-1)))
 
         return(0)

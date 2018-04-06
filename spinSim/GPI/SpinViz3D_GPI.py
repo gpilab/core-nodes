@@ -269,7 +269,7 @@ class ExternalNode(gpi.NodeAPI):
         zref  = m_in[5,1,0,0,0,0,0,:,0,0,0]-velz*Tstart # Z position array at T=0
 
         # Remove all indices of length 1
-        for i in reversed(range(9)):
+        for i in reversed(list(range(9))):
           if mdim[i+2] == 1:
             viableOptions.pop(i)
         m_in = np.squeeze(m_in)

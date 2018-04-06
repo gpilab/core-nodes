@@ -113,15 +113,15 @@ class ExternalNode(gpi.NodeAPI):
         if 'Pars_in' in self.portEvents():
             param_dict = self.getData('Pars_in')
             if param_dict is not None:
-                if param_dict.has_key('Duration (ms)'):
+                if 'Duration (ms)' in param_dict:
                     self.setAttr('Duration (ms)', val=param_dict['Duration (ms)'])
-                if param_dict.has_key('Gz (mT/m)'):
+                if 'Gz (mT/m)' in param_dict:
                     self.setAttr('Gz (mT/m)', val=param_dict['Gz (mT/m)'])
-                if param_dict.has_key('RF Mag (uT)'):
+                if 'RF Mag (uT)' in param_dict:
                     self.setAttr('RF Mag (uT)', val=param_dict['RF Mag (uT)'])
-                if param_dict.has_key('RF Flip (deg)'):
+                if 'RF Flip (deg)' in param_dict:
                     self.setAttr('RF Flip (deg)', val=param_dict['RF Flip (deg)'])
-                if param_dict.has_key('RF waveform has FM shape'):
+                if 'RF waveform has FM shape' in param_dict:
                     if param_dict['RF waveform has FM shape']:
                         self.setAttr('RF Waveform', val=2)
 
@@ -287,8 +287,8 @@ class ExternalNode(gpi.NodeAPI):
         # inner loop interval is 1 usec
         ######################
 
-        for outer in xrange(0,odim): 
-          for inner in xrange(0,idim): 
+        for outer in range(0,odim): 
+          for inner in range(0,idim): 
             i = outer*idim+inner
             time = float(i+1)*usec
             x = x0 + time*vx

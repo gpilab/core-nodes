@@ -1,10 +1,10 @@
 # Copyright (c) 2014, Dignity Health
-# 
+#
 #     The GPI core node library is licensed under
 # either the BSD 3-clause or the LGPL v. 3.
-# 
+#
 #     Under either license, the following additional term applies:
-# 
+#
 #         NO CLINICAL USE.  THE SOFTWARE IS NOT INTENDED FOR COMMERCIAL
 # PURPOSES AND SHOULD BE USED ONLY FOR NON-COMMERCIAL RESEARCH PURPOSES.  THE
 # SOFTWARE MAY NOT IN ANY EVENT BE USED FOR ANY CLINICAL OR DIAGNOSTIC
@@ -13,12 +13,12 @@
 # TO LIFE SUPPORT OR EMERGENCY MEDICAL OPERATIONS OR USES.  LICENSOR MAKES NO
 # WARRANTY AND HAS NOR LIABILITY ARISING FROM ANY USE OF THE SOFTWARE IN ANY
 # HIGH RISK OR STRICT LIABILITY ACTIVITIES.
-# 
+#
 #     If you elect to license the GPI core node library under the LGPL the
 # following applies:
-# 
+#
 #         This file is part of the GPI core node library.
-# 
+#
 #         The GPI core node library is free software: you can redistribute it
 # and/or modify it under the terms of the GNU Lesser General Public License as
 # published by the Free Software Foundation, either version 3 of the License,
@@ -26,7 +26,7 @@
 # in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
 # the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU Lesser General Public License for more details.
-# 
+#
 #         You should have received a copy of the GNU Lesser General Public
 # License along with the GPI core node library. If not, see
 # <http://www.gnu.org/licenses/>.
@@ -81,11 +81,16 @@ class ReduceSliders(gpi.GenericWidgetGroup):
         """A python-dict containing keys: center, width, floor, ceiling,
         and selection.
         """
-        self.sl.set_center(val['center'])
-        self.sl.set_width(val['width'])
-        self.sl.set_floor(val['floor'])
-        self.sl.set_ceiling(val['ceiling'])
-        self._selection = val['selection']
+        if 'center' in val:
+            self.sl.set_center(val['center'])
+        if 'width' in val:
+            self.sl.set_width(val['width'])
+        if 'floor' in val:
+            self.sl.set_floor(val['floor'])
+        if 'ceiling' in val:
+            self.sl.set_ceiling(val['ceiling'])
+        if 'selection' in val:
+            self._selection = val['selection']
         self.buttons[self._selection].blockSignals(True)
         self.buttons[self._selection].setChecked(True)
         self.buttons[self._selection].blockSignals(False)
@@ -98,6 +103,12 @@ class ReduceSliders(gpi.GenericWidgetGroup):
     def set_max(self, val):
         """A max value for center, width, floor and ceiling (int)."""
         self.sl.set_max(val)
+
+    def set_quietmax(self, val):
+        if val is not None:
+            self.blockSignals(True)
+            self.set_max(val)
+            self.blockSignals(False)
 
     # getters
     def get_val(self):
@@ -114,6 +125,12 @@ class ReduceSliders(gpi.GenericWidgetGroup):
 
     def get_max(self):
         return self.sl.get_max()
+
+    def get_quietmax(self):
+        # don't return a value so that network deserialize passes 'None' to
+        # the setter
+        pass
+
     # support
 
     def setCropBounds(self):
@@ -127,7 +144,7 @@ class ReduceSliders(gpi.GenericWidgetGroup):
         self.sl.set_min_width(1)
         self.sl.set_width(self.get_max())
         # JGP For Pass, reset cwfc
-        self.sl.set_center((self.get_max()+1)/2)
+        self.sl.set_center((self.get_max()+1)//2)
         self.sl.set_width(self.get_max())
         self.sl.set_floor(1)
         self.sl.set_ceiling(self.get_max())
@@ -171,6 +188,17 @@ class ExternalNode(gpi.NodeAPI):
       Pass - ith dimension is passed (not affected)
     Mask - generate data for "mask" output - good to leave off for large data sets if not needed
     Compute - generate sliced/cropped data
+
+    The Reduce Widget takes a dict with the following keys:
+        d = {}
+        d['selection'] # integer 0-3 for 'C/W', 'B/E', 'Slice' and 'Pass'
+
+        d['center']    # integer 1-N only for 'C/W'
+        d['width']     # integer 1-N only for 'C/W'
+
+        d['floor']     # integer 1-N only for 'B/E'
+        d['ceiling']   # integer 1-N only for 'B/E'
+    Not all keys have to be present.
     """
     def execType(self):
         '''Could be GPI_THREAD, GPI_PROCESS, GPI_APPLOOP'''
@@ -204,15 +232,16 @@ class ExternalNode(gpi.NodeAPI):
             dilen = len(data.shape)
 
             # visibility and bounds
-            for i in xrange(self.ndim):
+            for i in range(self.ndim):
                 if i < dilen:
-                    self.setAttr(self.dim_base_name+str(-i-1)+']', 
-                            visible=True, max=data.shape[-i-1])
+                    self.setAttr(self.dim_base_name+str(-i-1)+']', visible=True)
+                    self.setAttr(self.dim_base_name+str(-i-1)+']', quietmax=data.shape[-i-1])
+
                     # JGP for Pass, always max out floor and ceiling always
                     w = self.getVal(self.dim_base_name+str(-i-1)+']')
                     if w['selection'] == 3:
                       wmax = data.shape[i]
-                      w['center'] = (wmax+1)/2
+                      w['center'] = (wmax+1)//2
                       w['width'] = wmax
                       w['floor'] = 1
                       w['ceiling'] = wmax
@@ -232,7 +261,7 @@ class ExternalNode(gpi.NodeAPI):
 
             # setup slicer
             xi = []
-            for i in xrange(dilen-1, -1, -1):
+            for i in range(dilen-1, -1, -1):
                 w = self.getVal(self.dim_base_name+str(-i-1)+']')
                 if w['selection'] == 3:  # pass
                     xi.append(slice(None))

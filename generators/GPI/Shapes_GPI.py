@@ -197,14 +197,18 @@ class ExternalNode(gpi.NodeAPI):
         # If input data is present, set size accordingly
         indat = self.getData('in')
         if indat is not None:
-          if indat.ndim not in [1,2,3]:
-            self.log.warn('input must be 1D, 2D, or 3D')
-            return(1)
-          self.setAttr('Dimensions',val=indat.ndim-1)
-          for i in range(indat.ndim):
-            dval = self.getVal(self.dim_base_name+str(-i-1)+']')
-            dval['size'] = indat.shape[-i-1]
-            self.setAttr(self.dim_base_name+str(-i-1)+']',quietval=dval)
+          #if indat.ndim not in [1,2,3]:
+          #  self.log.warn('input must be 1D, 2D, or 3D')
+          #  return(1)
+          #self.setAttr('Dimensions',val=indat.ndim-1)
+          #for i in range(indat.ndim):
+          for i in range(self.getVal('Dimensions')+1):
+              try:
+                dval = self.getVal(self.dim_base_name+str(-i-1)+']')
+                dval['size'] = indat.shape[-i-1]
+                self.setAttr(self.dim_base_name+str(-i-1)+']',quietval=dval)
+              except:
+                pass
 
         # GETTING WIDGET INFO
         ndim = self.getVal('Dimensions') + 1

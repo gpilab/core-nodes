@@ -172,7 +172,7 @@ class ExternalNode(gpi.NodeAPI):
         data = self.getData('dataIn')
         coords = self.getData('coordsIn')
         if coords is None:
-            coords = np.array(range(data.shape[-1]))
+            coords = np.array(list(range(data.shape[-1])))
 
         mode = self.getVal('Mode')
         compute = self.getVal('Compute')
@@ -236,18 +236,18 @@ class ExternalNode(gpi.NodeAPI):
                 mod_expr = 'def Model(x, a0, '
                 nParms = self.getVal('# Model Parameters')
                 regress_code = self.getVal('Model Definition:')
+                a0 = []
                 for i in range(0, nParms):
                     val = self.getVal('Initial a%i'%i)
-                    exec('a%i = val'%i)
-                p0 = [a0]
+                    a0.append(val)
+                p0 = a0
                 for i in range(1, nParms):
-                    p0.append(eval('a%i' %i))
                     mod_expr = mod_expr+'a%i, '%i
                 mod_expr = mod_expr[:-2]+'):\n    import numpy as np\n    ' \
                          +regress_code+'\n    return y\n'
                 a = np.zeros([outer_dim, nParms])
                 try:
-                    exec(mod_expr)
+                    exec(mod_expr, locals(), globals())
                     for i in range(outer_dim):
                         p, cov = curve_fit(Model, coords, data[i,:], p0=p0)
                         a[i,:] = p

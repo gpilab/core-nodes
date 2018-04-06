@@ -1,10 +1,10 @@
 # Copyright (c) 2014, Dignity Health
-# 
+#
 #     The GPI core node library is licensed under
 # either the BSD 3-clause or the LGPL v. 3.
-# 
+#
 #     Under either license, the following additional term applies:
-# 
+#
 #         NO CLINICAL USE.  THE SOFTWARE IS NOT INTENDED FOR COMMERCIAL
 # PURPOSES AND SHOULD BE USED ONLY FOR NON-COMMERCIAL RESEARCH PURPOSES.  THE
 # SOFTWARE MAY NOT IN ANY EVENT BE USED FOR ANY CLINICAL OR DIAGNOSTIC
@@ -13,12 +13,12 @@
 # TO LIFE SUPPORT OR EMERGENCY MEDICAL OPERATIONS OR USES.  LICENSOR MAKES NO
 # WARRANTY AND HAS NOR LIABILITY ARISING FROM ANY USE OF THE SOFTWARE IN ANY
 # HIGH RISK OR STRICT LIABILITY ACTIVITIES.
-# 
+#
 #     If you elect to license the GPI core node library under the LGPL the
 # following applies:
-# 
+#
 #         This file is part of the GPI core node library.
-# 
+#
 #         The GPI core node library is free software: you can redistribute it
 # and/or modify it under the terms of the GNU Lesser General Public License as
 # published by the Free Software Foundation, either version 3 of the License,
@@ -26,7 +26,7 @@
 # in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
 # the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU Lesser General Public License for more details.
-# 
+#
 #         You should have received a copy of the GNU Lesser General Public
 # License along with the GPI core node library. If not, see
 # <http://www.gnu.org/licenses/>.
@@ -38,18 +38,53 @@
 
 import gpi
 import numpy as np
-from gpi import QtCore, QtGui
+import re
+from gpi import QtGui
 np.set_printoptions(linewidth=256)
+
 
 # flatten a nested dictionary
 def unwrap_dict(din, dout):
-    for k in din.items():
-        if type(k[1]) == type(dict()):
+    for k in list(din.items()):
+        if 'dict' in str(type(k[1])).lower():
             dout[k[0]] = k[1]
             unwrap_dict(din[k[0]], dout)
         else:
             dout[k[0]] = k[1]
-    return dout 
+    return dout
+
+
+# add dictionary item to text output and handle slicing of lists and np arrays
+def print_item(item, report, minl, maxl):
+    if ('list' in str(type(item[1])) or 'ndarray' in str(type(item[1]))):
+        report = report + str(item[0]) + ' = ' + str(item[1][minl:maxl]) + "\n"
+    else:
+        report = report + str(item[0]) + ' = ' + str(item[1]) + "\n"
+
+    return report
+
+
+def gen_keys_from_keywords(keys, indict, exactmatch):
+    # add regex search results
+    if keys != '':
+        dflat = dict()
+        dflat = unwrap_dict(indict, dflat)
+        matching_keys = []
+        keys = re.split(', | ,|,', keys)
+        if exactmatch:
+            for key in dflat:
+                if key in keys:
+                    matching_keys.append(key)
+        else:
+            for pattern in keys:
+                cpat = re.compile(pattern.lower())
+                for key in dflat:
+                    if cpat.search(key.lower()):
+                        matching_keys.append(key)
+    else:
+        matching_keys = []
+    
+    return(matching_keys)
 
 
 class ReduceSliders(gpi.GenericWidgetGroup):
@@ -163,6 +198,7 @@ class ReduceSliders(gpi.GenericWidgetGroup):
             self.sl.set_allvisible(False)
             self.setPassBounds()
 
+
 class ExternalNode(gpi.NodeAPI):
     """Display contents of Dictionary-type data
 
@@ -172,8 +208,8 @@ class ExternalNode(gpi.NodeAPI):
     WIDGETS
     Keys: comma-delimited list of dictionary elements to display
     Range: allows inspection of a subset of large data arrays
-	C/W - sliders control center/width of range 
-	B/E - sliders control begin/end of range 
+    C/W - sliders control center/width of range
+    B/E - sliders control begin/end of range
         Slice - slider gives element to inspect
         Pass - shows all elements
     """
@@ -181,10 +217,11 @@ class ExternalNode(gpi.NodeAPI):
     def execType(self):
         return gpi.GPI_THREAD
 
-    def initUI(self):      
+    def initUI(self):
 
         # Widgets
         self.addWidget('StringBox', 'Keys:')
+        self.addWidget('PushButton', 'Match Exactly', val=0, toggle=True)
         self.addWidget('ReduceSliders', 'Range')
         self.addWidget('TextBox', 'Info:')
 
@@ -194,101 +231,85 @@ class ExternalNode(gpi.NodeAPI):
         '''update the slider bounds based on dictionary
         '''
 
-        import re 
-
         indat = self.getData('dq_in')
-        keys = self.getVal('Keys:')
-        if len(keys) > 0:
-            keys = re.split(', | ,|,', keys)
+        inkeys = self.getVal('Keys:')
+        exactmatch = self.getVal('Match Exactly')
+        keys = gen_keys_from_keywords(inkeys, indat, exactmatch)
+
         w = self.getVal('Range')
         maxlen = 1
         if len(keys) > 0:
             dflat = dict()
             dflat = unwrap_dict(indat, dflat)
             for key in keys:
-                if key in dflat.keys(): 
+                if key in dflat:
                     try:
-                        for subkey in dflat[key].keys():
-                            if ('numpy' in str(type(dflat[key][subkey])) or
-                                'list' in str(type(dflat[key][subkey]))):
+                        for subkey in list(dflat[key].keys()):
+                            if('ndarray' in str(type(dflat[key][subkey])) or
+                               'list' in str(type(dflat[key][subkey]))):
                                 listlen = len(dflat[key][subkey])
                                 if listlen > maxlen:
                                     maxlen = listlen
                     except:
-                        if ('numpy' in str(type(dflat[key])) or
-                            'list' in str(type(dflat[key]))):
+                        if('ndarray' in str(type(dflat[key])) or
+                           'list' in str(type(dflat[key]))):
                             listlen = len(dflat[key])
                             if listlen > maxlen:
                                 maxlen = listlen
         else:
-            for item in indat.items():
-                if ('numpy' in str(type(item[1])) or 'list' in str(type(item[1]))):
+            for item in list(indat.items()):
+                if('ndarray' in str(type(item[1]))
+                   or 'list' in str(type(item[1]))):
                     listlen = len(item[1])
                     if listlen > maxlen:
                         maxlen = listlen
         self.setAttr('Range', max=maxlen)
-        if w['selection'] == 3: # pass
+        if w['selection'] == 3:  # pass
             w['center'] = (maxlen+1)/2
             w['width'] = maxlen
             w['floor'] = 1
             w['ceiling'] = maxlen
             self.setAttr('Range', quietval=w)
-            
+
     def compute(self):
 
-        import numpy as np
-        import re 
+        import re
 
         indat = self.getData('dq_in')
-        keys = self.getVal('Keys:')
+        inkeys = self.getVal('Keys:')
+        exactmatch = self.getVal('Match Exactly')
+        keys = gen_keys_from_keywords(inkeys, indat, exactmatch)
 
         w = self.getVal('Range')
         minl = w['floor']-1
         maxl = w['ceiling']
 
-        if len(keys) > 0:
-            keys = re.split(', | ,|,', keys)
-
         # Report Back to User
         report = '\n'
         if w['selection'] in [0, 1]:
             report = report + 'Displaying List Elements: ' + str(minl) + ':'\
-                    + str(maxl - 1) +'\n\n'
+                + str(maxl - 1) + '\n\n'
         elif w['selection'] == 2:
             report = report + 'Displaying Element: ' + str(minl) + '\n\n'
         if len(keys) > 0:
             dflat = dict()
             dflat = unwrap_dict(indat, dflat)
             for key in keys:
-                if key in dflat.keys():
-                    if 'dict' in str(type(dflat[key])):
+                if key in dflat:
+                    if 'dict' in str(type(dflat[key])).lower():
                         report = report + str(key)+':\n'
                     try:
-                        for subkey in dflat[key].keys():
-                            if ('list' in str(type(dflat[key][subkey])) or
-                                'numpy' in str(type(dflat[key][subkey]))):
-                                report = report + str(subkey) + ' = '\
-                                        + str(dflat[key][subkey][minl:maxl]) + "\n"
-                            else:
-                                report = report + str(subkey) + ' = '\
-                                        + str(dflat[key][subkey]) + "\n"
+                        for item in list(sorted(dflat[key].items())):
+                            report = print_item(item, report,
+                                                minl, maxl)
                     except:
-                        if ('list' in str(type(dflat[key])) or
-                            'numpy' in str(type(dflat[key]))):
-                            report = report + str(key) + ' = '\
-                                    + str(dflat[key][minl:maxl]) + "\n"
-                        else:
-                            report = report + str(key) + ' = '\
-                                    + str(dflat[key]) + "\n"
+                        report = print_item((key, dflat[key]), report, minl,
+                                            maxl)
         else:
-            for item in indat.items():
-                if ('list' in str(type(item[1])) or 'numpy' in str(type(item[1]))):
-                    report = report + str(item[0]) + ' = ' + str(item[1][minl:maxl]) + "\n"
-                else:
-                    report = report + str(item[0]) + ' = ' + str(item[1]) + "\n"
+            for item in list(sorted(indat.items())):
+                report = print_item(item, report, minl, maxl)
 
-        self.setAttr('Info:', val = report)
+        self.setAttr('Info:', val=report)
 
         return(0)
-
 

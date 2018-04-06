@@ -33,57 +33,39 @@
 
 
 # Author: Nick Zwart
-# Date: 2012sep02
+# Date: 2015apr07
+# Brief: A simple node to get things started.  Just copy this file to your
+#        working directory, rename the 'NewNode' part, and start hacking. This
+#        provides a push button widget, input and output array and info logger.
 
 import gpi
 
 
 class ExternalNode(gpi.NodeAPI):
-    """A module for slicing through numpy arrays.
-    INPUT - input
-    OUTPUT - sliced data
-
-    WIDGETS:
-    I/O Info: - size of input, output arrays
-    Dimension# - dimension along which to slice
-    Slice# - index along that dimension to slice
-    """
+    '''Node summary goes here.
+    '''
 
     def initUI(self):
-
         # Widgets
-        self.addWidget('TextBox', 'I/O Info:')
-        self.addWidget('Slider', 'Dimension #', val=1)
-        self.addWidget('Slider', 'Slice #', val=1)
+        self.addWidget('PushButton', 'click', toggle=True)
 
         # IO Ports
-        self.addInPort('in', 'NPYarray', obligation=gpi.REQUIRED)
+        self.addInPort('in', 'NPYarray', obligation=gpi.OPTIONAL)
         self.addOutPort('out', 'NPYarray')
 
     def compute(self):
+        '''This is where the main algorithm should be implemented.
+        '''
 
-        data = self.getData(0)
+        self.log.node("Its alive!!!")
 
-        # set current slice dimension
-        self.setAttr('Dimension #', min=1, max=data.ndim)
-        userdim = self.getVal('Dimension #')-1
+        # GETTING WIDGET INFO
+        val = self.getVal('click')
 
-        # reset sliders based on input data
-        self.setAttr('Slice #', min=1, max=data.shape[userdim])
+        # GETTING PORT DATA 
+        data = self.getData('in')
 
-        # slice the dimension of interest
-        s = self.getVal('Slice #')-1
+        # SETTING PORT DATA
+        self.setData('out', data)
 
-        xi = []
-        for i in range(len(data.shape)-1-userdim):
-            xi += [slice(None)]
-        outdim = [Ellipsis, s] + xi
-        out = data[outdim]
-
-        # update UI info
-        self.setAttr('I/O Info:', val="input: "+str(
-            data.shape)+"\noutput: "+str(out.shape))
-
-        self.setData('out', out)
-
-        return(0)
+        return 0

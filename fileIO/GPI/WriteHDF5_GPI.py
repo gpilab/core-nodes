@@ -81,8 +81,7 @@ class ExternalNode(gpi.NodeAPI):
        # Widgets
         self.addWidget(
             'SaveFileBrowser', 'File Browser', button_title='Browse',
-            caption='Save File (*.hdf5)', directory='~/',
-            filter='hdf5 (*.hdf5)')
+            caption='Save File (*.hdf5)', filter='hdf5 (*.hdf5)')
         self.addWidget('StringBox', 'set-name', val='gpidata')
         self.addWidget('PushButton', 'compress (GZIP)', toggle=True)
         self.addWidget('PushButton', 'Write Mode', button_title='Write on New Filename', toggle=True)
@@ -100,6 +99,9 @@ class ExternalNode(gpi.NodeAPI):
             self.setAttr('Write Mode', button_title="Write on Every Event")
         else:
             self.setAttr('Write Mode', button_title="Write on New Filename")
+
+        fname = self.URI(self.getVal('File Browser'))
+        self.setDetailLabel(fname)
 
         return 0
 
@@ -128,9 +130,9 @@ class ExternalNode(gpi.NodeAPI):
                 data = self.getData('in')
                 f = h5py.File(fname, "a")
 
-                if label in f.keys():
-                    label = unique_name(label, f.keys())
-                    print "dataset label already exists in file, using \'"+label+"\'"
+                if label in list(f.keys()):
+                    label = unique_name(label, list(f.keys()))
+                    print("dataset label already exists in file, using \'"+label+"\'")
 
                 dset = f.create_dataset(label, data=data, **kwargs)
                 f.close()
@@ -139,9 +141,9 @@ class ExternalNode(gpi.NodeAPI):
                 data = self.getData('in')
                 f = h5py.File(fname, "a")
 
-                if label in f.keys():
-                    label = unique_name(label, f.keys())
-                    print "dataset label already exists in file, using \'"+label+"\'"
+                if label in list(f.keys()):
+                    label = unique_name(label, list(f.keys()))
+                    print("dataset label already exists in file, using \'"+label+"\'")
 
                 dset = f.create_dataset(label, data=data)
                 f.close()

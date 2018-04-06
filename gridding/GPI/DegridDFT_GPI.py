@@ -48,14 +48,13 @@ class ExternalNode(gpi.NodeAPI):
     coords - k-space coordinates, normalized in units of "1/resolution", i.e. ranging from -0.5 to 0.5
                Last dimension must be 2 or 3 (corresponding to kx/ky or kx/ky/kz, respectively)
                Coordinates at the very edge of gridded k-space then have values of -/+ 0.5
-    time - a time map (in seconds) indicating the time (since excitation) of data acquisition for each
-             point in [coords]
 
     OUTPUTS:
     out - gridded data, same dimensions as coords
     
     WIDGETS:
     Eff Mtx - effective matrix of coords (specifies Nyquist distance)
+    dwell (us) - time per sample, required for off-resonance degridding
     """
 
     def execType(self):
@@ -65,12 +64,12 @@ class ExternalNode(gpi.NodeAPI):
 
         # Widgets
         self.addWidget('SpinBox','Eff Mtx',min=10,val = 240)
+        self.addWidget('DoubleSpinBox','dwell (us)', min=0.0, val = 2.0)
 
         # IO Ports
         self.addInPort('image', 'NPYarray', ndim=2, dtype=[np.complex64, np.complex128])
         self.addInPort('offres', 'NPYarray', ndim=2, dtype=[np.float32, np.float64],obligation=gpi.OPTIONAL)
         self.addInPort('coords', 'NPYarray', dtype=[np.float32, np.float64])
-        self.addInPort('time', 'NPYarray', dtype=[np.float32, np.float64],obligation=gpi.OPTIONAL)
 
         self.addOutPort('data', 'NPYarray', dtype= np.complex128)
 
@@ -89,19 +88,20 @@ class ExternalNode(gpi.NodeAPI):
         import core.gridding.dft as dft
 
         effmtx = self.getVal('Eff Mtx')
+        dwell = self.getVal('dwell (us)') * 1e-6
         image = self.getData('image').astype(np.complex128)
         offres = self.getData('offres')
         crds = self.getData('coords').astype(np.float64)
-        time = self.getData('time')
+        narms, npts, ndim = crds.shape
+
+        time = np.linspace(0, dwell*npts, npts)
+        time = np.tile(time, (narms,1))
 
         if offres is None:
             offres = np.zeros(image.shape)
-        if time is None:
-            time = np.zeros(crds[...,0].size)
 
         newcrds = np.reshape(crds,(crds[...,0].size,2))
         outdim = np.array([crds[...,0].size],dtype=np.int64)
-        time = np.reshape(time,(crds[...,0].size,))
 
         # out = dft.dftgrid(image,newcrds,outdim,effmtx)
         out = dft.dftgrid(image,offres,newcrds,time,outdim,effmtx)

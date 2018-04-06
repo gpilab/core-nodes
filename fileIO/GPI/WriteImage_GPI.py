@@ -59,13 +59,10 @@ class ExternalNode(gpi.NodeAPI):
         return gpi.GPI_THREAD
 
     def initUI(self):
-
        # Widgets
         self.addWidget(
             'SaveFileBrowser', 'File Browser', button_title='Browse',
-            caption='Save File (*.npy)', directory='~/',
-            filter='tiff (*.tiff);;jpg (*.jpg);;all (*)'
-            )
+            caption='Save Image', filter='tiff (*.tiff);;jpg (*.jpg);;all (*)')
         self.addWidget('PushButton', 'Write Mode', button_title='Write on New Filename', toggle=True)
         self.addWidget('PushButton', 'Write Now', button_title='Write Right Now', toggle=False)
 
@@ -76,6 +73,8 @@ class ExternalNode(gpi.NodeAPI):
         self.URI = gpi.TranslateFileURI
 
     def validate(self):
+        fname = self.URI(self.getVal('File Browser'))
+        self.setDetailLabel(fname)
 
         if self.getVal('Write Mode'):
             self.setAttr('Write Mode', button_title="Write on Every Event")
@@ -83,13 +82,13 @@ class ExternalNode(gpi.NodeAPI):
             self.setAttr('Write Mode', button_title="Write on New Filename")
 
         data = self.getData('in')
-        if(data.ndim is not 3) : 
-            self.log.warn("data must be 2D or 3D")
+        if data.ndim != 3:
+            self.log.warn("data must be 3D (RGB or RGBA in last dim)")
             return 1
-        if(data.shape[-1] is not 3) :
-            if(data.shape[-1] is not 4) :
-                self.log.warn("The last dimension for 3D data must be 3 or 4")
-                return 1
+        if data.shape[-1] not in (3,4):
+            self.log.warn("The last dimension for 3D data must be 3 or 4")
+            return 1
+
         return 0
 
     def compute(self):
@@ -97,7 +96,10 @@ class ExternalNode(gpi.NodeAPI):
         import numpy as np
         from PIL import Image
 
-        data = self.getData('in')
+        data = self.getData('in').copy()
+
+        if data.ndim == 3:
+            data[...,(0,2)] = data[...,(2,0)]
 
         #Note: scipy.misc.imsave() uses the Python Imaging Library (PIL) which automatically 
         #chooses the format in which to save files based on the file extension (.jpg, .tif, etc)
@@ -115,7 +117,6 @@ class ExternalNode(gpi.NodeAPI):
             else:
                 fname += '.tiff'
 
-            data = self.getData('in')
             img = Image.fromarray(data)
             img.save(fname)
             self.log.info("File Written : " +str(fname))

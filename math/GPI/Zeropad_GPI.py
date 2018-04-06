@@ -157,6 +157,7 @@ class ExternalNode(gpi.NodeAPI):
             self.addWidget('FFTW_GROUP', self.dim_base_name +
                            str(-i - 1) + ']')
 
+        self.addWidget('ExclusivePushButtons','Domain', buttons=['Transform','Image'],val=0)
         self.addWidget('PushButton', 'compute', toggle=True)
 
         # IO Ports
@@ -173,7 +174,7 @@ class ExternalNode(gpi.NodeAPI):
             data = self.getData('in')
 
             # visibility and bounds
-            for i in xrange(self.ndim):
+            for i in range(self.ndim):
                 if i < len(data.shape):
                     val = {'in_len': data.shape[-i - 1]}
                     self.setAttr(self.dim_base_name + str(-i - 1) + ']',
@@ -208,7 +209,8 @@ class ExternalNode(gpi.NodeAPI):
                     fftAxes = (-i - 1,)
                     ifftAxes = ifftAxes + (-i - 1,)
 
-                    temp = np.fft.fftshift(np.fft.ifftn(np.fft.ifftshift(temp),
+                    if self.getVal('Domain') == 0:
+                        temp = np.fft.fftshift(np.fft.ifftn(np.fft.ifftshift(temp),
                                                         axes=fftAxes))
 
                     zpad_length = val['length'] - temp.shape[-i - 1]
@@ -222,16 +224,19 @@ class ExternalNode(gpi.NodeAPI):
                         temp = np.insert(temp, temp.shape[-i - 1] *
                                          np.ones(zpad_after), 0.0, (-i - 1))
                     elif zpad_after < 0:
-                        temp = np.delete(temp, range(temp.shape[-i - 1] +
-                                         zpad_after, temp.shape[-i - 1]), (-i - 1))
+                        temp = np.delete(temp, list(range(temp.shape[-i - 1] +
+                                         zpad_after, temp.shape[-i - 1])), (-i - 1))
                     if zpad_before > 0:
                         temp = np.insert(temp, np.zeros(zpad_before), 0.0,
                                          (-i - 1))
                     elif zpad_before < 0:
-                        temp = np.delete(temp, range(-zpad_before), (-i - 1))
+                        temp = np.delete(temp, list(range(-zpad_before)), (-i - 1))
 
-            out = np.fft.fftshift(np.fft.fftn(np.fft.ifftshift(temp),
+            if self.getVal('Domain') == 0:
+                out = np.fft.fftshift(np.fft.fftn(np.fft.ifftshift(temp),
                                               axes=ifftAxes))
+            else:
+                out = temp
             self.setData('out', out)
 
         else:

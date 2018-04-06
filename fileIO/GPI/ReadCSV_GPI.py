@@ -48,14 +48,17 @@ class ExternalNode(gpi.NodeAPI):
         self.addWidget('TextBox', 'I/O Info:')
         self.addWidget(
             'OpenFileBrowser', 'File Browser', button_title='Browse',
-            caption='Open File', directory='~/',
-            filter='csv (*.csv);;all (*)')
+            caption='Open File', filter='csv (*.csv);;all (*)')
 
         # IO Ports
         self.addOutPort('out', 'NPYarray')
 
         # store for later use
         self.URI = gpi.TranslateFileURI
+
+    def validate(self):
+        fname = self.URI(self.getVal('File Browser'))
+        self.setDetailLabel(fname)
 
     def compute(self):
 

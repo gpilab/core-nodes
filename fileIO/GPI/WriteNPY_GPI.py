@@ -54,8 +54,7 @@ class ExternalNode(gpi.NodeAPI):
        # Widgets
         self.addWidget(
             'SaveFileBrowser', 'File Browser', button_title='Browse',
-            caption='Save File (*.npy)', directory='~/',
-            filter='numpy (*.npy)')
+            caption='Save File (*.npy)', filter='numpy (*.npy)')
         self.addWidget('PushButton', 'Write Mode', button_title='Write on New Filename', toggle=True)
         self.addWidget('PushButton', 'Write Now', button_title='Write Right Now', toggle=False)
 
@@ -71,6 +70,9 @@ class ExternalNode(gpi.NodeAPI):
             self.setAttr('Write Mode', button_title="Write on Every Event")
         else:
             self.setAttr('Write Mode', button_title="Write on New Filename")
+
+        fname = self.URI(self.getVal('File Browser'))
+        self.setDetailLabel(fname)
 
         return 0
 

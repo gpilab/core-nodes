@@ -62,12 +62,17 @@ class ExternalNode(gpi.NodeAPI):
        # Widgets
         self.addWidget('TextBox', 'I/O Info:')
         self.addWidget('OpenFileBrowser', 'File Browser',
-                button_title='Browse', caption='Open File', directory='~/',
-                    filter='numpy (*.npy)')
+                button_title='Browse', caption='Open File', filter='numpy (*.npy)')
         self.addWidget('PushButton', 'Squeeze', toggle=True)
 
         # IO Ports
         self.addOutPort(title='out', type='NPYarray')
+
+        self.URI = gpi.TranslateFileURI
+
+    def validate(self):
+        fname = self.URI(self.getVal('File Browser'))
+        self.setDetailLabel(fname)
 
     def compute(self):
 
@@ -76,7 +81,7 @@ class ExternalNode(gpi.NodeAPI):
         import numpy as np
 
         # start file browser
-        fname = gpi.TranslateFileURI(self.getVal('File Browser'))
+        fname = self.URI(self.getVal('File Browser'))
 
         # check that the path actually exists
         if not os.path.exists(fname):

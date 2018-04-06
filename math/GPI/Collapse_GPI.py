@@ -133,7 +133,7 @@ class ExternalNode(gpi.NodeAPI):
         # Set Collapse all if # dimensions = 1
         if data.ndim == 1:
             self.setAttr('Collapse All', val=1)
-            print str(self.dim) 
+            print(str(self.dim)) 
 
         # Check for Start Index to never exceed Stop Index
         I_maxval = self.getVal('Dimension Start_Index')
@@ -225,7 +225,7 @@ class ExternalNode(gpi.NodeAPI):
                         collapse_all = np.sum(data)
             if op == 5:    # RMS
                 data_type = str(data.dtype)
-                if 'float' in data_type:
+                if ('float' in data_type) or ('int' in data_type):
                     temp = data
                     temp_nz = data[np.nonzero(data)]
                 elif 'complex' in data_type:
