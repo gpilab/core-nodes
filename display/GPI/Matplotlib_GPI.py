@@ -1,10 +1,10 @@
 # Copyright (c) 2014, Dignity Health
-# 
+#
 #     The GPI core node library is licensed under
 # either the BSD 3-clause or the LGPL v. 3.
-# 
+#
 #     Under either license, the following additional term applies:
-# 
+#
 #         NO CLINICAL USE.  THE SOFTWARE IS NOT INTENDED FOR COMMERCIAL
 # PURPOSES AND SHOULD BE USED ONLY FOR NON-COMMERCIAL RESEARCH PURPOSES.  THE
 # SOFTWARE MAY NOT IN ANY EVENT BE USED FOR ANY CLINICAL OR DIAGNOSTIC
@@ -13,12 +13,12 @@
 # TO LIFE SUPPORT OR EMERGENCY MEDICAL OPERATIONS OR USES.  LICENSOR MAKES NO
 # WARRANTY AND HAS NOR LIABILITY ARISING FROM ANY USE OF THE SOFTWARE IN ANY
 # HIGH RISK OR STRICT LIABILITY ACTIVITIES.
-# 
+#
 #     If you elect to license the GPI core node library under the LGPL the
 # following applies:
-# 
+#
 #         This file is part of the GPI core node library.
-# 
+#
 #         The GPI core node library is free software: you can redistribute it
 # and/or modify it under the terms of the GNU Lesser General Public License as
 # published by the Free Software Foundation, either version 3 of the License,
@@ -26,7 +26,7 @@
 # in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
 # the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU Lesser General Public License for more details.
-# 
+#
 #         You should have received a copy of the GNU Lesser General Public
 # License along with the GPI core node library. If not, see
 # <http://www.gnu.org/licenses/>.
@@ -42,7 +42,7 @@ import matplotlib as mpl
 print('matplotlib version: ', mpl.__version__)
 
 import gpi
-from gpi import QtCore, QtGui
+from gpi import QtCore, QtGui, QtWidgets
 
 import numpy as np
 from matplotlib.figure import Figure
@@ -52,7 +52,7 @@ from matplotlib.backends.backend_qt4agg import (
     NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.backends.backend_qt4 import SubplotToolQt
 
-class MainWin_close(QtGui.QMainWindow):
+class MainWin_close(QtWidgets.QMainWindow):
     window_closed = gpi.Signal()
     def __init__(self):
         super(MainWin_close, self).__init__()
@@ -110,12 +110,12 @@ class NavbarTools(NavigationToolbar):
         # The stretch factor is 1 which means any resizing of the toolbar
         # will resize this label instead of the buttons.
         if self.coordinates:
-            self.locLabel = QtGui.QLabel( "", self )
+            self.locLabel = QtWidgets.QLabel( "", self )
             self.locLabel.setAlignment(
                     QtCore.Qt.AlignRight | QtCore.Qt.AlignTop )
             self.locLabel.setSizePolicy(
-                QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,
-                                  QtGui.QSizePolicy.Ignored))
+                QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                  QtWidgets.QSizePolicy.Ignored))
             labelAction = self.addWidget(self.locLabel)
             labelAction.setVisible(True)
 
@@ -228,7 +228,7 @@ def figure_edit(axes, parent=None):
     #if has_curve:
     #datalist.append((curves, "Curves", ""))
     datalist = [(curves, "Curves", "")]
-        
+
     def apply_callback(data):
         """This function will be called to apply changes"""
         #if has_curve:
@@ -237,7 +237,7 @@ def figure_edit(axes, parent=None):
         #    general, = data
 
         curves = data[0]
-            
+
         # Set / General
         #title, xmin, xmax, xlabel, xscale, ymin, ymax, ylabel, yscale = general
         #axes.set_xscale(xscale)
@@ -247,7 +247,7 @@ def figure_edit(axes, parent=None):
         #axes.set_xlabel(xlabel)
         #axes.set_ylim(ymin, ymax)
         #axes.set_ylabel(ylabel)
-        
+
         if has_curve:
             # Set / Curves
             for index, curve in enumerate(curves):
@@ -263,18 +263,18 @@ def figure_edit(axes, parent=None):
                     line.set_markersize(markersize)
                     line.set_markerfacecolor(markerfacecolor)
                     line.set_markeredgecolor(markeredgecolor)
-            
+
         # Redraw
         figure = axes.get_figure()
         figure.canvas.draw()
-        
+
     # formlayout disappears in matplotlib 1.4.0
     if formlayout is not None:
         data = formlayout.fedit(datalist, title="Figure options", parent=parent, icon=get_icon('qt4_editor_options.svg'), apply=apply_callback)
 
         if data is not None:
             apply_callback(data)
-###############################################################################   
+###############################################################################
 
 
 class MatplotDisplay(gpi.GenericWidgetGroup):
@@ -306,7 +306,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
 
         # plot specific UI side panel
         #  -sets options for plot window so this needs to be run first
-        vbox = QtGui.QVBoxLayout()
+        vbox = QtWidgets.QVBoxLayout()
         vbox.setContentsMargins(0, 0, 0, 0)  # no spaces around this item
         vbox.setSpacing(0)
 
@@ -325,7 +325,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._collapsables.append(self._grid_btn)
 
         # X/Y LIMITS
-        lims = QtGui.QGridLayout()
+        lims = QtWidgets.QGridLayout()
         self._xl = gpi.widgets.BasicDoubleSpinBox(self)
         self._xh = gpi.widgets.BasicDoubleSpinBox(self)
         self._yl = gpi.widgets.BasicDoubleSpinBox(self)
@@ -344,10 +344,10 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._xh.set_decimals(7)
         self._yl.set_decimals(7)
         self._yh.set_decimals(7)
-        self._xlab = QtGui.QLabel('x limits')
-        self._ylab = QtGui.QLabel('y limits')
-        #self._maxlab = QtGui.QLabel('max')
-        #self._minlab = QtGui.QLabel('min')
+        self._xlab = QtWidgets.QLabel('x limits')
+        self._ylab = QtWidgets.QLabel('y limits')
+        #self._maxlab = QtWidgets.QLabel('max')
+        #self._minlab = QtWidgets.QLabel('min')
         #lims.addWidget(self._maxlab,1,0,1,1)
         #lims.addWidget(self._minlab,2,0,1,1)
         lims.addWidget(self._xlab,0,1,1,1,alignment=QtCore.Qt.AlignHCenter)
@@ -366,13 +366,13 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         #self._collapsables.append(self._maxlab)
 
         # TICK MARKS
-        ticks = QtGui.QGridLayout()
+        ticks = QtWidgets.QGridLayout()
         self._x_numticks = gpi.widgets.BasicSpinBox(self)
         self._x_numticks.valueChanged.connect(self.on_draw)
         self._y_numticks = gpi.widgets.BasicSpinBox(self)
         self._y_numticks.valueChanged.connect(self.on_draw)
-        self._x_ticks = QtGui.QLineEdit()
-        self._y_ticks = QtGui.QLineEdit()
+        self._x_ticks = QtWidgets.QLineEdit()
+        self._y_ticks = QtWidgets.QLineEdit()
         self._x_ticks.textChanged.connect(lambda txt: self.check_validticks(self._x_ticks))
         self._y_ticks.textChanged.connect(lambda txt: self.check_validticks(self._y_ticks))
         self._x_ticks.setPlaceholderText('comma separated list of x labels')
@@ -399,10 +399,10 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._collapsables.append(self._y_ticks)
 
         # TITLE, XLABEL, YLABEL
-        plotlabels = QtGui.QHBoxLayout()
-        self._plot_title = QtGui.QLineEdit()
-        self._plot_xlab = QtGui.QLineEdit()
-        self._plot_ylab = QtGui.QLineEdit()
+        plotlabels = QtWidgets.QHBoxLayout()
+        self._plot_title = QtWidgets.QLineEdit()
+        self._plot_xlab = QtWidgets.QLineEdit()
+        self._plot_ylab = QtWidgets.QLineEdit()
         self._plot_title.setPlaceholderText('title')
         self._plot_xlab.setPlaceholderText('x label')
         self._plot_ylab.setPlaceholderText('y label')
@@ -428,7 +428,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._yscale_btn.valueChanged.connect(self.on_draw)
         self._collapsables.append(self._yscale_btn)
 
-        scale_options_layout = QtGui.QHBoxLayout()
+        scale_options_layout = QtWidgets.QHBoxLayout()
         scale_options_layout.addWidget(self._xscale_btn)
         scale_options_layout.addWidget(self._yscale_btn)
 
@@ -488,15 +488,15 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._collapsables.append(self._subplotso_btn)
         self.adj_window = None
 
-        plot_options_layout = QtGui.QHBoxLayout()
+        plot_options_layout = QtWidgets.QHBoxLayout()
         plot_options_layout.addWidget(self._subplotso_btn)
         plot_options_layout.addWidget(self._lino_btn)
 
-        grid_legend_lyt = QtGui.QHBoxLayout()
+        grid_legend_lyt = QtWidgets.QHBoxLayout()
         grid_legend_lyt.addWidget(self._legend_btn)
         grid_legend_lyt.addWidget(self._grid_btn)
 
-        autoscale_scale_lyt = QtGui.QHBoxLayout()
+        autoscale_scale_lyt = QtWidgets.QHBoxLayout()
         autoscale_scale_lyt.addWidget(self._autoscale_btn)
         autoscale_scale_lyt.addWidget(self._xscale_btn)
         autoscale_scale_lyt.addWidget(self._yscale_btn)
@@ -504,28 +504,28 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         autoscale_scale_lyt.addWidget(self._yeq0_btn)
 
         # HLINES
-        self._hline1 = QtGui.QFrame()
-        self._hline1.setFrameStyle(QtGui.QFrame.HLine | QtGui.QFrame.Sunken)
-        self._hline1.setSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
+        self._hline1 = QtWidgets.QFrame()
+        self._hline1.setFrameStyle(QtWidgets.QFrame.HLine | QtWidgets.QFrame.Sunken)
+        self._hline1.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         self._collapsables.append(self._hline1)
 
-        self._hline2 = QtGui.QFrame()
-        self._hline2.setFrameStyle(QtGui.QFrame.HLine | QtGui.QFrame.Sunken)
-        self._hline2.setSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
+        self._hline2 = QtWidgets.QFrame()
+        self._hline2.setFrameStyle(QtWidgets.QFrame.HLine | QtWidgets.QFrame.Sunken)
+        self._hline2.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         self._collapsables.append(self._hline2)
 
-        self._hline3 = QtGui.QFrame()
-        self._hline3.setFrameStyle(QtGui.QFrame.HLine | QtGui.QFrame.Sunken)
-        self._hline3.setSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
+        self._hline3 = QtWidgets.QFrame()
+        self._hline3.setFrameStyle(QtWidgets.QFrame.HLine | QtWidgets.QFrame.Sunken)
+        self._hline3.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         self._collapsables.append(self._hline3)
 
         spc = 10
-        self._spacer1 = QtGui.QSpacerItem(1,spc,QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-        self._spacer2 = QtGui.QSpacerItem(1,spc,QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-        self._spacer3 = QtGui.QSpacerItem(1,spc,QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-        self._spacer4 = QtGui.QSpacerItem(1,spc,QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-        self._spacer5 = QtGui.QSpacerItem(1,spc,QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-        self._spacer6 = QtGui.QSpacerItem(1,spc,QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        self._spacer1 = QtWidgets.QSpacerItem(1,spc,QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self._spacer2 = QtWidgets.QSpacerItem(1,spc,QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self._spacer3 = QtWidgets.QSpacerItem(1,spc,QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self._spacer4 = QtWidgets.QSpacerItem(1,spc,QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self._spacer5 = QtWidgets.QSpacerItem(1,spc,QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self._spacer6 = QtWidgets.QSpacerItem(1,spc,QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self._collapsables.append(self._spacer1)
         self._collapsables.append(self._spacer2)
         self._collapsables.append(self._spacer3)
@@ -571,7 +571,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self._plotwindow = self.create_main_frame()
 
         # put side panel and plot window together
-        hbox = QtGui.QHBoxLayout()
+        hbox = QtWidgets.QHBoxLayout()
         hbox.addLayout(vbox)
         hbox.addLayout(self._plotwindow)
         hbox.setStretch(0,0)
@@ -744,7 +744,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self.canvas.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.canvas.setFocus()
 
-        self.canvas.setSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.MinimumExpanding)
+        self.canvas.setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
 
         #self.mpl_toolbar = NavigationToolbar(self.canvas, self)
         self.mpl_toolbar = NavbarTools(self.canvas, self)
@@ -752,7 +752,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
 
         self.canvas.mpl_connect('key_press_event', self.on_key_press)
 
-        vbox = QtGui.QVBoxLayout()
+        vbox = QtWidgets.QVBoxLayout()
         vbox.addWidget(self.canvas)  # the matplotlib canvas
         vbox.addWidget(self.mpl_toolbar)
         return vbox
@@ -786,7 +786,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
 
         tool = SubplotToolQt(self.fig, win)
         win.setCentralWidget(tool)
-        win.setSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
+        win.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
 
         win.show()
 
@@ -808,7 +808,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
                 s[k] = getattr(l, 'get_'+k)()
             self._lineSettings.append(s)
 
-        # subplot position 
+        # subplot position
         self._subplotPosition = {}
         self._subplotPosition['left'] = self.fig.subplotpars.left
         self._subplotPosition['right'] = self.fig.subplotpars.right
@@ -881,7 +881,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         # self.axes.plot(self.x, self.y, 'ro')
         # self.axes.imshow(self.data, interpolation='nearest')
         # self.axes.plot([1,2,3])
-    
+
         # XSCALE
         if self.get_scale()['xscale']:
             self.axes.set_xscale('log')
@@ -903,7 +903,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
 
         # AXES SPINE COLOR
         self.axes.spines['bottom'].set_color(ax_color)
-        self.axes.spines['top'].set_color(ax_color) 
+        self.axes.spines['top'].set_color(ax_color)
         self.axes.spines['right'].set_color(ax_color)
         self.axes.spines['left'].set_color(ax_color)
         self.axes.set_axis_bgcolor('0.97')
@@ -989,7 +989,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
 
 class ExternalNode(gpi.NodeAPI):
 
-    """A Qt embedded plot window using the code from: 
+    """A Qt embedded plot window using the code from:
     http://matplotlib.org/examples/user_interfaces/embedding_in_qt4_wtoolbar.html
     keyboard shortcuts can be found here:
     http://matplotlib.org/users/navigation_toolbar.html#navigation-keyboard-shortcuts

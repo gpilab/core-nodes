@@ -36,12 +36,9 @@
 #Date: 2014Mar
 
 import gpi
-import sys
 import numpy as np
 from scipy import interpolate
-from math import fabs, sqrt, exp
-from numpy import linspace
-from gpi import QtCore, QtGui
+from gpi import QtWidgets
 
 
 class Interpolate_GROUP(gpi.GenericWidgetGroup):
@@ -75,7 +72,7 @@ class Interpolate_GROUP(gpi.GenericWidgetGroup):
         self.db.valueChanged.connect(self.factChange)
         self.sb.valueChanged.connect(self.lenChange)
 
-        vbox = QtGui.QHBoxLayout()
+        vbox = QtWidgets.QHBoxLayout()
         vbox.addWidget(self.db)
         vbox.addWidget(self.sb)
         vbox.setStretch(0, 0)
