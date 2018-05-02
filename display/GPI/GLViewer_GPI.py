@@ -341,7 +341,7 @@ class GPIGLWidget(QtOpenGL.QGLWidget):
                 desc.setGLWidgetRef(self)
 
     def wheelEvent(self, event):
-        if event.delta() > 0:
+        if event.angleDelta().y() > 0:
             self.setViewScale(0.1)
         else:
             self.setViewScale(-0.1)
