@@ -341,7 +341,13 @@ class GPIGLWidget(QtOpenGL.QGLWidget):
                 desc.setGLWidgetRef(self)
 
     def wheelEvent(self, event):
-        if event.angleDelta().y() > 0:
+        try:
+            # PyQt4
+            delta = event.delta()
+        except AttributeError:
+            # PyQt5
+            delta = event.angleDelta().y()
+        if delta > 0:
             self.setViewScale(0.1)
         else:
             self.setViewScale(-0.1)
