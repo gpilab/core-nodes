@@ -50,8 +50,10 @@ from gpi.numpyqt import qimage2numpy
 # start logger for this module
 log = gpi.logger.manager.getLogger(__name__)
 
-from gpi import QtCore, QtGui, Qimport, QtWidgets
-QtOpenGL = Qimport("QtOpenGL")
+from gpi import QtCore, QtGui, Qimport, QtWidgets, QtOpenGL, QT_API_NAME
+
+# TODO: QtOpenGL is deprecated in recent Qt 5
+# could use newer QtWidgets.QOpenGLWidget, etc. instead
 
 try:
     from OpenGL import GL, GLU, GLUT
@@ -432,8 +434,10 @@ class OpenGLWindow(gpi.GenericWidgetGroup):
     valueChanged = gpi.Signal()
 
     def __init__(self, title, parent=None):
+        if QtOpenGL is None:
+            raise ImportError("QtOpenGL not available in the current Qt "
+                              "package ({})".format(QT_API_NAME))
         super(OpenGLWindow, self).__init__(title, parent)
-
         f = QtOpenGL.QGLFormat()
         f.setAccum(True)
         f.setDoubleBuffer(True)
