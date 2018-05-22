@@ -906,7 +906,11 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         self.axes.spines['top'].set_color(ax_color)
         self.axes.spines['right'].set_color(ax_color)
         self.axes.spines['left'].set_color(ax_color)
-        self.axes.set_axis_bgcolor('0.97')
+        try:
+            # deprecated in Matplotlib 2.0
+            self.axes.set_axis_bgcolor('0.97')
+        except AttributeError:
+            self.axes.set_facecolor('0.97')
 
         # if self._origin_axes_btn.get_val():
         #     self.axes.spines['left'].set_position('zero')
