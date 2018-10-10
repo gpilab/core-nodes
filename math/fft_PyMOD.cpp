@@ -218,7 +218,7 @@ PYFI_FUNC(fftw)
 	    	global_fftFlags = FFTW_EXHAUSTIVE;
 	    	break;
 	    default:
-		printf(RED"fft.c: error, flag choice not found\n"NOC);
+		printf(RED"fft.c: error, flag choice not found\n" NOC);
 		exit(1);
 	}
 
