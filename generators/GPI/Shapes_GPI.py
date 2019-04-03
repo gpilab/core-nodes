@@ -185,7 +185,10 @@ class ExternalNode(gpi.NodeAPI):
         self.addWidget('DoubleSpinBox', 'Poly k:', val=0.0, decimals=5)
         self.addWidget('DoubleSpinBox', 'Poly k^2:', val=0.0, decimals=5)
         self.addWidget('DoubleSpinBox', 'Noise Std:', val=1.0, decimals=5)
-
+        self.addWidget('PushButton', 'Real/Complex', toggle=True, val=0)
+        self.addWidget('PushButton', 'Fixed Seed', toggle=True, val=0)
+        self.addWidget('SpinBox', 'Seed', val = 0)
+        
         # IO Ports
         self.addInPort('in', 'NPYarray', obligation = gpi.OPTIONAL)
         self.addOutPort('out', 'NPYarray')
@@ -264,8 +267,15 @@ class ExternalNode(gpi.NodeAPI):
 
             if function == 7:
                 self.setAttr('Noise Std:', visible=True)
+                self.setAttr('Real/Complex', visible=True)
+                self.setAttr('Fixed Seed', visible=True)
+                if(self.getVal('Fixed Seed')):
+                    self.setAttr('Seed', visible=True)
             else:
                 self.setAttr('Noise Std:', visible=False)
+                self.setAttr('Real/Complex', visible=False)
+                self.setAttr('Fixed Seed', visible=False)
+                self.setAttr('Seed', visible=False)
 
         return(0)
 
@@ -278,6 +288,8 @@ class ExternalNode(gpi.NodeAPI):
         function = self.getVal('Function')
         ndim = self.getVal('Dimensions') + 1
         same_dim = self.getVal('Equal Dimensions')
+        complex = self.getVal('Real/Complex')
+        fixedSeed = self.getVal('Fixed Seed')
 
         self.dims = {}
         self.widths = {}
@@ -331,6 +343,16 @@ class ExternalNode(gpi.NodeAPI):
             self.setAttr('Compute', button_title="ON")
         else:
             self.setAttr('Compute', button_title="OFF")
+            
+        if complex:
+            self.setAttr('Real/Complex', button_title="Complex")
+        else:
+            self.setAttr('Real/Complex', button_title="Real")
+            
+        if fixedSeed:
+            self.setAttr('Fixed Seed', button_title="ON")
+        else:
+            self.setAttr('Fixed Seed', button_title="OFF")
 
         # SETTING PORT INFO
         if compute:
@@ -463,14 +485,25 @@ class ExternalNode(gpi.NodeAPI):
                 out[passIdx] = passVal
 
             else:  # noise
-                np.random.seed()
+                if(fixedSeed):
+                    np.random.seed(self.getVal('Seed'))
+                else:
+                    np.random.seed()
                 if ndim == 1:
                     out = std * np.random.randn(self.dims[1])
+                    if complex:
+                        out = out + 1j * std * np.random.randn(self.dims[1])
                 elif ndim == 2:
                     out = std * np.random.randn(self.dims[2], self.dims[1])
+                    if complex:
+                        out = out + 1j * std * np.random.randn(self.dims[2], 
+                                                               self.dims[1])
                 else:
                     out = std * np.random.randn(self.dims[3], self.dims[2],
                                                 self.dims[1])
+                    if complex:
+                        out = out + 1j * std * np.random.randn(self.dims[3], 
+                                                    self.dims[2],self.dims[1])
         else:
             out = None
 
