@@ -58,7 +58,7 @@ class ExternalNode(gpi.NodeAPI):
         # Edge clause default setting
         self.edgeMode = 0
         self.func = 0
-        self.op_labels = ['Integrate', 'Differentiate']
+        self.op_labels = ['Integrate', 'Derivative','Discrete Diff.']
         self.addWidget('ExclusivePushButtons', 'Operation', buttons=self.op_labels
                         , val = 0)
         self.addWidget('Slider', 'Dimension', val = 0, min=0)
@@ -77,8 +77,11 @@ class ExternalNode(gpi.NodeAPI):
         if self.getVal('Operation') is 0:
             self.setAttr('Endpoint Treatment', visible = False)
             self.setAttr('Method', visible = True)
-        else:
+        elif self.getVal('Operation') is 1:
             self.setAttr('Endpoint Treatment', visible = True)
+            self.setAttr('Method', visible = False)
+        else:
+            self.setAttr('Endpoint Treatment', visible = False)
             self.setAttr('Method', visible = False)
 
         if data is not None:
@@ -98,10 +101,12 @@ class ExternalNode(gpi.NodeAPI):
                 else:
                     out = int.cumtrapz(data, axis=self.getVal('Dimension'),
                                         initial = 0)
-            else:
+            elif self.getVal('Operation') is 1:
                 order = self.getVal('Endpoint Treatment') + 1;
                 out = np.gradient(data, axis=self.getVal('Dimension'),
                                 edge_order=order)
+            else:
+                out = np.diff(data,axis=self.getVal('Dimension'))
             self.setData('out', out)
 
         return(0)

@@ -552,6 +552,10 @@ class ExternalNode(gpi.NodeAPI):
         info = basic_info+"Output Dimensions: "+str(self.shape)+"\n" \
                "Output Size: "+str(self.size)+"\n"+self.info_message
         self.setAttr('Info:', val = info)
+        if( self.getVal('Compute')):
+            self.setDetailLabel(self.op_buttons[op])
+        else:
+            self.setDetailLabel("{} (idle)".format(self.op_buttons[op]))
 
         return(0)
 
