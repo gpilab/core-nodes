@@ -923,7 +923,10 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
         if self._data is None:
             return
 
-        self.fig.hold(True)
+        try:
+            self.fig.hold(True)
+        except:
+            pass
 
         # plot each set
         # print "--------------------plot the data"
