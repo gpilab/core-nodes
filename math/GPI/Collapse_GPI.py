@@ -147,6 +147,8 @@ class ExternalNode(gpi.NodeAPI):
             self.setData('Collapse Single Dim',None)
             self.setData('Collapse All Dims',None)
             self.setData('Max Val Index',None)
+            
+        self.setAttr('Non-Zero',visible=True)
     
 
     def compute(self):
