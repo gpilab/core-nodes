@@ -39,7 +39,7 @@
 import gpi
 import numpy as np
 import re
-from gpi import QtGui
+from gpi import QtWidgets
 np.set_printoptions(linewidth=256)
 
 
@@ -83,7 +83,7 @@ def gen_keys_from_keywords(keys, indict, exactmatch):
                         matching_keys.append(key)
     else:
         matching_keys = []
-    
+
     return(matching_keys)
 
 
@@ -101,9 +101,9 @@ class ReduceSliders(gpi.GenericWidgetGroup):
         self.button_names = ['C/W', 'B/E', 'Slice', 'Pass']
         self.buttons = []
         cnt = 0
-        wdgLayout = QtGui.QGridLayout()
+        wdgLayout = QtWidgets.QGridLayout()
         for name in self.button_names:
-            newbutton = QtGui.QPushButton(name)
+            newbutton = QtWidgets.QPushButton(name)
             newbutton.setCheckable(True)
             newbutton.setAutoExclusive(True)
             self.buttons.append(newbutton)

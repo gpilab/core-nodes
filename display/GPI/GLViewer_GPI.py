@@ -50,8 +50,10 @@ from gpi.numpyqt import qimage2numpy
 # start logger for this module
 log = gpi.logger.manager.getLogger(__name__)
 
-from gpi import QtCore, QtGui, Qimport
-QtOpenGL = Qimport("QtOpenGL")
+from gpi import QtCore, QtGui, Qimport, QtWidgets, QtOpenGL, QT_API_NAME
+
+# TODO: QtOpenGL is deprecated in recent Qt 5
+# could use newer QtWidgets.QOpenGLWidget, etc. instead
 
 try:
     from OpenGL import GL, GLU, GLUT
@@ -60,8 +62,8 @@ try:
     import OpenGL.GLUT
 
 except ImportError:
-    app = QtGui.QApplication(sys.argv)
-    QtGui.QMessageBox.critical(None, "OpenGL grabber",
+    app = QtWidgets.QApplication(sys.argv)
+    QtWidgets.QMessageBox.critical(None, "OpenGL grabber",
                                "PyOpenGL must be installed to run this example.")
     raise
 
@@ -341,7 +343,13 @@ class GPIGLWidget(QtOpenGL.QGLWidget):
                 desc.setGLWidgetRef(self)
 
     def wheelEvent(self, event):
-        if event.delta() > 0:
+        try:
+            # PyQt4
+            delta = event.delta()
+        except AttributeError:
+            # PyQt5
+            delta = event.angleDelta().y()
+        if delta > 0:
             self.setViewScale(0.1)
         else:
             self.setViewScale(-0.1)
@@ -426,8 +434,10 @@ class OpenGLWindow(gpi.GenericWidgetGroup):
     valueChanged = gpi.Signal()
 
     def __init__(self, title, parent=None):
+        if QtOpenGL is None:
+            raise ImportError("QtOpenGL not available in the current Qt "
+                              "package ({})".format(QT_API_NAME))
         super(OpenGLWindow, self).__init__(title, parent)
-
         f = QtOpenGL.QGLFormat()
         f.setAccum(True)
         f.setDoubleBuffer(True)
@@ -436,21 +446,21 @@ class OpenGLWindow(gpi.GenericWidgetGroup):
         f.setAlpha(True)
         self.glWidget = GPIGLWidget(f)
 
-        self.glWidgetArea = QtGui.QScrollArea()
+        self.glWidgetArea = QtWidgets.QScrollArea()
         self.glWidgetArea.setWidget(self.glWidget)
         self.glWidgetArea.setWidgetResizable(True)
         self.glWidgetArea.setHorizontalScrollBarPolicy(
             QtCore.Qt.ScrollBarAlwaysOff)
         self.glWidgetArea.setVerticalScrollBarPolicy(
             QtCore.Qt.ScrollBarAlwaysOff)
-        self.glWidgetArea.setSizePolicy(QtGui.QSizePolicy.Ignored,
-                                        QtGui.QSizePolicy.Ignored)
+        self.glWidgetArea.setSizePolicy(QtWidgets.QSizePolicy.Ignored,
+                                        QtWidgets.QSizePolicy.Ignored)
         self.glWidgetArea.setMinimumSize(50, 50)
 
-        # self.pixmapLabelArea = QtGui.QScrollArea()
+        # self.pixmapLabelArea = QtWidgets.QScrollArea()
         # self.pixmapLabelArea.setWidget(self.pixmapLabel)
-        # self.pixmapLabelArea.setSizePolicy(QtGui.QSizePolicy.Ignored,
-        #        QtGui.QSizePolicy.Ignored)
+        # self.pixmapLabelArea.setSizePolicy(QtWidgets.QSizePolicy.Ignored,
+        #        QtWidgets.QSizePolicy.Ignored)
         # self.pixmapLabelArea.setMinimumSize(50, 50)
 
         xSlider = self.createSlider(self.glWidget.xRotationChanged,
@@ -471,7 +481,7 @@ class OpenGLWindow(gpi.GenericWidgetGroup):
         antialiasing = self.createCheckOption(
             'AntiAliasing', self.glWidget.setAntiAliasing, initstate=0, enabled=enableaccum)
 
-        hardwareRender = QtGui.QLabel()
+        hardwareRender = QtWidgets.QLabel()
         hardwareRender.setFrameStyle(2)
         if self.glWidget.format().directRendering():
             hardwareRender.setText('Rendering: Hardware')
@@ -483,7 +493,7 @@ class OpenGLWindow(gpi.GenericWidgetGroup):
 
         # self.createActions()
         # self.createMenus()
-        centralLayout = QtGui.QGridLayout()
+        centralLayout = QtWidgets.QGridLayout()
         centralLayout.addWidget(self.glWidgetArea, 2, 0, 4, 4)
         # centralLayout.setColumnStretch(0,3)
         centralLayout.setRowStretch(2, 2)
@@ -564,27 +574,27 @@ class OpenGLWindow(gpi.GenericWidgetGroup):
         self.setPixmap(QtGui.QPixmap())
 
     def about(self):
-        QtGui.QMessageBox.about(self, "About Grabber",
+        QtWidgets.QMessageBox.about(self, "About Grabber",
                                 "The <b>Grabber</b> example demonstrates two approaches for "
                                 "rendering OpenGL into a Qt pixmap.")
 
     def createActions(self):
-        self.renderIntoPixmapAct = QtGui.QAction("&Render into Pixmap...",
+        self.renderIntoPixmapAct = QtWidgets.QAction("&Render into Pixmap...",
                                                  self, shortcut="Ctrl+R", triggered=self.renderIntoPixmap)
 
-        self.grabFrameBufferAct = QtGui.QAction("&Grab Frame Buffer", self,
+        self.grabFrameBufferAct = QtWidgets.QAction("&Grab Frame Buffer", self,
                                                 shortcut="Ctrl+G", triggered=self.grabFrameBuffer)
 
-        self.clearPixmapAct = QtGui.QAction("&Clear Pixmap", self,
+        self.clearPixmapAct = QtWidgets.QAction("&Clear Pixmap", self,
                                             shortcut="Ctrl+L", triggered=self.clearPixmap)
 
-        self.exitAct = QtGui.QAction("E&xit", self, shortcut="Ctrl+Q",
+        self.exitAct = QtWidgets.QAction("E&xit", self, shortcut="Ctrl+Q",
                                      triggered=self.close)
 
-        self.aboutAct = QtGui.QAction("&About", self, triggered=self.about)
+        self.aboutAct = QtWidgets.QAction("&About", self, triggered=self.about)
 
-        self.aboutQtAct = QtGui.QAction("About &Qt", self,
-                                        triggered=QtGui.qApp.aboutQt)
+        self.aboutQtAct = QtWidgets.QAction("About &Qt", self,
+                                        triggered=QtWidgets.qApp.aboutQt)
 
     def createMenus(self):
         self.fileMenu = self.menuBar().addMenu("&File")
@@ -599,7 +609,7 @@ class OpenGLWindow(gpi.GenericWidgetGroup):
         self.helpMenu.addAction(self.aboutQtAct)
 
     def createCheckOption(self, title, setterSlot, tristate=False, initstate=0, enabled=True):
-        checkbox = QtGui.QCheckBox(title)
+        checkbox = QtWidgets.QCheckBox(title)
         checkbox.setTristate(tristate)
         checkbox.setCheckState(initstate)
         checkbox.stateChanged.connect(setterSlot)
@@ -608,12 +618,12 @@ class OpenGLWindow(gpi.GenericWidgetGroup):
         return checkbox
 
     def createSlider(self, changedSignal, setterSlot):
-        slider = QtGui.QSlider(QtCore.Qt.Horizontal)
+        slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
         slider.setRange(0, 360 * 16)
         slider.setSingleStep(16)
         slider.setPageStep(15 * 16)
         slider.setTickInterval(15 * 16)
-        slider.setTickPosition(QtGui.QSlider.TicksRight)
+        slider.setTickPosition(QtWidgets.QSlider.TicksRight)
 
         slider.valueChanged.connect(setterSlot)
         changedSignal.connect(slider.setValue)
@@ -630,8 +640,8 @@ class OpenGLWindow(gpi.GenericWidgetGroup):
         self.pixmapLabel.resize(size)
 
     def getSize(self):
-        text, ok = QtGui.QInputDialog.getText(self, "Grabber",
-                                              "Enter pixmap size:", QtGui.QLineEdit.Normal,
+        text, ok = QtWidgets.QInputDialog.getText(self, "Grabber",
+                                              "Enter pixmap size:", QtWidgets.QLineEdit.Normal,
                                               "%d x %d" % (self.glWidget.width(), self.glWidget.height()))
 
         if not ok:

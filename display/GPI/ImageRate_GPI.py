@@ -1,10 +1,10 @@
 # Copyright (c) 2014, Dignity Health
-# 
+#
 #     The GPI core node library is licensed under
 # either the BSD 3-clause or the LGPL v. 3.
-# 
+#
 #     Under either license, the following additional term applies:
-# 
+#
 #         NO CLINICAL USE.  THE SOFTWARE IS NOT INTENDED FOR COMMERCIAL
 # PURPOSES AND SHOULD BE USED ONLY FOR NON-COMMERCIAL RESEARCH PURPOSES.  THE
 # SOFTWARE MAY NOT IN ANY EVENT BE USED FOR ANY CLINICAL OR DIAGNOSTIC
@@ -13,12 +13,12 @@
 # TO LIFE SUPPORT OR EMERGENCY MEDICAL OPERATIONS OR USES.  LICENSOR MAKES NO
 # WARRANTY AND HAS NOR LIABILITY ARISING FROM ANY USE OF THE SOFTWARE IN ANY
 # HIGH RISK OR STRICT LIABILITY ACTIVITIES.
-# 
+#
 #     If you elect to license the GPI core node library under the LGPL the
 # following applies:
-# 
+#
 #         This file is part of the GPI core node library.
-# 
+#
 #         The GPI core node library is free software: you can redistribute it
 # and/or modify it under the terms of the GNU Lesser General Public License as
 # published by the Free Software Foundation, either version 3 of the License,
@@ -26,7 +26,7 @@
 # in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
 # the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU Lesser General Public License for more details.
-# 
+#
 #         You should have received a copy of the GNU Lesser General Public
 # License along with the GPI core node library. If not, see
 # <http://www.gnu.org/licenses/>.
@@ -37,17 +37,17 @@
 #__date__ = "2013dmar27"
 
 import gpi
-from gpi import QtGui
+from gpi import QtWidgets
 
 # WIDGET
 class ComboBox_GROUP(gpi.GenericWidgetGroup):
     """A combination of two comboBoxes for image quality measure of two images next to each other.
         """
     valueChanged = gpi.Signal()
-    
+
     def __init__(self, title, parent=None):
         super(ComboBox_GROUP, self).__init__(title, parent)
-        
+
         self._val = {}
         self._val['image_quality_left'] = 0
         self._val['image_quality_right'] = 0
@@ -66,8 +66,8 @@ class ComboBox_GROUP(gpi.GenericWidgetGroup):
 
         self.iql.valueChanged.connect(self.iqlChange)
         self.iqr.valueChanged.connect(self.iqrChange)
-        
-        vbox = QtGui.QHBoxLayout()
+
+        vbox = QtWidgets.QHBoxLayout()
         vbox.addWidget(self.iql)
         vbox.addWidget(self.iqr)
         vbox.setStretch(0, 0)
@@ -127,7 +127,7 @@ def toggle_compare(x):
 
 class ExternalNode(gpi.NodeAPI):
     """ Module to compare images in a blinded and randomized manner.
-        Input Ports: 
+        Input Ports:
         Input_List port requires a list of numpy arrays.
            Each numpy array should have the following dimensions:
               [different reconstructions to be compared (2 or 3); number of slices; x resolution; y resolution]
@@ -141,7 +141,7 @@ class ExternalNode(gpi.NodeAPI):
               else:
                 out = [in1, in2]
               self.setData_ofPort('out1', out)
-        previous_analysis_array port is an optional port to load a previously stored analysis array (numpy array) 
+        previous_analysis_array port is an optional port to load a previously stored analysis array (numpy array)
            to continue the interrupted work.
 
         Widgets:
@@ -161,13 +161,13 @@ class ExternalNode(gpi.NodeAPI):
 
         Output Ports:
         image_for_display port is a 2-dimensional numpy array that should be connected to an ImageDisplay module.
-        analysis_array: The numpy array with the results of the analsys. 
-           Use SaveNPY to store the results. Make sure to store every so often as a backup of your work. 
+        analysis_array: The numpy array with the results of the analsys.
+           Use SaveNPY to store the results. Make sure to store every so often as a backup of your work.
               You can load the stored backup by using LoadNPY and connecting to previous_analysis_array input port.
            Data are stored as follows:
               [nr_slices, 4/7]
               per slice up to 4/7 (number of reconstructions 2/3)4/7 (number of reconstructions 2/3)4/7 (number of reconstructions 2/3)4/7 (number of reconstructions 2/3) values are stored.
-              0: comparison reconstruction 0 and 1: 
+              0: comparison reconstruction 0 and 1:
                  0: reconstruction 0 is much better than reconstruction 1
                  1: reconstruction 0 is better than reconstruction 1
                  3: reconstruction 0 is the same as reconstruction 1
@@ -183,7 +183,7 @@ class ExternalNode(gpi.NodeAPI):
                  2: good
                  3: diagnostic
                  4: non-diagnostic
-              n.a./3: comparison reconstruction 0 and 2: 
+              n.a./3: comparison reconstruction 0 and 2:
                  0: reconstruction 0 is much better than reconstruction 2
                  1: reconstruction 0 is better than reconstruction 2
                  3: reconstruction 0 is the same as reconstruction 2
@@ -235,7 +235,7 @@ class ExternalNode(gpi.NodeAPI):
         '''
         self.starttime()  # time your code, NODE level log
         import numpy as np
-        import random as random 
+        import random as random
 
         # examples of node and warn logger levels.
         self.log.node("Running validation()")
@@ -265,7 +265,7 @@ class ExternalNode(gpi.NodeAPI):
         if self.portEvent() == 'Input_List':
           # GETTING PORT INFO
           data = self.getData('Input_List')
-        
+
           status = 0
 
           # check whether a patient dataset is loaded
@@ -300,7 +300,7 @@ class ExternalNode(gpi.NodeAPI):
                 status = 1
                 return status
 
-          # multiply by 2 if self.nr_recons = 3 since we will compare the first data set with both the second and the third 
+          # multiply by 2 if self.nr_recons = 3 since we will compare the first data set with both the second and the third
           nr_slices_in_analysis_array = nr_slices
           if self.nr_recons == 3:
             nr_slices *=2
@@ -366,17 +366,17 @@ class ExternalNode(gpi.NodeAPI):
           # only if current slice is larger than 0
           if current_slice > 0:
             if current_slice == nr_slices:
-              self.setAttr('image comparison', visible=True) 
+              self.setAttr('image comparison', visible=True)
               if enable_iq:
                 self.setAttr('image quality', visible=True)
 
             current_slice -= 1
 
-            # randomize the order how the slices will be presented, use a defined seed point to make the order reproducible. 
+            # randomize the order how the slices will be presented, use a defined seed point to make the order reproducible.
             random.seed(0)
             slice_order = list(range(nr_slices))
             random.shuffle(slice_order)
-         
+
             analysis_array = self.getData('analysis_array').copy()
             if self.nr_recons == 3 and slice_order[current_slice] >= nr_slices/2:
               actual_slice = slice_order[current_slice] - (nr_slices/2)
@@ -388,14 +388,14 @@ class ExternalNode(gpi.NodeAPI):
               compare_idx = 0
               iq_left = 1
               iq_right = 2
-         
-            analysis_array[actual_slice,compare_idx] = 0 
-            analysis_array[actual_slice,iq_left] = 0 
-            analysis_array[actual_slice,iq_right] = 0 
+
+            analysis_array[actual_slice,compare_idx] = 0
+            analysis_array[actual_slice,iq_left] = 0
+            analysis_array[actual_slice,iq_right] = 0
             self.setAttr('current slice', val=str(current_slice))
             analysis_array[-1, 0] = current_slice
             self.setData('analysis_array', analysis_array)
-          
+
           # reset the 3 widgets
           self.setAttr('image comparison', val=2)
           if enable_iq:
@@ -422,7 +422,7 @@ class ExternalNode(gpi.NodeAPI):
 
         # GETTING PORT INFO
         data = self.getData('Input_List')
- 
+
         # GETTING WIDGET INFO
         nr_slices = int(self.getVal('out of slices'))
         current_slice = int(self.getVal('current slice'))
@@ -432,7 +432,7 @@ class ExternalNode(gpi.NodeAPI):
         nr_patients = len(data)
         self.log.node("current slice is " + str(current_slice) + " out of " + str(nr_slices) + " slices")
 
-        # randomize the order how the slices will be presented, use a defined seed point to make the order reproducible. 
+        # randomize the order how the slices will be presented, use a defined seed point to make the order reproducible.
         random.seed(0)
         slice_order = list(range(nr_slices))
         random.shuffle(slice_order)
@@ -444,7 +444,7 @@ class ExternalNode(gpi.NodeAPI):
             image_quality_left_widget_value = (self.getVal('image quality'))['image_quality_left']
             self.log.node('image quality left widget value is ' + str(image_quality_left_widget_value))
             image_quality_right_widget_value = (self.getVal('image quality'))['image_quality_right']
-            self.log.node('image quality right widget value is ' + str(image_quality_right_widget_value)) 
+            self.log.node('image quality right widget value is ' + str(image_quality_right_widget_value))
           else:
             image_quality_left_widget_value = -1
             image_quality_right_widget_value = -1
@@ -454,11 +454,11 @@ class ExternalNode(gpi.NodeAPI):
             if current_slice == 0:
               temp_slice = 0
               for patient in range(nr_patients):
-                nr_slices_per_current_patient = (np.shape(data[patient]))[1]  
+                nr_slices_per_current_patient = (np.shape(data[patient]))[1]
                 for temp_patient_slice in range(nr_slices_per_current_patient):
                   analysis_array[temp_slice,-1] = patient
                   temp_slice += 1
-            
+
             # use random generator to determine if first image is shown left or right
             random.seed(current_slice)
             left = random.randint(0,1)
@@ -486,7 +486,7 @@ class ExternalNode(gpi.NodeAPI):
                 compare_value = toggle_compare(self.getVal('image comparison') )
                 iq_left = 2
                 iq_right = 1
- 
+
             analysis_array[actual_slice,compare_idx] = compare_value
             if enable_iq:
               analysis_array[actual_slice,iq_left] = image_quality_left_widget_value
@@ -502,12 +502,12 @@ class ExternalNode(gpi.NodeAPI):
 
         # disable widgets once last slice has been analyzed
         if current_slice >= nr_slices:
-          self.setAttr('image comparison', visible=False) 
+          self.setAttr('image comparison', visible=False)
           if enable_iq:
             self.setAttr('image quality', visible=False)
           current_image = np.zeros((2,2))
         else:
-          
+
           # translate slice order to patient number and slice number of that patient
           slice_counter = 0
           current_recon_comparison = -1
@@ -531,7 +531,7 @@ class ExternalNode(gpi.NodeAPI):
           # use random generator to determine if first image is shown left or right
           random.seed(current_slice)
           left = random.randint(0,1)
-        
+
           if current_recon_comparison == 0:
             if ( left == 1 ) == toggle:
               left_image_nr = 0
@@ -550,15 +550,15 @@ class ExternalNode(gpi.NodeAPI):
             self.log.warn("current_recon_comparison has not been set to either 0 or 1.")
 
           self.log.node("Current random slice " + str(slice_order[current_slice]) + ", patient number " + str(current_patient) + ", slice number " + str(slice_of_current_patient) + ", recon comparison " + str(current_recon_comparison) + ", left image is " + str(left_image_nr))
- 
-          # assign current image for display 
+
+          # assign current image for display
           current_dataset = data[current_patient]
           left_image = current_dataset[left_image_nr, slice_of_current_patient,:,:]
           right_image = current_dataset[right_image_nr, slice_of_current_patient,:,:]
           if (self.getVal('Enable RMS Normalization') == True): #YCC
               left_image = left_image / np.sqrt(np.mean(np.square(left_image)))
               right_image = right_image / np.sqrt(np.mean(np.square(right_image)))
-              
+
           current_image = np.append(left_image, right_image, 1)
 
 
