@@ -142,17 +142,13 @@ class ExternalNode(gpi.NodeAPI):
             self.setAttr('Dimension Start_Index', val=np.maximum(I_maxval,F_maxval))
             self.setAttr('Dimension Stop_Index', val=np.maximum(I_maxval,F_maxval))    
 
-        # Set Non-Zero to invisible state without Collapse All enabled
-        if self.getVal('Collapse All')==0:
-            self.setAttr('Non-Zero', visible=False)
-        else:
-            self.setAttr('Non-Zero', visible=True)
-
         # Check for Compute enabled/disabled
         if self.getVal('Compute')==0:
             self.setData('Collapse Single Dim',None)
             self.setData('Collapse All Dims',None)
             self.setData('Max Val Index',None)
+            
+        self.setAttr('Non-Zero',visible=True)
     
 
     def compute(self):
@@ -185,7 +181,14 @@ class ExternalNode(gpi.NodeAPI):
         if self.getVal('Compute'):
             if op == 0:    # Min
                 if self.getVal('Collapse All')==0:
-                    collapse_dim = np.amin(data, axis=self.dim)
+                    if nonzero:
+                        tempData = np.zeros_like(data)
+                        np.copyto(tempData,data)
+                        np.copyto(tempData,np.nan,where=(tempData == 0))
+                        collapse_dim = np.nanmin(tempData, axis=self.dim)
+                        np.nan_to_num(collapse_dim,copy = False)
+                    else:
+                        collapse_dim = np.amin(data, axis=self.dim)
                 else:
                     if nonzero:
                         collapse_all = np.amin(data[np.nonzero(data)])
@@ -193,7 +196,14 @@ class ExternalNode(gpi.NodeAPI):
                         collapse_all = np.amin(data)
             if op == 1:    # Max
                 if self.getVal('Collapse All')==0:
-                    collapse_dim = np.amax(data, axis=self.dim)
+                    if nonzero:
+                        tempData = np.zeros_like(data)
+                        np.copyto(tempData,data)
+                        np.copyto(tempData,np.nan,where=(tempData == 0))
+                        collapse_dim = np.nanmax(tempData, axis=self.dim)
+                        np.nan_to_num(collapse_dim,copy = False)
+                    else:
+                        collapse_dim = np.amax(data, axis=self.dim)
                 else:
                     if nonzero:
                         collapse_all = np.amax(data[np.nonzero(data)])
@@ -201,15 +211,29 @@ class ExternalNode(gpi.NodeAPI):
                         collapse_all = np.amax(data)
             if op == 2:    # Mean
                 if self.getVal('Collapse All')==0:
-                    collapse_dim = np.mean(data, axis=self.dim)
-                else:
+                    if nonzero:
+                        tempData = np.zeros_like(data)
+                        np.copyto(tempData,data)
+                        np.copyto(tempData,np.nan,where=(tempData == 0))
+                        collapse_dim = np.nanmean(tempData, axis=self.dim)
+                        np.nan_to_num(collapse_dim,copy = False)
+                    else:
+                        collapse_dim = np.mean(data, axis=self.dim)
+                else: # collapse all
                     if nonzero:
                         collapse_all = np.mean(data[np.nonzero(data)])
                     else:
                         collapse_all = np.mean(data)
             if op == 3:    # Standard Deviation
                 if self.getVal('Collapse All')==0:
-                    collapse_dim = np.std(data, axis=self.dim)
+                    if nonzero:
+                        tempData = np.zeros_like(data)
+                        np.copyto(tempData,data)
+                        np.copyto(tempData,np.nan,where=(tempData == 0))
+                        collapse_dim = np.nanstd(tempData, axis=self.dim)
+                        np.nan_to_num(collapse_dim,copy = False)
+                    else:
+                        collapse_dim = np.std(data, axis=self.dim)
                 else:
                     if nonzero:
                         collapse_all = np.std(data[np.nonzero(data)])
@@ -233,9 +257,18 @@ class ExternalNode(gpi.NodeAPI):
                     temp = data_mag
                     temp_nz = data_mag[np.nonzero(data_mag)]
                 if self.getVal('Collapse All')==0:
-                    temp1_sq = np.square(temp)
-                    temp1_msq = np.mean(temp1_sq, axis=self.dim)
-                    collapse_dim = np.sqrt(temp1_msq)
+                    if nonzero:
+                        tempData = np.ones_like(temp)
+                        np.copyto(tempData,temp)
+                        np.copyto(tempData,np.nan,where=(tempData == 0))
+                        temp1_sq = np.square(tempData)
+                        temp1_msq = np.nanmean(temp1_sq, axis=self.dim)
+                        np.nan_to_num(temp1_msq,copy = False)
+                        collapse_dim = np.sqrt(temp1_msq)
+                    else:
+                        temp1_sq = np.square(temp)
+                        temp1_msq = np.mean(temp1_sq, axis=self.dim)
+                        collapse_dim = np.sqrt(temp1_msq)
                 else:
                     if nonzero:
                         temp2_sq = np.square(temp_nz)
@@ -271,12 +304,35 @@ class ExternalNode(gpi.NodeAPI):
                         collapse_all = np.divide(temp2_sos, temp2_sum)
             if op == 8:    # Max Value Index
                 if self.getVal('Collapse All')==0:
-                    collapse_dim = np.argmax(data, axis=self.dim)
+                    if nonzero:
+                        stripMin = np.amin(data, axis = self.dim, keepdims = True)
+                        tempData = np.zeros_like(data)
+                        np.copyto(tempData,data)
+                        tempData = tempData - stripMin
+                        np.copyto(tempData,0,where = (data == 0))
+                        collapse_dim = np.argmax(tempData, axis=self.dim)
+                        np.nan_to_num(collapse_dim,copy = False)
+                    else:
+                        collapse_dim = np.argmax(data, axis=self.dim)
                 else:
-                    collapse_all = np.unravel_index(data.argmax(),data.shape)
+                    if nonzero:
+                        globalMin = np.amin(data)
+                        tempData = np.zeros_like(data)
+                        np.copyto(tempData,data)
+                        tempData = data - globalMin
+                        np.copyto(tempData,0,where = (data == 0))
+                        collapse_all = np.unravel_index(tempData.argmax(),data.shape)
+                    else:
+                        collapse_all = np.unravel_index(data.argmax(),data.shape)
             if op == 9:    # Product
                 if self.getVal('Collapse All')==0:
-                    collapse_dim = np.prod(data, axis=self.dim)
+                    if nonzero:
+                        tempData = np.zeros_like(data)
+                        np.copyto(tempData,data)
+                        np.copyto(tempData,np.nan,where=(tempData == 0))
+                        collapse_dim = np.nanprod(tempData, axis=self.dim)
+                    else:
+                        collapse_dim = np.prod(data, axis=self.dim)
                 else:
                     if nonzero:
                         collapse_all = np.prod(data[np.nonzero(data)])
@@ -284,9 +340,23 @@ class ExternalNode(gpi.NodeAPI):
                         collapse_all = np.prod(data)
             if op == 10:    # Geometric Avg.
                 if self.getVal('Collapse All')==0:
-                    temp1_prod = np.prod(data, axis=self.dim)
-                    temp1_size = np.size(data, axis=self.dim)
-                    collapse_dim = np.power(temp1_prod, (1/temp1_size))
+                    if nonzero:
+                        tempData = np.zeros_like(data)
+                        np.copyto(tempData,data)
+                        temp1_size = np.count_nonzero(tempData, axis=self.dim).astype(float)
+                        np.copyto(tempData,np.nan,where=(tempData == 0))
+                        temp1_prod = np.nanprod(tempData, axis=self.dim)
+                        # Note - the two lines below would give a complex geo-mean for negative products
+                        # But I will leave this out for now so it just throws a warning and gives 0
+                        # if(np.amin(temp1_prod) < 0):
+                        #     temp1_prod = temp1_prod.astype(complex)
+                        temp1_exp = np.divide(1.,temp1_size, out = np.zeros_like(temp1_size), where = (temp1_size != 0))
+                        collapse_dim = np.power(temp1_prod, temp1_exp, out = np.zeros_like(temp1_prod),where = (temp1_size != 0))
+                        np.nan_to_num(collapse_dim,copy = False)
+                    else:
+                        temp1_prod = np.prod(data, axis=self.dim)
+                        temp1_size = np.size(data, axis=self.dim)
+                        collapse_dim = np.power(temp1_prod, (1/temp1_size))
                 else:
                     if nonzero:
                         temp2_prod = np.prod(data[np.nonzero(data)])
@@ -298,7 +368,14 @@ class ExternalNode(gpi.NodeAPI):
                         collapse_all = np.power(temp2_prod, (1/temp2_size))
             if op == 11:    # Median
                 if self.getVal('Collapse All')==0:
-                    collapse_dim = np.median(data, axis=self.dim)
+                    if nonzero:
+                        tempData = np.zeros_like(data)
+                        np.copyto(tempData,data)
+                        np.copyto(tempData,np.nan,where=(tempData == 0))
+                        collapse_dim = np.nanmedian(tempData, axis=self.dim)
+                        np.nan_to_num(collapse_dim,copy = False)
+                    else:
+                        collapse_dim = np.median(data, axis=self.dim)
                 else:
                     if nonzero:
                         collapse_all = np.median(data[np.nonzero(data)])

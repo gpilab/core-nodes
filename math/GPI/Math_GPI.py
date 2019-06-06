@@ -32,8 +32,9 @@
 # <http://www.gnu.org/licenses/>.
 
 
-# Author: Ryan Robison
-# Date: 2013jun28
+# Author: Daniel Borup
+# Date: January 2019
+# Notes: Adapted from Math node
 
 import numpy as np
 import gpi
@@ -63,11 +64,15 @@ class ExternalNode(gpi.NodeAPI):
                    np.sin, np.cos, np.tan, np.arcsin, np.arccos, np.arctan,
                    np.arctan2, np.maximum, np.minimum, np.greater, np.less,
                    np.equal, np.not_equal, np.greater_equal, np.less_equal]
+        self.trig_labels = ['Deg','Rad','Cyc']
 
         # Widgets
         self.inputs = 0
+        self.func = 0
         self.addWidget('ExclusivePushButtons', 'Mode', buttons=[
                        'Standard', 'Trigonometric', 'Comparison'], val = 0)
+        self.addWidget('ExclusivePushButtons', 'Units',
+                       buttons=self.trig_labels, val = 1)
         self.addWidget('ExclusiveRadioButtons', 'Operation',
                        buttons=self.op_labels, val=0)
         self.addWidget('DoubleSpinBox', 'Scalar', val=0.0, decimals = 5)
@@ -142,13 +147,23 @@ class ExternalNode(gpi.NodeAPI):
         else:
             self.setAttr('Scalar', visible=False)
 
+        if self.func is 1:
+            self.setAttr('Units', visible = True)
+        else:
+            self.setAttr('Units', visible = False)
+
         # set the detail label
+        if self.func is 1:
+            funcStr = '{} ({})'.format(self.op_labels[self.getVal('Operation')],
+                            self.trig_labels[self.getVal('Units')])
+        else:
+            funcStr = '{}'.format(self.op_labels[self.getVal('Operation')])
+
         if self.getAttr('Scalar', 'visible'):
             self.setDetailLabel("{}, scalar = {}".format(
-                                    self.op_labels[self.getVal('Operation')],
-                                    self.getVal('Scalar')))
+                                    funcStr, self.getVal('Scalar')))
         else:
-            self.setDetailLabel(self.op_labels[self.getVal('Operation')])
+            self.setDetailLabel(funcStr)
 
         return 0
 
@@ -166,6 +181,21 @@ class ExternalNode(gpi.NodeAPI):
 
         operation = self.op[self.getVal('Operation')]
 
+        if self.getVal('Mode') is 1:
+            units = self.getVal('Units')
+
+        if operation in [np.sin, np.cos, np.tan]:
+            if units is 0:
+                if data1 is not None:
+                    data1 = np.deg2rad(data1)
+                elif data2 is not None:
+                    data2 = np.deg2rad(data2)
+            elif units is 2:
+                if data1 is not None:
+                    data1 = np.deg2rad(data1*360)
+                elif data2 is not None:
+                    data2 = np.deg2rad(data2*360)
+
         if self.getVal('compute'):
             if operation in [np.add, np.subtract, np.multiply, np.divide,
                              np.power, np.greater, np.less, np.equal,
@@ -181,6 +211,12 @@ class ExternalNode(gpi.NodeAPI):
                     out = operation(data1, scalar)
                 elif data2 is not None:
                     out = operation(data2, scalar)
+
+                if operation in [np.arcsin, np.arccos, np.arctan, np.arctan2]:
+                    if units is 0:
+                        out = np.rad2deg(out)
+                    elif units is 2:
+                        out = np.rad2deg(out)/360
 
                 if self.inputs is not 0:
                     self.setData('out', out)

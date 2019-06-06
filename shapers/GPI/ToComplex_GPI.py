@@ -1,10 +1,10 @@
 # Copyright (c) 2014, Dignity Health
-# 
+#
 #     The GPI core node library is licensed under
 # either the BSD 3-clause or the LGPL v. 3.
-# 
+#
 #     Under either license, the following additional term applies:
-# 
+#
 #         NO CLINICAL USE.  THE SOFTWARE IS NOT INTENDED FOR COMMERCIAL
 # PURPOSES AND SHOULD BE USED ONLY FOR NON-COMMERCIAL RESEARCH PURPOSES.  THE
 # SOFTWARE MAY NOT IN ANY EVENT BE USED FOR ANY CLINICAL OR DIAGNOSTIC
@@ -13,12 +13,12 @@
 # TO LIFE SUPPORT OR EMERGENCY MEDICAL OPERATIONS OR USES.  LICENSOR MAKES NO
 # WARRANTY AND HAS NOR LIABILITY ARISING FROM ANY USE OF THE SOFTWARE IN ANY
 # HIGH RISK OR STRICT LIABILITY ACTIVITIES.
-# 
+#
 #     If you elect to license the GPI core node library under the LGPL the
 # following applies:
-# 
+#
 #         This file is part of the GPI core node library.
-# 
+#
 #         The GPI core node library is free software: you can redistribute it
 # and/or modify it under the terms of the GNU Lesser General Public License as
 # published by the Free Software Foundation, either version 3 of the License,
@@ -26,7 +26,7 @@
 # in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
 # the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU Lesser General Public License for more details.
-# 
+#
 #         You should have received a copy of the GNU Lesser General Public
 # License along with the GPI core node library. If not, see
 # <http://www.gnu.org/licenses/>.
@@ -77,16 +77,16 @@ class ExternalNode(gpi.NodeAPI):
         self.addWidget('ExclusiveRadioButtons', 'Operation', buttons=['Real', 'Imag', 'Phase', 'Vec2Cmplx'], val=0)
         self.addWidget('ExclusiveRadioButtons', 'Combine Operation', buttons=['L+iR', 'L exp(iR)'], val=0)
 
-        self.addWidget('ExclusivePushButtons', 'Phase', buttons=['Degrees', 'Radians'], val=0)
+        self.addWidget('ExclusivePushButtons', 'Phase', buttons=['Deg', 'Rad', 'Cyc'], val=0)
         self.addWidget('ExclusivePushButtons', 'OutType', buttons=['Complex64', 'Complex128'], val=0)
 
     def validate(self):
         data1 = self.getData('inLeft')
         data2 = self.getData('inRight')
+        singleCase = 0
 
         # No input ports connected
         if (data1 is None and data2 is None):
-            #self.setAttr('Operation', buttons=['connect port'])
             self.setAttr('Operation', visible=False)
             self.setAttr('Combine Operation', visible=False)
 
@@ -98,29 +98,34 @@ class ExternalNode(gpi.NodeAPI):
             else:
                 self.setAttr('Combine Operation', visible=True)
                 self.setAttr('Operation', visible=False)
-                #self.setAttr('Operation', buttons=['L+iR', 'L exp(iR)'])
+
+            if self.getVal('Combine Operation') is 1:
+                self.setAttr('Phase', visible = True)
+            else:
+                self.setAttr('Phase', visible = False)
 
         # Left input port connected
-        elif data1 is not None:
-            if data1.shape[-1] == 2:
-                self.setAttr('Operation', visible=True)
-                self.setAttr('Combine Operation', visible=False)
-                #self.setAttr('Operation', buttons=['Real', 'Imag', 'Phase', 'Vec2Cmplx'])
+        else:
+            if data1 is not None:
+                if data1.shape[-1] == 2:
+                    singleCase = 1
             else:
-                self.setAttr('Operation', visible=True)
-                self.setAttr('Combine Operation', visible=False)
-                #self.setAttr('Operation', buttons=['Real', 'Imag', 'Phase'])
+                if data2.shape[-1] == 2:
+                    singleCase = 2
 
-        # Right input port connected
-        elif data2 is not None:
-            if data2.shape[-1] == 2:
+            if singleCase is not 0:
                 self.setAttr('Operation', visible=True)
                 self.setAttr('Combine Operation', visible=False)
-                #self.setAttr('Operation', buttons=['Real', 'Imag', 'Phase', 'Vec2Cmplx'])
+                self.setAttr('Operation', buttons=['Real', 'Imag', 'Phase', 'Vec2Cmplx'])
             else:
                 self.setAttr('Operation', visible=True)
                 self.setAttr('Combine Operation', visible=False)
-                #self.setAttr('Operation', buttons=['Real', 'Imag', 'Phase'])
+                self.setAttr('Operation', buttons=['Real', 'Imag', 'Phase'])
+
+            if self.getVal('Operation') is 2:
+                self.setAttr('Phase', visible = True)
+            else:
+                self.setAttr('Phase', visible = False)
 
         return(0)
 
@@ -141,13 +146,18 @@ class ExternalNode(gpi.NodeAPI):
             elif cop == 1:  # L exp(iR)
                 if phase == 0:  # Degrees
                     out = data1 * np.exp(1j * np.radians(data2))
-                else:
+                elif phase == 1: # radians
                     out = data1 * np.exp(1j * data2)
+                else: # cycles
+                    out = data1 * np.exp(1j * 2 * np.pi * data2)
             else:
                 out = None
 
         # Left port connected
-        elif data1 is not None:
+        elif (data1 is not None or data2 is not None):
+            if data1 is None: # Swap if data1 is emtpy
+                data1 = data2
+
             if op == 0:   # Real
                 out = data1.astype(complex)
             elif op == 1:  # Imag
@@ -155,32 +165,15 @@ class ExternalNode(gpi.NodeAPI):
             elif op == 2:  # Phase
                 if phase == 0:  # Degrees
                     out = np.exp(1j * np.radians(data1))
-                else:
+                elif phase == 1: # Radians
                     out = np.exp(1j * data1)
+                else: # cycles
+                    out = np.exp(1j * 2 * np.pi * data1)
             elif op == 3:  # Vec2Cmplx
                 if data1.shape[-1] != 2:
                     self.log.warn('The \'Vec2Cmplx\' option is not valid for vec != 2')
                     return 1
                 out = data1[..., 0] + 1j * data1[..., 1]
-            else:
-                out = None
-
-        # Right port connected
-        elif data2 is not None:
-            if op == 0:   # Real
-                out = data2.astype(complex)
-            elif op == 1:  # Imag
-                out = data2 * 1j
-            elif op == 2:  # Phase
-                if phase == 0:  # Degrees
-                    out = np.exp(1j * np.radians(data2))
-                else:
-                    out = np.exp(1j * data2)
-            elif op == 3:  # Vec2Cmplx
-                if data2.shape[-1] != 2:
-                    self.log.warn('The \'Vec2Cmplx\' option is not valid for vec != 2')
-                    return 1
-                out = data2[..., 0] + 1j * data2[..., 1]
             else:
                 out = None
 

@@ -32,8 +32,9 @@
 # <http://www.gnu.org/licenses/>.
 
 
-#Author: Payal Bhavsar
-#Date: Dec2013
+#Author: Daniel Borup
+#Date: Jan2019
+#Notes: Adapted from Float_Math
 
 import numpy as np
 import gpi
@@ -41,15 +42,15 @@ import math
 from math import exp
 
 class ExternalNode(gpi.NodeAPI):
-    """A node to do float math
+    """A node to do integer math
 
-    INPUT: input float
+    INPUT: input int
 
     OUTPUT: output float
 
     WIDGETS:
     For two inputs - math operations - add, subtract, multiply, divide, mod and power
-    For single input - math operations - add, subtract, multiply, divide, mod, power by scalar and do absolute, exponent, square root
+    For single input - math operations - add, subtract, multiply, divide, mod, power by integer and do absolute, exponent, square root
 
     """
 
@@ -60,13 +61,13 @@ class ExternalNode(gpi.NodeAPI):
 
         self.addWidget('ExclusiveRadioButtons', 'Operation', buttons=['Add', 'Subtract','Multiply', 'Divide', 'Mod', 'Power','Absolute', 'Exponential', 'Square Root'],val=0)
 
-        self.addWidget('DoubleSpinBox', 'Scalar', val=1.0, decimals = 5)
+        self.addWidget('SpinBox', 'Integer', val=1)
         self.addWidget('PushButton', 'compute', toggle=True, val=1)
 
         # IO Ports
-        self.addInPort('inLeft','FLOAT', obligation=gpi.OPTIONAL)
-        self.addInPort('inRight','FLOAT', obligation=gpi.OPTIONAL)
-        self.addOutPort('out', 'FLOAT')
+        self.addInPort('inLeft','INT', obligation=gpi.OPTIONAL)
+        self.addInPort('inRight','INT', obligation=gpi.OPTIONAL)
+        self.addOutPort('out', 'INT')
 
         # operations
 
@@ -95,10 +96,15 @@ class ExternalNode(gpi.NodeAPI):
 
         operation = self.getVal('Operation')
         if self.inputs is 1:
-            self.setAttr('Scalar', visible=True)
+            self.setAttr('Integer', visible=True)
         else:
-            self.setAttr('Scalar', visible=False)
+            self.setAttr('Integer', visible=False)
+
+        if operation > 5:
+            self.setAttr('Integer', visible=False)
+
         return(0)
+
 
     def compute(self):
 
@@ -112,7 +118,7 @@ class ExternalNode(gpi.NodeAPI):
             if self.inputs is 1:
                 if data2 is not None:
                     data1 = data2
-                data2 = self.getVal('Scalar')
+                data2 = self.getVal('Integer')
 
             try:
                 if self.inputs is not 0:
@@ -123,7 +129,7 @@ class ExternalNode(gpi.NodeAPI):
                     if operation == 2:
                         out = data1*data2
                     if operation == 3:
-                        out = data1/data2
+                        out = data1//data2
                     if operation == 4:
                         out = data1%data2
                     if operation == 5:
@@ -131,9 +137,9 @@ class ExternalNode(gpi.NodeAPI):
                     if operation == 6:
                         out = abs(data1)
                     if operation == 7:
-                        out = exp(data1)
+                        out = math.floor(exp(data1))
                     if operation == 8:
-                        out = math.sqrt(data1)
+                        out = math.floor(math.sqrt(data1))
 
                     self.setData('out', out)
             except:

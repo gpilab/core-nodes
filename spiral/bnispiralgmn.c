@@ -892,7 +892,7 @@ int solution_analytical(int G_type, double As, double m1s, double maxgrad,
     gradtrap(gdwell, maxgrad, Am, Ac, N1c, am, n1m, n2m);
     gradtrap(gdwell, maxgrad, Ar, Ac, N1c, ar, n1r, n2r);
 
-    if (am < 0 || ar < 0 || n1m < 0 || n2m < 0 || n1r < 0 || n2r < 0)
+    if (*am < 0 || *ar < 0 || *n1m < 0 || *n2m < 0 || *n1r < 0 || *n2r < 0)
     {
       printf("LINE #%d: Function solution_analytical failed\n", __LINE__);
       return 0;
