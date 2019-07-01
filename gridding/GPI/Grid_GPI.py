@@ -185,11 +185,12 @@ class ExternalNode(gpi.NodeAPI):
                     xoff = inparam['FOV_OFFC_PIXELS'][0]
                     yoff = inparam['FOV_OFFC_PIXELS'][1]
                     zoff = inparam['FOV_OFFC_PIXELS'][2]
-                 #DHW matching the overgridding factor calculation to method codes
-                    overgridding_factor = 1.25
-                    sample_fov = 2*int(overgridding_factor*float(inparam['FOV_CM'][0]) /float(inparam['RES_CM'][0])/2+0.5)
-                    overgridding_actor = float(sample_fov)/float(int(inparam['FOV_CM'][0] /inparam['RES_CM'][0]+0.5))
-                    mtx_xy = (1.25*inparam['FOV_CM'][0] / inparam['RES_CM'][0])
+                    # consider oversample factor DHW
+                    if 'OVER_SAMP' in inparam:
+                        mtx_xy = int(1.25*inparam['FOV_CM'][0]*inparam['OVER_SAMP'][0] / inparam['RES_CM'][0]+0.5)
+                    else:
+                        mtx_xy = int(1.25*inparam['FOV_CM'][0] / inparam['RES_CM'][0]+0.5)
+
                     if crds.shape[-1] == 3:
                         mtx_z = (inparam['FOV_CM'][2] / inparam['RES_CM'][2])
                         if stype in [2,3]:  # SDST, FLORET
