@@ -117,7 +117,12 @@ class ExternalNode(gpi.NodeAPI):
                 # new ReadPhilips param output
                 elif inparam['headerType'] == 'spparams':
                     stype = inparam['SPIRAL_TYPE']
-                    mtx_xy = (1.25*inparam['FOV_CM'][0] / inparam['RES_CM'][0])
+                    # consider oversample factor DHW
+                    if 'OVER_SAMP' in inparam:
+                        mtx_xy = int(1.25*inparam['FOV_CM'][0]*inparam['OVER_SAMP'][0] / inparam['RES_CM'][0]+0.5)
+                    else:
+                        mtx_xy = int(1.25*inparam['FOV_CM'][0] / inparam['RES_CM'][0]+0.5)
+
                     if crds.shape[-1] == 3:
                         mtx_z = (inparam['FOV_CM'][2] / inparam['RES_CM'][2])
                         if stype in [2,3]:  # SDST, FLORET
