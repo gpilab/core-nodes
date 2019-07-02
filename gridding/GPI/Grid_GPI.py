@@ -104,6 +104,7 @@ class ExternalNode(gpi.NodeAPI):
         self.addWidget('DoubleSpinBox','dx (pixels)', val=0.0)
         self.addWidget('DoubleSpinBox','dy (pixels)', val=0.0)
         self.addWidget('DoubleSpinBox','dz (pixels)', val=0.0)
+        self.addWidget('SpinBox','location', min=1,val=1,visible=False)
 
         # IO Ports
         self.addInPort('data', 'NPYarray', dtype=[np.complex64, np.complex128],
@@ -180,11 +181,13 @@ class ExternalNode(gpi.NodeAPI):
 
                 # new ReadPhilips param output
                 elif inparam['headerType'] == 'spparams':
+                    self.setAttr('location', visible=True)
+                    loc = self.getVal('location')
                     # these off-center values are already in pixels
                     stype = inparam['SPIRAL_TYPE']
-                    xoff = inparam['FOV_OFFC_PIXELS'][0]
-                    yoff = inparam['FOV_OFFC_PIXELS'][1]
-                    zoff = inparam['FOV_OFFC_PIXELS'][2]
+                    xoff = inparam['FOV_OFFC_PIXELS'][loc-1,0]
+                    yoff = inparam['FOV_OFFC_PIXELS'][loc-1,1]
+                    zoff = inparam['FOV_OFFC_PIXELS'][loc-1,2]
                     # consider oversample factor DHW
                     if 'OVER_SAMP' in inparam:
                         mtx_xy = int(1.25*inparam['FOV_CM'][0]*inparam['OVER_SAMP'][0] / inparam['RES_CM'][0]+0.5)
