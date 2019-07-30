@@ -1,10 +1,10 @@
 # Copyright (c) 2014, Dignity Health
-# 
+#
 #     The GPI core node library is licensed under
 # either the BSD 3-clause or the LGPL v. 3.
-# 
+#
 #     Under either license, the following additional term applies:
-# 
+#
 #         NO CLINICAL USE.  THE SOFTWARE IS NOT INTENDED FOR COMMERCIAL
 # PURPOSES AND SHOULD BE USED ONLY FOR NON-COMMERCIAL RESEARCH PURPOSES.  THE
 # SOFTWARE MAY NOT IN ANY EVENT BE USED FOR ANY CLINICAL OR DIAGNOSTIC
@@ -13,12 +13,12 @@
 # TO LIFE SUPPORT OR EMERGENCY MEDICAL OPERATIONS OR USES.  LICENSOR MAKES NO
 # WARRANTY AND HAS NOR LIABILITY ARISING FROM ANY USE OF THE SOFTWARE IN ANY
 # HIGH RISK OR STRICT LIABILITY ACTIVITIES.
-# 
+#
 #     If you elect to license the GPI core node library under the LGPL the
 # following applies:
-# 
+#
 #         This file is part of the GPI core node library.
-# 
+#
 #         The GPI core node library is free software: you can redistribute it
 # and/or modify it under the terms of the GNU Lesser General Public License as
 # published by the Free Software Foundation, either version 3 of the License,
@@ -26,7 +26,7 @@
 # in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
 # the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU Lesser General Public License for more details.
-# 
+#
 #         You should have received a copy of the GNU Lesser General Public
 # License along with the GPI core node library. If not, see
 # <http://www.gnu.org/licenses/>.
@@ -37,7 +37,7 @@
 # Built of Reduce_GPI.py by Nick Zwart
 
 import gpi
-from gpi import QtCore, QtGui
+from gpi import QtCore, QtWidgets
 
 # WIDGET
 
@@ -56,9 +56,9 @@ class DataSliders(gpi.GenericWidgetGroup):
         self.button_names = ['C/W']
         self.buttons = []
         cnt = 0
-        wdgLayout = QtGui.QGridLayout()
+        wdgLayout = QtWidgets.QGridLayout()
         for name in self.button_names:
-            newbutton = QtGui.QPushButton(name)
+            newbutton = QtWidgets.QPushButton(name)
             newbutton.setCheckable(True)
             newbutton.setAutoExclusive(True)
             self.buttons.append(newbutton)
@@ -143,7 +143,7 @@ class DataSliders(gpi.GenericWidgetGroup):
         if self._selection == 0:  # C/W
             self.sl.set_cwvisible(True)
             self.setCropBounds()
-      
+
 
 
 class ExternalNode(gpi.NodeAPI):
@@ -158,7 +158,7 @@ class ExternalNode(gpi.NodeAPI):
     I/O info: - shows size of input, output arrays, print data values specified by the user
     Dimension[i]
       C/W - sliders select the center and width of cropping range along the ith dimension
-     
+
     Compute - generate sliced/cropped data and display output values in the textbox
     """
     def execType(self):
@@ -179,7 +179,7 @@ class ExternalNode(gpi.NodeAPI):
         # IO Ports
         self.addInPort('in', 'NPYarray', obligation=gpi.REQUIRED)
         self.addOutPort('out', 'NPYarray')
-       
+
 
     def validate(self):
         '''update the widget bounds based on the input data
@@ -194,7 +194,7 @@ class ExternalNode(gpi.NodeAPI):
             # visibility and bounds
             for i in range(self.ndim):
                 if i < dilen:
-                    self.setAttr(self.dim_base_name+str(-i-1)+']', 
+                    self.setAttr(self.dim_base_name+str(-i-1)+']',
                             visible=True, max=data.shape[-i-1])
                     # JGP for Pass, always max out floor and ceiling always
                     w = self.getVal(self.dim_base_name+str(-i-1)+']')
@@ -222,12 +222,12 @@ class ExternalNode(gpi.NodeAPI):
 
             # update UI info
             self.setAttr('I/O Info:', val="input: "+str(data.shape)+"\nInput Type: "+str(data.dtype)+"\noutput: "+str(out.shape)+"\noutput Type: "+str(out.dtype)+"\n\n Data: "+str(out))
-                    
+
 
             self.setData('out', out)
         else:
             return(0)
             # do mask operations
-            
+
 
         return(0)

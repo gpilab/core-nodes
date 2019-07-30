@@ -1,0 +1,1743 @@
+# This file was written with GPI v1.1.1rc4 using Network v3. Do not edit this line.
+{
+ "DATETIME": "Wed Jul 10 16:26:37 2019",
+ "GPI_VERSION": "1.1.1rc4",
+ "HEADER": "This is a GPI Network File",
+ "NETWORK_VERSION": "3",
+ "PLATFORM": {
+  "HOSTNAME": "R5165946",
+  "NUM_CPUS": 12,
+  "OS": "Darwin",
+  "OSX": "10.14.5",
+  "PLATFORM": "Darwin-18.6.0-x86_64-i386-64bit",
+  "PYTHON": "CPython",
+  "PYTHON_VERSION": "3.6.7",
+  "TOTAL_PHYMEM": 34359738368,
+  "TOTAL_PHYMEM_STR": "32.00 GB"
+ },
+ "TOTAL_PMEM": "34840960",
+ "WALLTIME": "0.0275421142578125",
+ "layouts": [],
+ "nodes": {
+  "macroNodes": [],
+  "nodes": [
+   {
+    "avgwalltime": "0.2652202844619751",
+    "id": 140705839160920,
+    "key": "gpi_core.gridding.SDCspiral",
+    "name": "SDCspiral",
+    "ports": [
+     {
+      "connections": [
+       {
+        "dest": {
+         "nodeID": 140705839160920,
+         "portID": 140705839241976,
+         "portName": "crds",
+         "portNum": 0
+        },
+        "src": {
+         "nodeID": 140706355853496,
+         "portID": 140705839157896,
+         "portName": "crds_out",
+         "portNum": 0
+        }
+       }
+      ],
+      "id": 140705839241976,
+      "obligation": 100,
+      "portnum": 0,
+      "porttitle": "crds",
+      "porttype": 65540,
+      "widgetTitle": null
+     },
+     {
+      "connections": [],
+      "id": 140705839242120,
+      "obligation": 200,
+      "portnum": 1,
+      "porttitle": "params_in",
+      "porttype": 65540,
+      "widgetTitle": null
+     },
+     {
+      "connections": [
+       {
+        "dest": {
+         "nodeID": 140706086218200,
+         "portID": 140705839403800,
+         "portName": "weighting",
+         "portNum": 2
+        },
+        "src": {
+         "nodeID": 140705839160920,
+         "portID": 140705839242264,
+         "portName": "sdc",
+         "portNum": 0
+        }
+       }
+      ],
+      "id": 140705839242264,
+      "obligation": null,
+      "portnum": 0,
+      "porttitle": "sdc",
+      "porttype": 65541,
+      "widgetTitle": null
+     }
+    ],
+    "pos": [
+     24.333333333333343,
+     -80.83333333333333
+    ],
+    "stdwalltime": "1.9431114196777344e-05",
+    "walltime": "0.2652008533477783",
+    "widget_settings": {
+     "label": "",
+     "parms": [
+      {
+       "kwargs": {
+        "button_title": "",
+        "collapsed": false,
+        "id": 140705839250024,
+        "inport": false,
+        "outport": false,
+        "quietval": null,
+        "toggle": true,
+        "val": true,
+        "visible": true
+       },
+       "name": "computenow",
+       "type": "<class 'gpi.widgets.PushButton'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "id": 140705839250744,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 2147483647,
+        "min": 1,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 1,
+        "val": 10,
+        "visible": true,
+        "wrapping": false
+       },
+       "name": "Iterations",
+       "type": "<class 'gpi.widgets.SpinBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "decimals": 2,
+        "id": 140705839239384,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 1.7976931348623157e+308,
+        "min": 2.0,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 1.0,
+        "val": 300.0,
+        "visible": true,
+        "wrapping": false
+       },
+       "name": "Effective MTX XY",
+       "type": "<class 'gpi.widgets.DoubleSpinBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "decimals": 2,
+        "id": 140705839240248,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 1.7976931348623157e+308,
+        "min": 2.0,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 1.0,
+        "val": 300.0,
+        "visible": false,
+        "wrapping": false
+       },
+       "name": "Effective MTX Z",
+       "type": "<class 'gpi.widgets.DoubleSpinBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "decimals": 2,
+        "id": 140705839241112,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 1.0,
+        "min": 0.0,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 0.01,
+        "val": 0.0,
+        "visible": true,
+        "wrapping": false
+       },
+       "name": "Taper",
+       "type": "<class 'gpi.widgets.DoubleSpinBox'>"
+      }
+     ]
+    }
+   },
+   {
+    "avgwalltime": "0.1704500913619995",
+    "id": 140706355853496,
+    "key": "gpi_core.spiral.SpiralCoords",
+    "name": "SpiralCoords",
+    "ports": [
+     {
+      "connections": [],
+      "id": 140705839157608,
+      "obligation": 200,
+      "portnum": 0,
+      "porttitle": "params_in",
+      "porttype": 65540,
+      "widgetTitle": null
+     },
+     {
+      "connections": [],
+      "id": 140705839157752,
+      "obligation": 200,
+      "portnum": 1,
+      "porttitle": "arm_0",
+      "porttype": 65540,
+      "widgetTitle": null
+     },
+     {
+      "connections": [
+       {
+        "dest": {
+         "nodeID": 140706086218200,
+         "portID": 140705839403656,
+         "portName": "coords",
+         "portNum": 1
+        },
+        "src": {
+         "nodeID": 140706355853496,
+         "portID": 140705839157896,
+         "portName": "crds_out",
+         "portNum": 0
+        }
+       },
+       {
+        "dest": {
+         "nodeID": 140705839160920,
+         "portID": 140705839241976,
+         "portName": "crds",
+         "portNum": 0
+        },
+        "src": {
+         "nodeID": 140706355853496,
+         "portID": 140705839157896,
+         "portName": "crds_out",
+         "portNum": 0
+        }
+       }
+      ],
+      "id": 140705839157896,
+      "obligation": null,
+      "portnum": 0,
+      "porttitle": "crds_out",
+      "porttype": 65541,
+      "widgetTitle": null
+     },
+     {
+      "connections": [],
+      "id": 140705839158040,
+      "obligation": null,
+      "portnum": 1,
+      "porttitle": "grd_out",
+      "porttype": 65541,
+      "widgetTitle": null
+     },
+     {
+      "connections": [],
+      "id": 140705839158184,
+      "obligation": null,
+      "portnum": 2,
+      "porttitle": "kmag_trace",
+      "porttype": 65541,
+      "widgetTitle": null
+     }
+    ],
+    "pos": [
+     4.333333333333343,
+     -113.83333333333333
+    ],
+    "stdwalltime": "0.009240984916687012",
+    "walltime": "0.17969107627868652",
+    "widget_settings": {
+     "label": "",
+     "parms": [
+      {
+       "kwargs": {
+        "button_title": "",
+        "collapsed": false,
+        "id": 140706355921544,
+        "inport": false,
+        "outport": false,
+        "quietval": null,
+        "toggle": true,
+        "val": true,
+        "visible": true
+       },
+       "name": "compute",
+       "type": "<class 'gpi.widgets.PushButton'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "id": 140706355922264,
+        "inport": false,
+        "openExternalLinks": false,
+        "outport": false,
+        "quietval": null,
+        "val": "Samples: 3782\nTau (ms): 3.782\nTGrad (ms): 4.448\nTotal interleaves: 16",
+        "visible": true,
+        "wordwrap": false
+       },
+       "name": "Info:",
+       "type": "<class 'gpi.widgets.TextBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "decimals": 6,
+        "id": 140706355922696,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 1.7976931348623157e+308,
+        "min": 0.1,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 1.0,
+        "val": 1.0,
+        "visible": true,
+        "wrapping": false
+       },
+       "name": "AD dwell time (us)",
+       "type": "<class 'gpi.widgets.DoubleSpinBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "decimals": 2,
+        "id": 140706355923560,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 100.0,
+        "min": -100.0,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 1.0,
+        "val": 0.0,
+        "visible": true,
+        "wrapping": false
+       },
+       "name": "x delay (us)",
+       "type": "<class 'gpi.widgets.DoubleSpinBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "decimals": 2,
+        "id": 140706355924424,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 100.0,
+        "min": -100.0,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 1.0,
+        "val": 0.0,
+        "visible": true,
+        "wrapping": false
+       },
+       "name": "y delay (us)",
+       "type": "<class 'gpi.widgets.DoubleSpinBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "decimals": 2,
+        "id": 140706355929448,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 100.0,
+        "min": -100.0,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 1.0,
+        "val": 0.0,
+        "visible": true,
+        "wrapping": false
+       },
+       "name": "z delay (us)",
+       "type": "<class 'gpi.widgets.DoubleSpinBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "decimals": 6,
+        "id": 140706355930312,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 1.7976931348623157e+308,
+        "min": 0.01,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 1.0,
+        "val": 150.0,
+        "visible": true,
+        "wrapping": false
+       },
+       "name": "MaxSlw (mT/m/ms)",
+       "type": "<class 'gpi.widgets.DoubleSpinBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "decimals": 6,
+        "id": 140706355931176,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 1.7976931348623157e+308,
+        "min": 0.01,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 1.0,
+        "val": 40.0,
+        "visible": true,
+        "wrapping": false
+       },
+       "name": "MaxGrd (mT/m)",
+       "type": "<class 'gpi.widgets.DoubleSpinBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "decimals": 6,
+        "id": 140706355932040,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 1.7976931348623157e+308,
+        "min": 0.01,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 1.0,
+        "val": 42.577,
+        "visible": true,
+        "wrapping": false
+       },
+       "name": "Gam (kHz/mT)",
+       "type": "<class 'gpi.widgets.DoubleSpinBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "decimals": 6,
+        "id": 140706355932904,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 1.7976931348623157e+308,
+        "min": 0.1,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 1.0,
+        "val": 24.0,
+        "visible": true,
+        "wrapping": false
+       },
+       "name": "Fov X-Y (cm)",
+       "type": "<class 'gpi.widgets.DoubleSpinBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "decimals": 6,
+        "id": 140706355966600,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 1.7976931348623157e+308,
+        "min": 0.1,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 1.0,
+        "val": 24.0,
+        "visible": true,
+        "wrapping": false
+       },
+       "name": "Fov Z (cm)",
+       "type": "<class 'gpi.widgets.DoubleSpinBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "decimals": 6,
+        "id": 140706355852056,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 1.7976931348623157e+308,
+        "min": 0.01,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 0.01,
+        "val": 0.2,
+        "visible": true,
+        "wrapping": false
+       },
+       "name": "ImgRes X-Y (cm)",
+       "type": "<class 'gpi.widgets.DoubleSpinBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "decimals": 6,
+        "id": 140706355967608,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 1.7976931348623157e+308,
+        "min": 0.01,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 0.01,
+        "val": 0.2,
+        "visible": true,
+        "wrapping": false
+       },
+       "name": "ImgRes Z (cm)",
+       "type": "<class 'gpi.widgets.DoubleSpinBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "id": 140706355968472,
+        "inport": false,
+        "outport": false,
+        "quietval": null,
+        "val": 0,
+        "visible": true
+       },
+       "name": "stype",
+       "type": "<class 'gpi.widgets.ExclusivePushButtons'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "decimals": 2,
+        "id": 140706355969336,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 1.0,
+        "min": 0.0,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 1.0,
+        "val": 0.0,
+        "visible": false,
+        "wrapping": false
+       },
+       "name": "Taper",
+       "type": "<class 'gpi.widgets.DoubleSpinBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "decimals": 2,
+        "id": 140706355986648,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 1.7976931348623157e+308,
+        "min": 0.0,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 1.0,
+        "val": 16.0,
+        "visible": true,
+        "wrapping": false
+       },
+       "name": "# of Spiral Arms",
+       "type": "<class 'gpi.widgets.DoubleSpinBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "id": 140706355987512,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 3,
+        "min": 1,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 1,
+        "val": 3,
+        "visible": false,
+        "wrapping": false
+       },
+       "name": "# of Hubs",
+       "type": "<class 'gpi.widgets.SpinBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "decimals": 2,
+        "id": 140706355988376,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 90.0,
+        "min": 0.0,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 1.0,
+        "val": 45.0,
+        "visible": false,
+        "wrapping": false
+       },
+       "name": "Alpha0",
+       "type": "<class 'gpi.widgets.DoubleSpinBox'>"
+      },
+      {
+       "kwargs": {
+        "button_title": "",
+        "collapsed": false,
+        "id": 140706355989240,
+        "inport": false,
+        "outport": false,
+        "quietval": null,
+        "toggle": true,
+        "val": false,
+        "visible": false
+       },
+       "name": "FLORET Rebin",
+       "type": "<class 'gpi.widgets.PushButton'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "decimals": 2,
+        "id": 140706355989960,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 1.0,
+        "min": 0.0,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 0.01,
+        "val": 0.0,
+        "visible": true,
+        "wrapping": false
+       },
+       "name": "usamp st (0 - 1)",
+       "type": "<class 'gpi.widgets.DoubleSpinBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "decimals": 2,
+        "id": 140705839321448,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 1.0,
+        "min": 0.0,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 0.01,
+        "val": 1.0,
+        "visible": true,
+        "wrapping": false
+       },
+       "name": "usamp end (0 - 1)",
+       "type": "<class 'gpi.widgets.DoubleSpinBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "decimals": 2,
+        "id": 140705839322312,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 100.0,
+        "min": 0.0,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 1.0,
+        "val": 1.0,
+        "visible": true,
+        "wrapping": false
+       },
+       "name": "max undersample",
+       "type": "<class 'gpi.widgets.DoubleSpinBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "id": 140705839323176,
+        "inport": false,
+        "outport": false,
+        "quietval": null,
+        "val": 0,
+        "visible": true
+       },
+       "name": "ustype",
+       "type": "<class 'gpi.widgets.ExclusivePushButtons'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "decimals": 2,
+        "id": 140705839323896,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 1.7976931348623157e+308,
+        "min": 0.0,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 1.0,
+        "val": 0.0,
+        "visible": true,
+        "wrapping": false
+       },
+       "name": "Max G Freq (kHz)",
+       "type": "<class 'gpi.widgets.DoubleSpinBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "decimals": 2,
+        "id": 140705839324760,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 1.7976931348623157e+308,
+        "min": 0.0,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 1.0,
+        "val": 0.0,
+        "visible": true,
+        "wrapping": false
+       },
+       "name": "T2 Match (ms)",
+       "type": "<class 'gpi.widgets.DoubleSpinBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "decimals": 2,
+        "id": 140705839153656,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 1.7976931348623157e+308,
+        "min": 0.0,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 1.0,
+        "val": 0.0,
+        "visible": true,
+        "wrapping": false
+       },
+       "name": "Sloppy Sp. Per (0:off)",
+       "type": "<class 'gpi.widgets.DoubleSpinBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "id": 140705839154520,
+        "inport": false,
+        "outport": false,
+        "quietval": null,
+        "val": 2,
+        "visible": true
+       },
+       "name": "gtype",
+       "type": "<class 'gpi.widgets.ExclusivePushButtons'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "id": 140705839155528,
+        "inport": false,
+        "outport": false,
+        "quietval": null,
+        "val": 0,
+        "visible": true
+       },
+       "name": "spinout",
+       "type": "<class 'gpi.widgets.ExclusivePushButtons'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "id": 140705839156680,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 512,
+        "min": 0,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 1,
+        "val": 0,
+        "visible": true,
+        "wrapping": false
+       },
+       "name": "Num Calibration Points",
+       "type": "<class 'gpi.widgets.SpinBox'>"
+      }
+     ]
+    }
+   },
+   {
+    "avgwalltime": "0.41142737865448",
+    "id": 140705839256776,
+    "key": "gpi_core.math.FFTW",
+    "name": "FFTW",
+    "ports": [
+     {
+      "connections": [
+       {
+        "dest": {
+         "nodeID": 140705839256776,
+         "portID": 140705839374840,
+         "portName": "in",
+         "portNum": 0
+        },
+        "src": {
+         "nodeID": 140706086218200,
+         "portID": 140705839404088,
+         "portName": "out",
+         "portNum": 0
+        }
+       }
+      ],
+      "id": 140705839374840,
+      "obligation": 100,
+      "portnum": 0,
+      "porttitle": "in",
+      "porttype": 65540,
+      "widgetTitle": null
+     },
+     {
+      "connections": [
+       {
+        "dest": {
+         "nodeID": 140706085211880,
+         "portID": 140706085374856,
+         "portName": "in",
+         "portNum": 0
+        },
+        "src": {
+         "nodeID": 140705839256776,
+         "portID": 140705839374984,
+         "portName": "out",
+         "portNum": 0
+        }
+       }
+      ],
+      "id": 140705839374984,
+      "obligation": null,
+      "portnum": 0,
+      "porttitle": "out",
+      "porttype": 65541,
+      "widgetTitle": null
+     }
+    ],
+    "pos": [
+     -2.666666666666657,
+     23.166666666666668
+    ],
+    "stdwalltime": "0.01671755313873291",
+    "walltime": "0.4281449317932129",
+    "widget_settings": {
+     "label": "",
+     "parms": [
+      {
+       "kwargs": {
+        "collapsed": false,
+        "id": 140705839259512,
+        "inport": false,
+        "outport": false,
+        "quietval": null,
+        "val": {
+         "compute": true,
+         "in_len": 360,
+         "length": 360
+        },
+        "visible": true
+       },
+       "name": "Dimension[-1]",
+       "type": "<class '/Users/m206107/gpi_stack/envs/test_jul10/lib/python3.6/site-packages/gpi_core/math/GPI/FFTW_GPI.FFTW_GROUP'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "id": 140705839310600,
+        "inport": false,
+        "outport": false,
+        "quietval": null,
+        "val": {
+         "compute": true,
+         "in_len": 360,
+         "length": 360
+        },
+        "visible": true
+       },
+       "name": "Dimension[-2]",
+       "type": "<class '/Users/m206107/gpi_stack/envs/test_jul10/lib/python3.6/site-packages/gpi_core/math/GPI/FFTW_GPI.FFTW_GROUP'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "id": 140705839312472,
+        "inport": false,
+        "outport": false,
+        "quietval": null,
+        "val": {
+         "compute": false,
+         "in_len": 16,
+         "length": 16
+        },
+        "visible": true
+       },
+       "name": "Dimension[-3]",
+       "type": "<class '/Users/m206107/gpi_stack/envs/test_jul10/lib/python3.6/site-packages/gpi_core/math/GPI/FFTW_GPI.FFTW_GROUP'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "id": 140705839338984,
+        "inport": false,
+        "outport": false,
+        "quietval": null,
+        "val": {
+         "compute": false,
+         "in_len": 1,
+         "length": 1
+        },
+        "visible": false
+       },
+       "name": "Dimension[-4]",
+       "type": "<class '/Users/m206107/gpi_stack/envs/test_jul10/lib/python3.6/site-packages/gpi_core/math/GPI/FFTW_GPI.FFTW_GROUP'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "id": 140705839340856,
+        "inport": false,
+        "outport": false,
+        "quietval": null,
+        "val": {
+         "compute": false,
+         "in_len": 1,
+         "length": 1
+        },
+        "visible": false
+       },
+       "name": "Dimension[-5]",
+       "type": "<class '/Users/m206107/gpi_stack/envs/test_jul10/lib/python3.6/site-packages/gpi_core/math/GPI/FFTW_GPI.FFTW_GROUP'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "id": 140705839350984,
+        "inport": false,
+        "outport": false,
+        "quietval": null,
+        "val": {
+         "compute": false,
+         "in_len": 1,
+         "length": 1
+        },
+        "visible": false
+       },
+       "name": "Dimension[-6]",
+       "type": "<class '/Users/m206107/gpi_stack/envs/test_jul10/lib/python3.6/site-packages/gpi_core/math/GPI/FFTW_GPI.FFTW_GROUP'>"
+      },
+      {
+       "kwargs": {
+        "button_title": "",
+        "collapsed": false,
+        "id": 140705839352856,
+        "inport": false,
+        "outport": false,
+        "quietval": null,
+        "toggle": true,
+        "val": false,
+        "visible": true
+       },
+       "name": "inverse",
+       "type": "<class 'gpi.widgets.PushButton'>"
+      },
+      {
+       "kwargs": {
+        "button_title": "",
+        "collapsed": false,
+        "id": 140705839353576,
+        "inport": false,
+        "outport": false,
+        "quietval": null,
+        "toggle": true,
+        "val": true,
+        "visible": true
+       },
+       "name": "compute",
+       "type": "<class 'gpi.widgets.PushButton'>"
+      }
+     ]
+    }
+   },
+   {
+    "avgwalltime": "0.2113204002380371",
+    "id": 140706085211880,
+    "key": "gpi_core.shapers.Reduce",
+    "name": "Reduce",
+    "ports": [
+     {
+      "connections": [
+       {
+        "dest": {
+         "nodeID": 140706085211880,
+         "portID": 140706085374856,
+         "portName": "in",
+         "portNum": 0
+        },
+        "src": {
+         "nodeID": 140705839256776,
+         "portID": 140705839374984,
+         "portName": "out",
+         "portNum": 0
+        }
+       }
+      ],
+      "id": 140706085374856,
+      "obligation": 100,
+      "portnum": 0,
+      "porttitle": "in",
+      "porttype": 65540,
+      "widgetTitle": null
+     },
+     {
+      "connections": [
+       {
+        "dest": {
+         "nodeID": 140705842992040,
+         "portID": 140705843046296,
+         "portName": "in0",
+         "portNum": 0
+        },
+        "src": {
+         "nodeID": 140706085211880,
+         "portID": 140706085375000,
+         "portName": "out",
+         "portNum": 0
+        }
+       }
+      ],
+      "id": 140706085375000,
+      "obligation": null,
+      "portnum": 0,
+      "porttitle": "out",
+      "porttype": 65541,
+      "widgetTitle": null
+     },
+     {
+      "connections": [],
+      "id": 140706085375144,
+      "obligation": null,
+      "portnum": 1,
+      "porttitle": "mask",
+      "porttype": 65541,
+      "widgetTitle": null
+     }
+    ],
+    "pos": [
+     -8.666666666666657,
+     77.16666666666667
+    ],
+    "stdwalltime": "0.09627331519624781",
+    "walltime": "0.1399061679840088",
+    "widget_settings": {
+     "label": "",
+     "parms": [
+      {
+       "kwargs": {
+        "collapsed": false,
+        "id": 140706085268792,
+        "inport": false,
+        "openExternalLinks": false,
+        "outport": false,
+        "quietval": null,
+        "val": "input: (16, 360, 360)\noutput: (360,)",
+        "visible": true,
+        "wordwrap": false
+       },
+       "name": "I/O Info:",
+       "type": "<class 'gpi.widgets.TextBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "id": 140706085269224,
+        "inport": false,
+        "max": 360,
+        "min": 1,
+        "outport": false,
+        "quietmax": null,
+        "quietval": null,
+        "val": {
+         "ceiling": 360,
+         "center": 181,
+         "floor": 1,
+         "selection": 3,
+         "width": 360
+        },
+        "visible": true
+       },
+       "name": "Dimension[-1]",
+       "type": "<class '/Users/m206107/gpi_stack/envs/test_jul10/lib/python3.6/site-packages/gpi_core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "id": 140706085302632,
+        "inport": false,
+        "max": 360,
+        "min": 1,
+        "outport": false,
+        "quietmax": null,
+        "quietval": null,
+        "val": {
+         "ceiling": 181,
+         "center": 181,
+         "floor": 181,
+         "selection": 2,
+         "width": 1
+        },
+        "visible": true
+       },
+       "name": "Dimension[-2]",
+       "type": "<class '/Users/m206107/gpi_stack/envs/test_jul10/lib/python3.6/site-packages/gpi_core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "id": 140706085295016,
+        "inport": false,
+        "max": 16,
+        "min": 1,
+        "outport": false,
+        "quietmax": null,
+        "quietval": null,
+        "val": {
+         "ceiling": 9,
+         "center": 9,
+         "floor": 9,
+         "selection": 2,
+         "width": 1
+        },
+        "visible": true
+       },
+       "name": "Dimension[-3]",
+       "type": "<class '/Users/m206107/gpi_stack/envs/test_jul10/lib/python3.6/site-packages/gpi_core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "id": 140706085311976,
+        "inport": false,
+        "max": 100,
+        "min": 1,
+        "outport": false,
+        "quietmax": null,
+        "quietval": null,
+        "val": {
+         "ceiling": 1,
+         "center": 1,
+         "floor": 1,
+         "selection": 3,
+         "width": 1
+        },
+        "visible": false
+       },
+       "name": "Dimension[-4]",
+       "type": "<class '/Users/m206107/gpi_stack/envs/test_jul10/lib/python3.6/site-packages/gpi_core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "id": 140706085308456,
+        "inport": false,
+        "max": 100,
+        "min": 1,
+        "outport": false,
+        "quietmax": null,
+        "quietval": null,
+        "val": {
+         "ceiling": 1,
+         "center": 1,
+         "floor": 1,
+         "selection": 3,
+         "width": 1
+        },
+        "visible": false
+       },
+       "name": "Dimension[-5]",
+       "type": "<class '/Users/m206107/gpi_stack/envs/test_jul10/lib/python3.6/site-packages/gpi_core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "id": 140706085333608,
+        "inport": false,
+        "max": 100,
+        "min": 1,
+        "outport": false,
+        "quietmax": null,
+        "quietval": null,
+        "val": {
+         "ceiling": 1,
+         "center": 1,
+         "floor": 1,
+         "selection": 3,
+         "width": 1
+        },
+        "visible": false
+       },
+       "name": "Dimension[-6]",
+       "type": "<class '/Users/m206107/gpi_stack/envs/test_jul10/lib/python3.6/site-packages/gpi_core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "id": 140706085346472,
+        "inport": false,
+        "max": 100,
+        "min": 1,
+        "outport": false,
+        "quietmax": null,
+        "quietval": null,
+        "val": {
+         "ceiling": 1,
+         "center": 1,
+         "floor": 1,
+         "selection": 3,
+         "width": 1
+        },
+        "visible": false
+       },
+       "name": "Dimension[-7]",
+       "type": "<class '/Users/m206107/gpi_stack/envs/test_jul10/lib/python3.6/site-packages/gpi_core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "id": 140706085351144,
+        "inport": false,
+        "max": 100,
+        "min": 1,
+        "outport": false,
+        "quietmax": null,
+        "quietval": null,
+        "val": {
+         "ceiling": 1,
+         "center": 1,
+         "floor": 1,
+         "selection": 3,
+         "width": 1
+        },
+        "visible": false
+       },
+       "name": "Dimension[-8]",
+       "type": "<class '/Users/m206107/gpi_stack/envs/test_jul10/lib/python3.6/site-packages/gpi_core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "id": 140706085364072,
+        "inport": false,
+        "max": 100,
+        "min": 1,
+        "outport": false,
+        "quietmax": null,
+        "quietval": null,
+        "val": {
+         "ceiling": 1,
+         "center": 1,
+         "floor": 1,
+         "selection": 3,
+         "width": 1
+        },
+        "visible": false
+       },
+       "name": "Dimension[-9]",
+       "type": "<class '/Users/m206107/gpi_stack/envs/test_jul10/lib/python3.6/site-packages/gpi_core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "id": 140706085376936,
+        "inport": false,
+        "max": 100,
+        "min": 1,
+        "outport": false,
+        "quietmax": null,
+        "quietval": null,
+        "val": {
+         "ceiling": 1,
+         "center": 1,
+         "floor": 1,
+         "selection": 3,
+         "width": 1
+        },
+        "visible": false
+       },
+       "name": "Dimension[-10]",
+       "type": "<class '/Users/m206107/gpi_stack/envs/test_jul10/lib/python3.6/site-packages/gpi_core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
+      },
+      {
+       "kwargs": {
+        "button_title": "",
+        "collapsed": false,
+        "id": 140706085373416,
+        "inport": false,
+        "outport": false,
+        "quietval": null,
+        "toggle": true,
+        "val": false,
+        "visible": true
+       },
+       "name": "Mask",
+       "type": "<class 'gpi.widgets.PushButton'>"
+      },
+      {
+       "kwargs": {
+        "button_title": "",
+        "collapsed": false,
+        "id": 140706085374136,
+        "inport": false,
+        "outport": false,
+        "quietval": null,
+        "toggle": true,
+        "val": true,
+        "visible": true
+       },
+       "name": "Compute",
+       "type": "<class 'gpi.widgets.PushButton'>"
+      }
+     ]
+    }
+   },
+   {
+    "avgwalltime": "9.334087371826172e-05",
+    "id": 140705842992040,
+    "key": "gpi_core.display.Matplotlib",
+    "name": "Matplotlib",
+    "ports": [
+     {
+      "connections": [
+       {
+        "dest": {
+         "nodeID": 140705842992040,
+         "portID": 140705843046296,
+         "portName": "in0",
+         "portNum": 0
+        },
+        "src": {
+         "nodeID": 140706085211880,
+         "portID": 140706085375000,
+         "portName": "out",
+         "portNum": 0
+        }
+       }
+      ],
+      "id": 140705843046296,
+      "obligation": 200,
+      "portnum": 0,
+      "porttitle": "in0",
+      "porttype": 65540,
+      "widgetTitle": null
+     },
+     {
+      "connections": [],
+      "id": 140705843176360,
+      "obligation": 200,
+      "portnum": 1,
+      "porttitle": "in1",
+      "porttype": 65540,
+      "widgetTitle": null
+     },
+     {
+      "connections": [],
+      "id": 140705843176504,
+      "obligation": 200,
+      "portnum": 2,
+      "porttitle": "in2",
+      "porttype": 65540,
+      "widgetTitle": null
+     },
+     {
+      "connections": [],
+      "id": 140705843176648,
+      "obligation": 200,
+      "portnum": 3,
+      "porttitle": "in3",
+      "porttype": 65540,
+      "widgetTitle": null
+     },
+     {
+      "connections": [],
+      "id": 140705843176792,
+      "obligation": 200,
+      "portnum": 4,
+      "porttitle": "in4",
+      "porttype": 65540,
+      "widgetTitle": null
+     },
+     {
+      "connections": [],
+      "id": 140705843176936,
+      "obligation": 200,
+      "portnum": 5,
+      "porttitle": "in5",
+      "porttype": 65540,
+      "widgetTitle": null
+     },
+     {
+      "connections": [],
+      "id": 140705843177080,
+      "obligation": 200,
+      "portnum": 6,
+      "porttitle": "in6",
+      "porttype": 65540,
+      "widgetTitle": null
+     },
+     {
+      "connections": [],
+      "id": 140705843177224,
+      "obligation": 200,
+      "portnum": 7,
+      "porttitle": "in7",
+      "porttype": 65540,
+      "widgetTitle": null
+     }
+    ],
+    "pos": [
+     -13.666666666666657,
+     132.16666666666666
+    ],
+    "stdwalltime": "1.7523765563964844e-05",
+    "walltime": "0.00011086463928222656",
+    "widget_settings": {
+     "label": "",
+     "parms": [
+      {
+       "kwargs": {
+        "autoscale": true,
+        "collapsed": false,
+        "grid": true,
+        "id": 140705843112840,
+        "inport": false,
+        "legend": false,
+        "lineOptions": [],
+        "outport": false,
+        "plotOptions": {},
+        "plotPosition": {
+         "bottom": 0.119,
+         "hspace": 0.2,
+         "left": 0.111,
+         "right": 0.913,
+         "top": 0.912,
+         "wspace": 0.2
+        },
+        "plotlabels": {
+         "title": "",
+         "xlabel": "",
+         "ylabel": ""
+        },
+        "quietval": null,
+        "scale": {
+         "xscale": false,
+         "yscale": false
+        },
+        "ticks": {
+         "xticknum": 5,
+         "xticks": "",
+         "yticknum": 5,
+         "yticks": ""
+        },
+        "val": null,
+        "visible": true,
+        "xlim": [
+         -17.95,
+         376.95
+        ],
+        "xline": true,
+        "ylim": [
+         -700.034024,
+         4003.0949982
+        ],
+        "yline": true
+       },
+       "name": "Plot",
+       "type": "<class '/Users/m206107/gpi_stack/envs/test_jul10/lib/python3.6/site-packages/gpi_core/display/GPI/Matplotlib_GPI.MatplotDisplay'>"
+      }
+     ]
+    }
+   },
+   {
+    "avgwalltime": "0.4037494659423828",
+    "id": 140706086218200,
+    "key": "gpi_core.gridding.Grid",
+    "name": "Grid",
+    "ports": [
+     {
+      "connections": [],
+      "id": 140705839403512,
+      "obligation": 200,
+      "portnum": 0,
+      "porttitle": "data",
+      "porttype": 65540,
+      "widgetTitle": null
+     },
+     {
+      "connections": [
+       {
+        "dest": {
+         "nodeID": 140706086218200,
+         "portID": 140705839403656,
+         "portName": "coords",
+         "portNum": 1
+        },
+        "src": {
+         "nodeID": 140706355853496,
+         "portID": 140705839157896,
+         "portName": "crds_out",
+         "portNum": 0
+        }
+       }
+      ],
+      "id": 140705839403656,
+      "obligation": 100,
+      "portnum": 1,
+      "porttitle": "coords",
+      "porttype": 65540,
+      "widgetTitle": null
+     },
+     {
+      "connections": [
+       {
+        "dest": {
+         "nodeID": 140706086218200,
+         "portID": 140705839403800,
+         "portName": "weighting",
+         "portNum": 2
+        },
+        "src": {
+         "nodeID": 140705839160920,
+         "portID": 140705839242264,
+         "portName": "sdc",
+         "portNum": 0
+        }
+       }
+      ],
+      "id": 140705839403800,
+      "obligation": 200,
+      "portnum": 2,
+      "porttitle": "weighting",
+      "porttype": 65540,
+      "widgetTitle": null
+     },
+     {
+      "connections": [],
+      "id": 140705839403944,
+      "obligation": 200,
+      "portnum": 3,
+      "porttitle": "params_in",
+      "porttype": 65540,
+      "widgetTitle": null
+     },
+     {
+      "connections": [
+       {
+        "dest": {
+         "nodeID": 140705839256776,
+         "portID": 140705839374840,
+         "portName": "in",
+         "portNum": 0
+        },
+        "src": {
+         "nodeID": 140706086218200,
+         "portID": 140705839404088,
+         "portName": "out",
+         "portNum": 0
+        }
+       }
+      ],
+      "id": 140705839404088,
+      "obligation": null,
+      "portnum": 0,
+      "porttitle": "out",
+      "porttype": 65541,
+      "widgetTitle": null
+     }
+    ],
+    "pos": [
+     -3.666666666666657,
+     -37.83333333333333
+    ],
+    "stdwalltime": "0.03749442100524902",
+    "walltime": "0.44124388694763184",
+    "widget_settings": {
+     "label": "",
+     "parms": [
+      {
+       "kwargs": {
+        "collapsed": false,
+        "id": 140705839270648,
+        "inport": false,
+        "max": 2,
+        "min": 1,
+        "outport": false,
+        "quietval": null,
+        "val": 1,
+        "visible": true
+       },
+       "name": "Dims per Set",
+       "type": "<class 'gpi.widgets.Slider'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "id": 140705839160776,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 2147483647,
+        "min": 5,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 1,
+        "val": 240,
+        "visible": true,
+        "wrapping": false
+       },
+       "name": "Eff MTX XY",
+       "type": "<class 'gpi.widgets.SpinBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "id": 140706086432488,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 2147483647,
+        "min": 5,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 1,
+        "val": 240,
+        "visible": false,
+        "wrapping": false
+       },
+       "name": "Eff MTX Z",
+       "type": "<class 'gpi.widgets.SpinBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "decimals": 2,
+        "id": 140705839269064,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 1.7976931348623157e+308,
+        "min": -1.7976931348623157e+308,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 1.0,
+        "val": 0.0,
+        "visible": true,
+        "wrapping": false
+       },
+       "name": "dx (pixels)",
+       "type": "<class 'gpi.widgets.DoubleSpinBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "decimals": 2,
+        "id": 140705839377144,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 1.7976931348623157e+308,
+        "min": -1.7976931348623157e+308,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 1.0,
+        "val": 0.0,
+        "visible": true,
+        "wrapping": false
+       },
+       "name": "dy (pixels)",
+       "type": "<class 'gpi.widgets.DoubleSpinBox'>"
+      },
+      {
+       "kwargs": {
+        "collapsed": false,
+        "decimals": 2,
+        "id": 140705839378008,
+        "immediate": false,
+        "inport": false,
+        "label": "",
+        "max": 1.7976931348623157e+308,
+        "min": -1.7976931348623157e+308,
+        "outport": false,
+        "quietval": null,
+        "singlestep": 1.0,
+        "val": 0.0,
+        "visible": true,
+        "wrapping": false
+       },
+       "name": "dz (pixels)",
+       "type": "<class 'gpi.widgets.DoubleSpinBox'>"
+      }
+     ]
+    }
+   }
+  ]
+ }
+}

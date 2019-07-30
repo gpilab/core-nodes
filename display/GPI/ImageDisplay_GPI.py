@@ -34,9 +34,8 @@
 # Author: Jim Pipe / Nick Zwart
 # Date: 2013 Sep 01
 
-import math
 import gpi
-from gpi import QtCore, QtGui
+from gpi import QtGui, QtWidgets
 import numpy as np
 
 # WIDGET
@@ -51,7 +50,7 @@ class WindowLevel(gpi.GenericWidgetGroup):
         self.pb = gpi.BasicPushButton()
         self.pb.set_button_title('reset')
         # layout
-        wdgLayout = QtGui.QVBoxLayout()
+        wdgLayout = QtWidgets.QVBoxLayout()
         wdgLayout.addWidget(self.sl)
         wdgLayout.addWidget(self.pb)
         self.setLayout(wdgLayout)
@@ -319,8 +318,6 @@ class ExternalNode(gpi.NodeAPI):
 
     def compute(self):
 
-        import math
-        import numpy as np
         from matplotlib import cm
 
         # make a copy for changes

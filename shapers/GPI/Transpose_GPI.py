@@ -36,10 +36,10 @@
 # Date: 2015aug25
 
 import gpi
-from gpi import QtGui
+from gpi import QtWidgets
 
 
-class GPITabBar(QtGui.QTabBar):
+class GPITabBar(QtWidgets.QTabBar):
     currentChanged = gpi.Signal()
 
     def __init__(self, parent=None):
@@ -74,7 +74,7 @@ class OrderButtons(gpi.GenericWidgetGroup):
         super(OrderButtons, self).__init__(title, parent)
 
         # at least one button
-        wdgLayout = QtGui.QGridLayout()
+        wdgLayout = QtWidgets.QGridLayout()
         self.wdg = GPITabBar()
         self.wdg.addTab('0')
         self.wdg.setMovable(True)
@@ -130,7 +130,7 @@ class ExternalNode(gpi.NodeAPI):
         else:
             self.setAttr('Dimension Order', visible=True)
 
-        return 0 
+        return 0
 
     def compute(self):
 
@@ -139,7 +139,7 @@ class ExternalNode(gpi.NodeAPI):
         order = self.getVal('Dimension Order')
 
         # display info
-        basic_info = "Input Dimensions: "+str(data.shape)+"\n" 
+        basic_info = "Input Dimensions: "+str(data.shape)+"\n"
 
         # setup the transpose indices (automatically transpose if ndim = 2)
         trans_ind = data.ndim*[0]
@@ -155,7 +155,7 @@ class ExternalNode(gpi.NodeAPI):
         else:
             out = data
 
-        # updata info 
+        # updata info
         info = basic_info+"Output Dimensions: "+str(out.shape)+"\n"
         self.setAttr('Info:', val = info)
         self.setData('out', out)
