@@ -32,5 +32,5 @@
 # <http://www.gnu.org/licenses/>.
 
 VERSION = '2.0.0'
-RELEASE_DATE = '2019Jul11'
+RELEASE_DATE = '2019Jul30'
 
