@@ -271,7 +271,7 @@ class ExternalNode(gpi.NodeAPI):
                     xi.append(slice(w['floor']-1, w['ceiling']))
 
             # apply indices to the data
-            out = data[xi]
+            out = data[tuple(xi)]
 
             # update UI info
             self.setAttr('I/O Info:', val="input: "+str(data.shape)
