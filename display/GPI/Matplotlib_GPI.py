@@ -1015,7 +1015,7 @@ class ExternalNode(gpi.NodeAPI):
         # IO Ports
         self.inport_range = list(range(0, 8))
         for i in self.inport_range:
-            self.addInPort('in' + str(i), 'NPYarray', obligation=gpi.OPTIONAL)
+            self.addInPort('in' + str(i), 'NPYarray', drange=(1,2), obligation=gpi.OPTIONAL)
 
     def compute(self):
 
