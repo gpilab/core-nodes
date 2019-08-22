@@ -37,7 +37,7 @@
 import math
 import gpi
 from gpi.numpyqt import numpy2qimage
-from gpi import QtCore, QtGui
+from gpi import QtCore, QtWidgets
 
 import numpy as np
 from matplotlib.figure import Figure
@@ -86,7 +86,7 @@ class MatplotDisplay2(gpi.GenericWidgetGroup):
 
         self.canvas.mpl_connect('key_press_event', self.on_key_press)
 
-        vbox = QtGui.QVBoxLayout()
+        vbox = QtWidgets.QVBoxLayout()
         vbox.addWidget(self.canvas)  # the matplotlib canvas
         vbox.addWidget(self.mpl_toolbar)
         self.setLayout(vbox)
@@ -143,7 +143,7 @@ class WindowLevel(gpi.GenericWidgetGroup):
         self.pb = gpi.BasicPushButton()
         self.pb.set_button_title('reset')
         # layout
-        wdgLayout = QtGui.QVBoxLayout()
+        wdgLayout = QtWidgets.QVBoxLayout()
         wdgLayout.addWidget(self.sl)
         wdgLayout.addWidget(self.pb)
         self.setLayout(wdgLayout)
