@@ -46,7 +46,7 @@
 #include "PyFI/PyFI.h"
 using namespace PyFI;
 
-#include "core/gridding/dft_core.cpp"
+#include "gpi_core/gridding/dft_core.cpp"
 
 PYFI_FUNC(dftgrid)
 {

@@ -1,10 +1,10 @@
 # Copyright (c) 2014, Dignity Health
-# 
+#
 #     The GPI core node library is licensed under
 # either the BSD 3-clause or the LGPL v. 3.
-# 
+#
 #     Under either license, the following additional term applies:
-# 
+#
 #         NO CLINICAL USE.  THE SOFTWARE IS NOT INTENDED FOR COMMERCIAL
 # PURPOSES AND SHOULD BE USED ONLY FOR NON-COMMERCIAL RESEARCH PURPOSES.  THE
 # SOFTWARE MAY NOT IN ANY EVENT BE USED FOR ANY CLINICAL OR DIAGNOSTIC
@@ -13,12 +13,12 @@
 # TO LIFE SUPPORT OR EMERGENCY MEDICAL OPERATIONS OR USES.  LICENSOR MAKES NO
 # WARRANTY AND HAS NOR LIABILITY ARISING FROM ANY USE OF THE SOFTWARE IN ANY
 # HIGH RISK OR STRICT LIABILITY ACTIVITIES.
-# 
+#
 #     If you elect to license the GPI core node library under the LGPL the
 # following applies:
-# 
+#
 #         This file is part of the GPI core node library.
-# 
+#
 #         The GPI core node library is free software: you can redistribute it
 # and/or modify it under the terms of the GNU Lesser General Public License as
 # published by the Free Software Foundation, either version 3 of the License,
@@ -26,7 +26,7 @@
 # in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
 # the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU Lesser General Public License for more details.
-# 
+#
 #         You should have received a copy of the GNU Lesser General Public
 # License along with the GPI core node library. If not, see
 # <http://www.gnu.org/licenses/>.
@@ -51,7 +51,7 @@ class ExternalNode(gpi.NodeAPI):
                 (Mx, My, Mz, Mt=sqrt(mx^2+my^2), |M| = sqrt(mx^2+my^2+mz^2)
                 selecting multiple buttons will produce multiple graphs
     Average Across: for each dimension (e.g. T1, T2, etc.), the magnetization can be averaged across that dimension
-    X Axis - the independent variable by which to plot on the abscissa 
+    X Axis - the independent variable by which to plot on the abscissa
              (cannot be a dimension that has been averaged across)
     (T,T1,T2,FQ,...) Index -
        for every dimension that has length > 1, is not averaged across, and is not used as the X Axis, there is an
@@ -202,7 +202,7 @@ class ExternalNode(gpi.NodeAPI):
         self.setAttr('Vx index',visible=visvx)
         self.setAttr('Vy index',visible=visvy)
         self.setAttr('Vz index',visible=visvz)
-        
+
         return 0
 
     def compute(self):
@@ -215,16 +215,16 @@ class ExternalNode(gpi.NodeAPI):
 
         xaxis = self.getVal('X Axis')
 
-        idim = np.zeros(10)
-        idim[1] = self.getVal('T1 index')
-        idim[2] = self.getVal('T2 index')
-        idim[3] = self.getVal('FQ index')
-        idim[4] = self.getVal('X0 index')
-        idim[5] = self.getVal('Y0 index')
-        idim[6] = self.getVal('Z0 index')
-        idim[7] = self.getVal('Vx index')
-        idim[8] = self.getVal('Vy index')
-        idim[9] = self.getVal('Vz index')
+        idim = np.zeros(10, dtype=int)
+        idim[1] = int(self.getVal('T1 index'))
+        idim[2] = int(self.getVal('T2 index'))
+        idim[3] = int(self.getVal('FQ index'))
+        idim[4] = int(self.getVal('X0 index'))
+        idim[5] = int(self.getVal('Y0 index'))
+        idim[6] = int(self.getVal('Z0 index'))
+        idim[7] = int(self.getVal('Vx index'))
+        idim[8] = int(self.getVal('Vy index'))
+        idim[9] = int(self.getVal('Vz index'))
 
 # X AXIS
         if xaxis == 0: # Time
@@ -307,7 +307,7 @@ class ExternalNode(gpi.NodeAPI):
             x0 = np.append(x0,xval[:,np.newaxis],axis=1)
             tval = np.sqrt(outvals[0,:]*outvals[0,:] + outvals[1,:]*outvals[1,:] + outvals[2,:]*outvals[2,:])
             y0 = np.append(y0,tval[:,np.newaxis],axis=1)
- 
+
         m_out = np.append(x0[:,:,np.newaxis],y0[:,:,np.newaxis],axis=2)
 
         self.setData('M_out', m_out)

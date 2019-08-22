@@ -45,7 +45,7 @@ using namespace PyFI;
 #include <iostream>
 using namespace std;
 #include <math.h>   // for sqrt(), log(), and sin(), pow()
-#include "core/gridding/sdc.cpp"
+#include "gpi_core/gridding/sdc.cpp"
 
 
 /**************************/

@@ -48,11 +48,11 @@ using namespace PyFI;
 #include <iostream>
 using namespace std;
 
-#include "core/spiral/bnispiralfill.cpp"
+#include "gpi_core/spiral/bnispiralfill.cpp"
 
 extern "C"
 {
-    #include "core/spiral/bnispiralgen.c"
+    #include "gpi_core/spiral/bnispiralgen.c"
 }
 
 /* find the correct answer through brute force recon

@@ -1,10 +1,10 @@
 # Copyright (c) 2014, Dignity Health
-# 
+#
 #     The GPI core node library is licensed under
 # either the BSD 3-clause or the LGPL v. 3.
-# 
+#
 #     Under either license, the following additional term applies:
-# 
+#
 #         NO CLINICAL USE.  THE SOFTWARE IS NOT INTENDED FOR COMMERCIAL
 # PURPOSES AND SHOULD BE USED ONLY FOR NON-COMMERCIAL RESEARCH PURPOSES.  THE
 # SOFTWARE MAY NOT IN ANY EVENT BE USED FOR ANY CLINICAL OR DIAGNOSTIC
@@ -13,12 +13,12 @@
 # TO LIFE SUPPORT OR EMERGENCY MEDICAL OPERATIONS OR USES.  LICENSOR MAKES NO
 # WARRANTY AND HAS NOR LIABILITY ARISING FROM ANY USE OF THE SOFTWARE IN ANY
 # HIGH RISK OR STRICT LIABILITY ACTIVITIES.
-# 
+#
 #     If you elect to license the GPI core node library under the LGPL the
 # following applies:
-# 
+#
 #         This file is part of the GPI core node library.
-# 
+#
 #         The GPI core node library is free software: you can redistribute it
 # and/or modify it under the terms of the GNU Lesser General Public License as
 # published by the Free Software Foundation, either version 3 of the License,
@@ -26,7 +26,7 @@
 # in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
 # the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU Lesser General Public License for more details.
-# 
+#
 #         You should have received a copy of the GNU Lesser General Public
 # License along with the GPI core node library. If not, see
 # <http://www.gnu.org/licenses/>.
@@ -36,7 +36,7 @@
 # Date: 2013mar20
 
 import gpi
-from gpi import QtGui
+from gpi import QtWidgets
 
 # WIDGET
 class SHAPES_GROUP(gpi.GenericWidgetGroup):
@@ -63,18 +63,18 @@ class SHAPES_GROUP(gpi.GenericWidgetGroup):
         self.slb.set_val(1)
         self.slb.set_max(1)
 
-        self.slider_label = QtGui.QLabel('width:')
+        self.slider_label = QtWidgets.QLabel('width:')
 
         self.sb.valueChanged.connect(self.sizeChange)
         self.slb.valueChanged.connect(self.widthChange)
 
-        hbox = QtGui.QHBoxLayout()
+        hbox = QtWidgets.QHBoxLayout()
         hbox.addWidget(self.slider_label)
         hbox.addWidget(self.slb)
         hbox.setStretch(0, 0)
         hbox.setSpacing(5)
 
-        hboxGroup = QtGui.QHBoxLayout()
+        hboxGroup = QtWidgets.QHBoxLayout()
         hboxGroup.addWidget(self.sb)
         hboxGroup.addLayout(hbox)
         hboxGroup.setStretch(0, 0)
@@ -128,7 +128,7 @@ class SHAPES_GROUP(gpi.GenericWidgetGroup):
 
 class ExternalNode(gpi.NodeAPI):
     """Geometric function generator (used to make different shapes in 1, 2, or 3 dimensions).
-    
+
     INPUT:  Optional input - data are not used, but the shape of this array (ndim and array shape) are used for the output array
 
     OUTPUT: 1D, 2D, or 3D real-valued numpy array
@@ -147,7 +147,7 @@ class ExternalNode(gpi.NodeAPI):
     Pass Value: Maximum value in function
     Stop Value: Value in data outside of function
     Window: allows one to taper function, creates a linear ramp between the pass and stop value.
-            Window units are in %, from 0 (creating a sharp edge) 
+            Window units are in %, from 0 (creating a sharp edge)
                                    to 100 (tapering from the edge to the middle of the object)
 
     Some Special Use Cases:

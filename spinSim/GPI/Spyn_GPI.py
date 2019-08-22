@@ -1,10 +1,10 @@
 # Copyright (c) 2014, Dignity Health
-# 
+#
 #     The GPI core node library is licensed under
 # either the BSD 3-clause or the LGPL v. 3.
-# 
+#
 #     Under either license, the following additional term applies:
-# 
+#
 #         NO CLINICAL USE.  THE SOFTWARE IS NOT INTENDED FOR COMMERCIAL
 # PURPOSES AND SHOULD BE USED ONLY FOR NON-COMMERCIAL RESEARCH PURPOSES.  THE
 # SOFTWARE MAY NOT IN ANY EVENT BE USED FOR ANY CLINICAL OR DIAGNOSTIC
@@ -13,12 +13,12 @@
 # TO LIFE SUPPORT OR EMERGENCY MEDICAL OPERATIONS OR USES.  LICENSOR MAKES NO
 # WARRANTY AND HAS NOR LIABILITY ARISING FROM ANY USE OF THE SOFTWARE IN ANY
 # HIGH RISK OR STRICT LIABILITY ACTIVITIES.
-# 
+#
 #     If you elect to license the GPI core node library under the LGPL the
 # following applies:
-# 
+#
 #         This file is part of the GPI core node library.
-# 
+#
 #         The GPI core node library is free software: you can redistribute it
 # and/or modify it under the terms of the GNU Lesser General Public License as
 # published by the Free Software Foundation, either version 3 of the License,
@@ -26,7 +26,7 @@
 # in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
 # the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU Lesser General Public License for more details.
-# 
+#
 #         You should have received a copy of the GNU Lesser General Public
 # License along with the GPI core node library. If not, see
 # <http://www.gnu.org/licenses/>.
@@ -36,7 +36,7 @@
 # Date: 2013Jun13
 
 import gpi
-from gpi import QtCore, QtGui
+from gpi import QtWidgets
 
 
 # WIDGET
@@ -80,7 +80,7 @@ class SpynAxys(gpi.GenericWidgetGroup):
         self.db1.valueChanged.connect(self.startChange)
         self.db2.valueChanged.connect(self.endChange)
 
-        vbox = QtGui.QHBoxLayout()
+        vbox = QtWidgets.QHBoxLayout()
         vbox.addWidget(self.sb)
         vbox.addWidget(self.db1)
         vbox.addWidget(self.db2)
@@ -150,7 +150,7 @@ class SpynAxys(gpi.GenericWidgetGroup):
 class ExternalNode(gpi.NodeAPI):
     """Module to generate initial spin profile, for bloch simulations in GPI
     Output data are 11-dimensional, with data stored as follows:
-    Dimension 0 corresponds to base information such  M0, T1, T2, velocities, Frequency, 
+    Dimension 0 corresponds to base information such  M0, T1, T2, velocities, Frequency,
                 Diffusion (not yet implemented), and the value of dt
     Dimension 1 corresponds to time.
                 The first index of Dimension 1 stores the above info, and
@@ -160,7 +160,7 @@ class ExternalNode(gpi.NodeAPI):
 
   D  ###### Dim 0 ->>> #########################
   i  #    0  1  2  3  4  5  6  7  8  9  10 11 12
-  m  # 
+  m  #
   1  # 0  M0 T1 T2 Vx Vy Vz Fq Dx Dy Dz dt __ __
   |  # 1  Mx My Mz X  Y  Z  T  Gx Gy Gz Rx Ry Sp
   v  # 2  Mx My Mz X  Y  Z  T  Gx Gy Gz Rx Ry Sp
@@ -231,11 +231,11 @@ class ExternalNode(gpi.NodeAPI):
          # 0  1  2  3  4  5  6  7  8  9  10 11 12
          # M0 T1 T2 Vx Vy Vz Fq Dx Dy Dz dt __ __
          # Mx My Mz X  Y  Z  T  Gx Gy Gz Rx Ry Sp
-       dim2 = 2  # number of time points, 1st time point is constants 
+       dim2 = 2  # number of time points, 1st time point is constants
 
        dtms = float(self.getVal('dt (us)')) * 0.001 # convert from us to ms
        t0ms = self.getVal('T0 (ms)')
-       
+
        mx=my=mz=0.
        if self.getVal('Starting Spins') == 1:
          mz = 1
@@ -263,7 +263,7 @@ class ExternalNode(gpi.NodeAPI):
            r1end=0
          else:
            r1end=1./val['end']
-         
+
          r1step = (r1end-r1start)/max(1.,float(dim3-1))
 
          # Dim 4 is T2
@@ -279,7 +279,7 @@ class ExternalNode(gpi.NodeAPI):
            r2end=0
          else:
            r2end=1./val['end']
-         
+
          r2step = (r2end-r2start)/max(1.,float(dim4-1))
 
          # Dim 5 is Fq, convert to kHz
@@ -288,37 +288,37 @@ class ExternalNode(gpi.NodeAPI):
          fqstart=0.001*val['start']
          fqstep= 0.001*(val['end']-val['start'])/max(1.,float(dim5-1))
 
-         # Dim 6 is X0, convert to m 
+         # Dim 6 is X0, convert to m
          val = self.getVal('X0 (mm)')
          dim6 = val['length']
          x0start=0.001*val['start']
          x0step= 0.001*(val['end']-val['start'])/max(1.,float(dim6-1))
 
-         # Dim 7 is Y0, convert to m 
+         # Dim 7 is Y0, convert to m
          val = self.getVal('Y0 (mm)')
          dim7 = val['length']
          y0start=0.001*val['start']
          y0step= 0.001*(val['end']-val['start'])/max(1.,float(dim7-1))
 
-         # Dim 8 is Z0, convert to m 
+         # Dim 8 is Z0, convert to m
          val = self.getVal('Z0 (mm)')
          dim8 = val['length']
          z0start=0.001*val['start']
          z0step= 0.001*(val['end']-val['start'])/max(1.,float(dim8-1))
 
-         # Dim 9 is Vx, convert to m/ms 
+         # Dim 9 is Vx, convert to m/ms
          val = self.getVal('Vx (cm/s)')
          dim9 = val['length']
          vxstart=0.00001*val['start']
          vxstep= 0.00001*(val['end']-val['start'])/max(1.,float(dim9-1))
 
-         # Dim 10 is Vy, convert to m/ms 
+         # Dim 10 is Vy, convert to m/ms
          val = self.getVal('Vy (cm/s)')
          dim10 = val['length']
          vystart=0.00001*val['start']
          vystep= 0.00001*(val['end']-val['start'])/max(1.,float(dim10-1))
 
-         # Dim 11 is Vz, convert to m/ms 
+         # Dim 11 is Vz, convert to m/ms
          val = self.getVal('Vz (cm/s)')
          dim11 = val['length']
          vzstart=0.00001*val['start']
@@ -339,26 +339,26 @@ class ExternalNode(gpi.NodeAPI):
          # T2
          for i in range(0,dim4):
            out[2,0,:,i,:,:,:,:,:,:,:] = r2start + r2step*float(i)
-    
-         #Vx 
+
+         #Vx
          for i in range(0,dim9):
            out[3,0,:,:,:,:,:,:,i,:,:] = vxstart + vxstep*float(i)
-    
-         #Vy 
+
+         #Vy
          for i in range(0,dim10):
            out[4,0,:,:,:,:,:,:,:,i,:] = vystart + vystep*float(i)
-    
-         #Vz 
+
+         #Vz
          for i in range(0,dim11):
            out[5,0,:,:,:,:,:,:,:,:,i] = vzstart + vzstep*float(i)
-    
+
          #Fq
          for i in range(0,dim5):
            out[6,0,:,:,i,:,:,:,:,:,:] = fqstart + fqstep*float(i)
 
          # Dx, Dy, Dz = 0, no action for now
-    
-         # dt - convert from us to ms 
+
+         # dt - convert from us to ms
          out[10,0,:,:,:,:,:,:,:,:,:] = dtms
 
          # Gamma - fixed for now, kHz/mT
@@ -372,18 +372,18 @@ class ExternalNode(gpi.NodeAPI):
          out[1,1,:,:,:,:,:,:,:,:,:] = my
          out[2,1,:,:,:,:,:,:,:,:,:] = mz
 
-         #X0 
+         #X0
          for i in range(0,dim6):
            out[3,1,:,:,:,i,:,:,:,:,:] = x0start + x0step*float(i)
-    
-         #Y0 
+
+         #Y0
          for i in range(0,dim7):
            out[4,1,:,:,:,:,i,:,:,:,:] = y0start + y0step*float(i)
-    
-         #Z0 
+
+         #Z0
          for i in range(0,dim8):
            out[5,1,:,:,:,:,:,i,:,:,:] = z0start + z0step*float(i)
-    
+
          #T0
          out[6,1,:,:,:,:,:,:,:,:,:] = t0ms
 
