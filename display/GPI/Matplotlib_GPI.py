@@ -55,11 +55,11 @@ from matplotlib.backends.backend_qt4 import SubplotToolQt
 class MainWin_close(QtWidgets.QMainWindow):
     window_closed = gpi.Signal()
     def __init__(self):
-        super(MainWin_close, self).__init__()
+        super().__init__()
         self._isActive = True
 
     def closeEvent(self, event):
-        super(MainWin_close, self).closeEvent(event)
+        super().closeEvent(event)
         self.window_closed.emit()
         self._isActive = False
 
@@ -87,7 +87,7 @@ class NavbarTools(NavigationToolbar):
       )
 
     def __init__(self, canvas, parent):
-        super(NavbarTools, self).__init__(canvas, parent)
+        super().__init__(canvas, parent)
 
     def _init_toolbar(self):
         self.basedir = os.path.join(matplotlib.rcParams[ 'datapath' ],'images')
@@ -284,7 +284,7 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
     valueChanged = gpi.Signal()
 
     def __init__(self, title, parent=None):
-        super(MatplotDisplay, self).__init__(title, parent)
+        super().__init__(title, parent)
 
         # gpi interface
         self._collapsables = []
