@@ -49,7 +49,7 @@ class DataSliders(gpi.GenericWidgetGroup):
     valueChanged = gpi.Signal()
 
     def __init__(self, title, parent=None):
-        super(DataSliders, self).__init__(title, parent)
+        super().__init__(title, parent)
         self.sl = gpi.BasicCWFCSliders()
         self.sl.valueChanged.connect(self.valueChanged)
         # at least one button

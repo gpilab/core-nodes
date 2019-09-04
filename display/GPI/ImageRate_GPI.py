@@ -46,7 +46,7 @@ class ComboBox_GROUP(gpi.GenericWidgetGroup):
     valueChanged = gpi.Signal()
 
     def __init__(self, title, parent=None):
-        super(ComboBox_GROUP, self).__init__(title, parent)
+        super().__init__(title, parent)
 
         self._val = {}
         self._val['image_quality_left'] = 0

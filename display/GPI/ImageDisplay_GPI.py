@@ -44,7 +44,7 @@ class WindowLevel(gpi.GenericWidgetGroup):
     valueChanged = gpi.Signal()
 
     def __init__(self, title, parent=None):
-        super(WindowLevel, self).__init__(title, parent)
+        super().__init__(title, parent)
         self.sl = gpi.BasicCWFCSliders()
         self.sl.valueChanged.connect(self.valueChanged)
         self.pb = gpi.BasicPushButton()

@@ -48,7 +48,7 @@ class Interpolate_GROUP(gpi.GenericWidgetGroup):
     valueChanged = gpi.Signal()
 
     def __init__(self, title, parent=None):
-        super(Interpolate_GROUP, self).__init__(title, parent)
+        super().__init__(title, parent)
 
         # Widgets
         self._val = {}

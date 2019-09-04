@@ -52,7 +52,7 @@ class MatplotDisplay2(gpi.GenericWidgetGroup):
     valueChanged = gpi.Signal()
 
     def __init__(self, title, parent=None):
-        super(MatplotDisplay2, self).__init__(title, parent)
+        super().__init__(title, parent)
 
         #self.data = self.get_data2()
         self._data = None
@@ -137,7 +137,7 @@ class WindowLevel(gpi.GenericWidgetGroup):
     valueChanged = gpi.Signal()
 
     def __init__(self, title, parent=None):
-        super(WindowLevel, self).__init__(title, parent)
+        super().__init__(title, parent)
         self.sl = gpi.BasicCWFCSliders()
         self.sl.valueChanged.connect(self.valueChanged)
         self.pb = gpi.BasicPushButton()

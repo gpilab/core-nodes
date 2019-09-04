@@ -46,7 +46,7 @@ class SHAPES_GROUP(gpi.GenericWidgetGroup):
     valueChanged = gpi.Signal()
 
     def __init__(self, title, parent=None):
-        super(SHAPES_GROUP, self).__init__(title, parent)
+        super().__init__(title, parent)
 
         self._val = {}
         self._val['size'] = 1
