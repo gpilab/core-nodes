@@ -24,7 +24,7 @@
    {
     "avgwalltime": "0.43494999408721924",
     "id": 140669988236888,
-    "key": "core.gridding.Grid",
+    "key": "gpi_core.gridding.Grid",
     "name": "Grid",
     "ports": [
      {
@@ -246,7 +246,7 @@
    {
     "avgwalltime": "0.41435837745666504",
     "id": 140669988047608,
-    "key": "core.math.FFTW",
+    "key": "gpi_core.math.FFTW",
     "name": "FFTW",
     "ports": [
      {
@@ -322,7 +322,7 @@
         "visible": true
        },
        "name": "Dimension[-1]",
-       "type": "<class '/Users/m206107/gpi/core/math/GPI/FFTW_GPI.FFTW_GROUP'>"
+       "type": "<class '/Users/m206107/gpi/gpi_core/math/GPI/FFTW_GPI.FFTW_GROUP'>"
       },
       {
        "kwargs": {
@@ -339,7 +339,7 @@
         "visible": true
        },
        "name": "Dimension[-2]",
-       "type": "<class '/Users/m206107/gpi/core/math/GPI/FFTW_GPI.FFTW_GROUP'>"
+       "type": "<class '/Users/m206107/gpi/gpi_core/math/GPI/FFTW_GPI.FFTW_GROUP'>"
       },
       {
        "kwargs": {
@@ -356,7 +356,7 @@
         "visible": true
        },
        "name": "Dimension[-3]",
-       "type": "<class '/Users/m206107/gpi/core/math/GPI/FFTW_GPI.FFTW_GROUP'>"
+       "type": "<class '/Users/m206107/gpi/gpi_core/math/GPI/FFTW_GPI.FFTW_GROUP'>"
       },
       {
        "kwargs": {
@@ -373,7 +373,7 @@
         "visible": false
        },
        "name": "Dimension[-4]",
-       "type": "<class '/Users/m206107/gpi/core/math/GPI/FFTW_GPI.FFTW_GROUP'>"
+       "type": "<class '/Users/m206107/gpi/gpi_core/math/GPI/FFTW_GPI.FFTW_GROUP'>"
       },
       {
        "kwargs": {
@@ -390,7 +390,7 @@
         "visible": false
        },
        "name": "Dimension[-5]",
-       "type": "<class '/Users/m206107/gpi/core/math/GPI/FFTW_GPI.FFTW_GROUP'>"
+       "type": "<class '/Users/m206107/gpi/gpi_core/math/GPI/FFTW_GPI.FFTW_GROUP'>"
       },
       {
        "kwargs": {
@@ -407,7 +407,7 @@
         "visible": false
        },
        "name": "Dimension[-6]",
-       "type": "<class '/Users/m206107/gpi/core/math/GPI/FFTW_GPI.FFTW_GROUP'>"
+       "type": "<class '/Users/m206107/gpi/gpi_core/math/GPI/FFTW_GPI.FFTW_GROUP'>"
       },
       {
        "kwargs": {
@@ -445,7 +445,7 @@
    {
     "avgwalltime": "0.14004802703857422",
     "id": 140669986761032,
-    "key": "core.shapers.Reduce",
+    "key": "gpi_core.shapers.Reduce",
     "name": "Reduce",
     "ports": [
      {
@@ -535,7 +535,7 @@
         "visible": true
        },
        "name": "Dimension[-1]",
-       "type": "<class '/Users/m206107/gpi/core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
+       "type": "<class '/Users/m206107/gpi/gpi_core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
       },
       {
        "kwargs": {
@@ -557,7 +557,7 @@
         "visible": true
        },
        "name": "Dimension[-2]",
-       "type": "<class '/Users/m206107/gpi/core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
+       "type": "<class '/Users/m206107/gpi/gpi_core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
       },
       {
        "kwargs": {
@@ -579,7 +579,7 @@
         "visible": true
        },
        "name": "Dimension[-3]",
-       "type": "<class '/Users/m206107/gpi/core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
+       "type": "<class '/Users/m206107/gpi/gpi_core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
       },
       {
        "kwargs": {
@@ -601,7 +601,7 @@
         "visible": false
        },
        "name": "Dimension[-4]",
-       "type": "<class '/Users/m206107/gpi/core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
+       "type": "<class '/Users/m206107/gpi/gpi_core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
       },
       {
        "kwargs": {
@@ -623,7 +623,7 @@
         "visible": false
        },
        "name": "Dimension[-5]",
-       "type": "<class '/Users/m206107/gpi/core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
+       "type": "<class '/Users/m206107/gpi/gpi_core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
       },
       {
        "kwargs": {
@@ -645,7 +645,7 @@
         "visible": false
        },
        "name": "Dimension[-6]",
-       "type": "<class '/Users/m206107/gpi/core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
+       "type": "<class '/Users/m206107/gpi/gpi_core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
       },
       {
        "kwargs": {
@@ -667,7 +667,7 @@
         "visible": false
        },
        "name": "Dimension[-7]",
-       "type": "<class '/Users/m206107/gpi/core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
+       "type": "<class '/Users/m206107/gpi/gpi_core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
       },
       {
        "kwargs": {
@@ -689,7 +689,7 @@
         "visible": false
        },
        "name": "Dimension[-8]",
-       "type": "<class '/Users/m206107/gpi/core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
+       "type": "<class '/Users/m206107/gpi/gpi_core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
       },
       {
        "kwargs": {
@@ -711,7 +711,7 @@
         "visible": false
        },
        "name": "Dimension[-9]",
-       "type": "<class '/Users/m206107/gpi/core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
+       "type": "<class '/Users/m206107/gpi/gpi_core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
       },
       {
        "kwargs": {
@@ -733,7 +733,7 @@
         "visible": false
        },
        "name": "Dimension[-10]",
-       "type": "<class '/Users/m206107/gpi/core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
+       "type": "<class '/Users/m206107/gpi/gpi_core/shapers/GPI/Reduce_GPI.ReduceSliders'>"
       },
       {
        "kwargs": {
@@ -771,7 +771,7 @@
    {
     "avgwalltime": "0.2906935214996338",
     "id": 140669176345944,
-    "key": "core.gridding.SDCspiral",
+    "key": "gpi_core.gridding.SDCspiral",
     "name": "SDCspiral",
     "ports": [
      {
@@ -941,7 +941,7 @@
    {
     "avgwalltime": "0.1818760633468628",
     "id": 140669986729416,
-    "key": "core.spiral.SpiralCoords",
+    "key": "gpi_core.spiral.SpiralCoords",
     "name": "SpiralCoords",
     "ports": [
      {
