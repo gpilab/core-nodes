@@ -41,9 +41,8 @@ from gpi import QtCore, QtWidgets
 
 import numpy as np
 from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt4agg import (
-    FigureCanvasQTAgg as FigureCanvas,
-    NavigationToolbar2QT as NavigationToolbar)
+from matplotlib.backends.backend_qt5agg import (
+    FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 
 from scipy import ndimage
 
@@ -91,8 +90,12 @@ class MatplotDisplay2(gpi.GenericWidgetGroup):
         vbox.addWidget(self.mpl_toolbar)
         self.setLayout(vbox)
 
-    def get_data2(self):
-        return np.arange(20).reshape([4, 5]).copy()
+    # def get_data2(self):
+    #     return np.arange(20).reshape([4, 5]).copy()
+    # 
+    # def set_data2(self,data):
+    #     self._data = data
+    #     self.on_draw()
 
     def on_draw(self):
         self.fig.clear()
@@ -104,7 +107,7 @@ class MatplotDisplay2(gpi.GenericWidgetGroup):
         if self._data is None:
             return
 
-        self.fig.hold(True)
+        # self.fig.hold(True)
 
         # plot each set
         # print "--------------------plot the data"
