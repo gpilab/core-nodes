@@ -38,8 +38,7 @@ from __future__ import print_function
 import os
 import matplotlib
 
-import matplotlib as mpl
-print('matplotlib version: ', mpl.__version__)
+print('matplotlib version: ', matplotlib.__version__)
 
 import gpi
 from gpi import QtCore, QtGui, QtWidgets
@@ -47,10 +46,9 @@ from gpi import QtCore, QtGui, QtWidgets
 import numpy as np
 from matplotlib.figure import Figure
 #from matplotlib.backend_bases import key_press_handler
-from matplotlib.backends.backend_qt4agg import (
-    FigureCanvasQTAgg as FigureCanvas,
-    NavigationToolbar2QT as NavigationToolbar)
-from matplotlib.backends.backend_qt4 import SubplotToolQt
+from matplotlib.backends.backend_qt5agg import (
+    FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+from matplotlib.backends.backend_qt5 import SubplotToolQt
 
 class MainWin_close(QtWidgets.QMainWindow):
     window_closed = gpi.Signal()
@@ -104,8 +102,6 @@ class NavbarTools(NavigationToolbar):
                 if tooltip_text is not None:
                     a.setToolTip(tooltip_text)
 
-        self.buttons = {}
-
         # Add the x,y location widget at the right side of the toolbar
         # The stretch factor is 1 which means any resizing of the toolbar
         # will resize this label instead of the buttons.
@@ -118,9 +114,6 @@ class NavbarTools(NavigationToolbar):
                                   QtWidgets.QSizePolicy.Ignored))
             labelAction = self.addWidget(self.locLabel)
             labelAction.setVisible(True)
-
-        # reference holder for subplots_adjust window
-        self.adj_window = None
 
 ###############################################################################
 # -*- coding: utf-8 -*-
@@ -135,19 +128,14 @@ class NavbarTools(NavigationToolbar):
 import os.path as osp
 
 try:
-    import matplotlib.backends.qt4_editor.formlayout as formlayout
+    import matplotlib.backends.qt_editor.formlayout as formlayout
 except:
-    try:
-        import matplotlib.backends.qt_editor.formlayout as formlayout
-    except:
-        formlayout = None
-        print("formlayout can't be found, line options will be disabled")
+    formlayout = None
+    print("formlayout can't be found, line options will be disabled")
 
-#from matplotlib.backends.qt4_compat import QtGui
 from matplotlib import markers
 
 def get_icon(name):
-    import matplotlib
     basedir = osp.join(matplotlib.rcParams['datapath'], 'images')
     return QtGui.QIcon(osp.join(basedir, name))
 
@@ -268,7 +256,6 @@ def figure_edit(axes, parent=None):
         figure = axes.get_figure()
         figure.canvas.draw()
 
-    # formlayout disappears in matplotlib 1.4.0
     if formlayout is not None:
         data = formlayout.fedit(datalist, title="Figure options", parent=parent, icon=get_icon('qt4_editor_options.svg'), apply=apply_callback)
 
@@ -996,8 +983,10 @@ class MatplotDisplay(gpi.GenericWidgetGroup):
 
 class ExternalNode(gpi.NodeAPI):
 
-    """A Qt embedded plot window using the code from:
+    """A Qt embedded plot window originally using the code from:
     http://matplotlib.org/examples/user_interfaces/embedding_in_qt4_wtoolbar.html
+    Updated by DDB in Feb. 2020 using the qt5 code from:
+    https://matplotlib.org/examples/user_interfaces/embedding_in_qt5.html
     keyboard shortcuts can be found here:
     http://matplotlib.org/users/navigation_toolbar.html#navigation-keyboard-shortcuts
 
