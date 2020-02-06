@@ -38,7 +38,6 @@ from __future__ import print_function
 import os
 import matplotlib
 
-# import matplotlib as mpl
 print('matplotlib version: ', matplotlib.__version__)
 
 import gpi
@@ -137,7 +136,6 @@ except:
 from matplotlib import markers
 
 def get_icon(name):
-    # import matplotlib
     basedir = osp.join(matplotlib.rcParams['datapath'], 'images')
     return QtGui.QIcon(osp.join(basedir, name))
 

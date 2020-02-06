@@ -53,7 +53,6 @@ class MatplotDisplay2(gpi.GenericWidgetGroup):
     def __init__(self, title, parent=None):
         super().__init__(title, parent)
 
-        #self.data = self.get_data2()
         self._data = None
         self.create_main_frame()
         self.on_draw()
@@ -90,13 +89,6 @@ class MatplotDisplay2(gpi.GenericWidgetGroup):
         vbox.addWidget(self.mpl_toolbar)
         self.setLayout(vbox)
 
-    # def get_data2(self):
-    #     return np.arange(20).reshape([4, 5]).copy()
-    # 
-    # def set_data2(self,data):
-    #     self._data = data
-    #     self.on_draw()
-
     def on_draw(self):
         self.fig.clear()
         self.axes = self.fig.add_subplot(111)
@@ -106,8 +98,6 @@ class MatplotDisplay2(gpi.GenericWidgetGroup):
 
         if self._data is None:
             return
-
-        # self.fig.hold(True)
 
         # plot each set
         # print "--------------------plot the data"
