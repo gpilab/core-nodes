@@ -48,7 +48,7 @@ class FFTW_GROUP(gpi.GenericWidgetGroup):
     valueChanged = gpi.Signal()
 
     def __init__(self, title, parent=None):
-        super(FFTW_GROUP, self).__init__(title, parent)
+        super().__init__(title, parent)
 
         self._val = {}
         self._val['compute'] = False

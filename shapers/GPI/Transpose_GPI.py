@@ -43,7 +43,7 @@ class GPITabBar(QtWidgets.QTabBar):
     currentChanged = gpi.Signal()
 
     def __init__(self, parent=None):
-        super(GPITabBar, self).__init__(parent)
+        super().__init__(parent)
         self._labels_at_press = None
 
     def clearTabs(self):
@@ -59,10 +59,10 @@ class GPITabBar(QtWidgets.QTabBar):
 
     def mousePressEvent(self, event):
         self._labels_at_press = self.labels()
-        super(GPITabBar, self).mousePressEvent(event)
+        super().mousePressEvent(event)
 
     def mouseReleaseEvent(self, event):
-        super(GPITabBar, self).mouseReleaseEvent(event)
+        super().mouseReleaseEvent(event)
         if self.labels() != self._labels_at_press:
             self.currentChanged.emit()
 
@@ -71,7 +71,7 @@ class OrderButtons(gpi.GenericWidgetGroup):
     valueChanged = gpi.Signal()
 
     def __init__(self, title, parent=None):
-        super(OrderButtons, self).__init__(title, parent)
+        super().__init__(title, parent)
 
         # at least one button
         wdgLayout = QtWidgets.QGridLayout()

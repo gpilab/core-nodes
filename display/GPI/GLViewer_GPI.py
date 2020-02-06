@@ -74,7 +74,7 @@ class GPIGLWidget(QtOpenGL.QGLWidget):
     zRotationChanged = gpi.Signal(int)
 
     def __init__(self, parent=None):
-        super(GPIGLWidget, self).__init__(parent)
+        super().__init__(parent)
 
         self.xRot = 0
         self.yRot = 0
@@ -437,7 +437,7 @@ class OpenGLWindow(gpi.GenericWidgetGroup):
         if QtOpenGL is None:
             raise ImportError("QtOpenGL not available in the current Qt "
                               "package ({})".format(QT_API_NAME))
-        super(OpenGLWindow, self).__init__(title, parent)
+        super().__init__(title, parent)
         f = QtOpenGL.QGLFormat()
         f.setAccum(True)
         f.setDoubleBuffer(True)

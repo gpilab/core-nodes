@@ -43,7 +43,7 @@ class NonExclusivePushButtons2(gpi.NonExclusivePushButtons):
     valueChanged = gpi.Signal()
 
     def __init__(self, title, parent=None):
-        super(NonExclusivePushButtons2, self).__init__(title, parent)
+        super().__init__(title, parent)
 
     # overwrite set_val
     def set_val(self, value):

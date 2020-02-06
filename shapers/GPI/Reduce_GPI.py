@@ -48,7 +48,7 @@ class ReduceSliders(gpi.GenericWidgetGroup):
     valueChanged = gpi.Signal()
 
     def __init__(self, title, parent=None):
-        super(ReduceSliders, self).__init__(title, parent)
+        super().__init__(title, parent)
         self.sl = gpi.BasicCWFCSliders()
         self.sl.valueChanged.connect(self.valueChanged)
         # at least one button
@@ -271,7 +271,7 @@ class ExternalNode(gpi.NodeAPI):
                     xi.append(slice(w['floor']-1, w['ceiling']))
 
             # apply indices to the data
-            out = data[xi]
+            out = data[tuple(xi)]
 
             # update UI info
             self.setAttr('I/O Info:', val="input: "+str(data.shape)
