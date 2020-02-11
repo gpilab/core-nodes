@@ -246,7 +246,7 @@ def figure_edit(axes, parent=None):
                 line.set_linestyle(linestyle)
                 line.set_linewidth(linewidth)
                 line.set_color(color)
-                if marker is not 'none':
+                if marker != 'none':
                     line.set_marker(marker)
                     line.set_markersize(markersize)
                     line.set_markerfacecolor(markerfacecolor)

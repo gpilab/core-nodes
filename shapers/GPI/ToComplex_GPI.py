@@ -99,7 +99,7 @@ class ExternalNode(gpi.NodeAPI):
                 self.setAttr('Combine Operation', visible=True)
                 self.setAttr('Operation', visible=False)
 
-            if self.getVal('Combine Operation') is 1:
+            if self.getVal('Combine Operation') == 1:
                 self.setAttr('Phase', visible = True)
             else:
                 self.setAttr('Phase', visible = False)
@@ -113,7 +113,7 @@ class ExternalNode(gpi.NodeAPI):
                 if data2.shape[-1] == 2:
                     singleCase = 2
 
-            if singleCase is not 0:
+            if singleCase != 0:
                 self.setAttr('Operation', visible=True)
                 self.setAttr('Combine Operation', visible=False)
                 self.setAttr('Operation', buttons=['Real', 'Imag', 'Phase', 'Vec2Cmplx'])
@@ -122,7 +122,7 @@ class ExternalNode(gpi.NodeAPI):
                 self.setAttr('Combine Operation', visible=False)
                 self.setAttr('Operation', buttons=['Real', 'Imag', 'Phase'])
 
-            if self.getVal('Operation') is 2:
+            if self.getVal('Operation') == 2:
                 self.setAttr('Phase', visible = True)
             else:
                 self.setAttr('Phase', visible = False)

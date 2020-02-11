@@ -95,9 +95,9 @@ class ExternalNode(gpi.NodeAPI):
         import numpy as np
 
         units = self.getVal('Units')
-        if units is 0: # degrees
+        if units == 0: # degrees
             unitConv = 1
-        elif units is 1: # radians
+        elif units == 1: # radians
             unitConv = 180/np.pi
         else: # cycles
             unitConv = 360
