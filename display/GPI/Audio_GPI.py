@@ -86,15 +86,14 @@ class ExternalNode(gpi.NodeAPI):
 
         spio.write(self._tmpfile, rate, arr)
 
-        s = QtMultimedia.QSound('')
-        if s.isAvailable():
-            self.setAttr('Audio Info', val='Sound facilities are available.')
-        else:
-            self.setAttr(
-                'Audio Info', val='Sound facilities are NOT available.')
-
-        for i in range(loops):
-            s.play(self._tmpfile)
+        
+        try:
+            s = QtMultimedia.QSound('')
+            self.setAttr('Audio Info', val='Sound module is available.')
+            for i in range(loops):
+                s.play(self._tmpfile)
+        except:
+            self.setAttr('Audio Info', val='Sound module failed to load!\n Please visit www.github.com/gpilab/core-nodes for help.')
 
         return 0
 
