@@ -87,11 +87,6 @@ class ExternalNode(gpi.NodeAPI):
         spio.write(self._tmpfile, rate, arr)
 
         s = QtMultimedia.QSound('')
-        if s.isAvailable():
-            self.setAttr('Audio Info', val='Sound facilities are available.')
-        else:
-            self.setAttr(
-                'Audio Info', val='Sound facilities are NOT available.')
 
         for i in range(loops):
             s.play(self._tmpfile)
