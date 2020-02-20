@@ -48,11 +48,11 @@ using namespace PyFI;
 #include <iostream>
 using namespace std;
 
-#include "gpi_core/spiral/bnispiralfill.cpp"
+#include "bnispiralfill.cpp"
 
 extern "C"
 {
-    #include "gpi_core/spiral/bnispiralgen.c"
+    #include "bnispiralgen.c"
 }
 
 /* find the correct answer through brute force recon
@@ -99,7 +99,7 @@ PYFI_FUNC(coords)
     PYFI_POSARG(long,   numCalPnts);
 
     /* temp vars */
-    long maxarray = 100000;
+    const long maxarray = 100000;
     double spparams[spARRSIZE];
     int spgrad_na;
     int spgrad_nb;

@@ -50,7 +50,7 @@
 extern "C"
 {
     /* for parameter definitions */
-    #include "gpi_core/spiral/bnispiralgen.c"
+    #include "bnispiralgen.c"
 }
 
 /* the base spiral sequence */

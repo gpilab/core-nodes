@@ -51,9 +51,6 @@
 using namespace PyFI; // provides FFTW namespace
 using namespace PyFI::FFTW;
 
-#define RED		"\e[31m"
-#define NOC		"\e[39m"
-
 #include <pthread.h>
 #include <math.h>   // for sqrt(), log(), and sin(), pow()
 #include <time.h>   // for getting sys time to the sec
@@ -218,7 +215,7 @@ PYFI_FUNC(fftw)
 	    	global_fftFlags = FFTW_EXHAUSTIVE;
 	    	break;
 	    default:
-		printf(RED"fft.c: error, flag choice not found\n"NOC);
+		printf(_PYFI_RED "fft.c: error, flag choice not found\n" _PYFI_NOC);
 		exit(1);
 	}
 

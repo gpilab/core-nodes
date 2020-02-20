@@ -48,8 +48,7 @@ using namespace PyFI;
 
 #include <iostream>
 using namespace std;
-#include <math.h>   // for sqrt(), log(), and sin(), pow()
-#include "gpi_core/gridding/grid_123d.cpp"
+#include "grid_123d.cpp"
 
 PYFI_FUNC(grid)
 {
