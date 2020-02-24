@@ -184,7 +184,7 @@ class ExternalNode(gpi.NodeAPI):
 
         # Widgets
         self.dim_base_name = 'Dimension['
-        self.ndim = 6  # underlying c-code is only 6-dim
+        self.ndim = 10  # underlying c-code is only 10-dim
         for i in range(self.ndim):
             self.addWidget('FFTW_GROUP', self.dim_base_name+str(-i-1)+']')
 

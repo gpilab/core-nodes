@@ -155,6 +155,10 @@ PYFI_FUNC(fftw)
     PYFI_KWARG(long, dim4, 0);  //"toggle for fft perform"
     PYFI_KWARG(long, dim5, 0);  //"toggle for fft perform"
     PYFI_KWARG(long, dim6, 0);  //"toggle for fft perform"
+    PYFI_KWARG(long, dim7, 0);  //"toggle for fft perform"
+    PYFI_KWARG(long, dim8, 0);  //"toggle for fft perform"
+    PYFI_KWARG(long, dim9, 0);  //"toggle for fft perform"
+    PYFI_KWARG(long, dim10, 0);  //"toggle for fft perform"
 
     /***** ALLOCATE OUTPUT */
     PYFI_SETOUTPUT_ALLOC(Array<complex <float> >, out, DA(*outdim));
@@ -251,6 +255,14 @@ PYFI_FUNC(fftw)
 		fft1n (*out, *out, direction, 4);
 	if (*dim6 == 1)
 		fft1n (*out, *out, direction, 5);
+  if (*dim7 == 1)
+    fft1n (*out, *out, direction, 6);
+  if (*dim8 == 1)
+    fft1n (*out, *out, direction, 7);
+  if (*dim9 == 1)
+    fft1n (*out, *out, direction, 8);
+  if (*dim10 == 1)
+    fft1n (*out, *out, direction, 9);
 
 	// more timing stuff
 	//clock_gettime (CLOCK_MONOTONIC, &ttime);
