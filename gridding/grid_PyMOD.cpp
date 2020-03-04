@@ -78,7 +78,7 @@ PYFI_FUNC(rolloff)
     /* input */
     PYFI_POSARG(Array<complex<float> >, data);
     PYFI_POSARG(Array<int64_t>, outdim);
-    PYFI_POSARG(long, isofov);
+    PYFI_POSARG(int64_t, isofov);
 
     PYFI_SETOUTPUT_ALLOC_DIMS(Array<complex<float> >, outdata, outdim->size(), outdim->as_ULONG());
 

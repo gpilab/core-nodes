@@ -77,29 +77,29 @@ PYFI_FUNC(coords)
     PYFI_POSARG(double, resxy);
     PYFI_POSARG(double, resz);
 
-    PYFI_POSARG(long,   stype);
+    PYFI_POSARG(int64_t,   stype);
     PYFI_POSARG(double, narms);
     PYFI_POSARG(double, taper);
   
-    PYFI_POSARG(long, hubs);
+    PYFI_POSARG(int64_t, hubs);
     PYFI_POSARG(double, alpha0);
-    PYFI_POSARG(long, rebin);
+    PYFI_POSARG(int64_t, rebin);
 
     PYFI_POSARG(double, us_0);
     PYFI_POSARG(double, us_1);
     PYFI_POSARG(double, us_r);
-    PYFI_POSARG(long,   utype);
+    PYFI_POSARG(int64_t,   utype);
 
     PYFI_POSARG(double, mgfrq);
     PYFI_POSARG(double, t2mch);
 
     PYFI_POSARG(double, slper);
-    PYFI_POSARG(long,   gtype);
-    PYFI_POSARG(long,   spinout);
-    PYFI_POSARG(long,   numCalPnts);
+    PYFI_POSARG(int64_t,   gtype);
+    PYFI_POSARG(int64_t,   spinout);
+    PYFI_POSARG(int64_t,   numCalPnts);
 
     /* temp vars */
-    const long maxarray = 100000;
+    const int64_t maxarray = 100000;
     double spparams[spARRSIZE];
     int spgrad_na;
     int spgrad_nb;
@@ -231,7 +231,7 @@ PYFI_FUNC(coords)
     }
 
     /* DHW change gxarray gyarray and gzarray for spiral in and spiral inout options */
-    long i;
+    int64_t i;
     if (*spinout > 0) {
       /* insert addtional calbration points */
       if ((*spinout > 1) && (*numCalPnts > 0))

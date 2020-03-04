@@ -57,7 +57,7 @@ PYFI_FUNC(oned_sdc)
     PYFI_POSARG(Array<double>, crds);
     PYFI_POSARG(Array<double>, wates);
     PYFI_POSARG(Array<int64_t>, mtxdim);
-    PYFI_POSARG(long, numiter);
+    PYFI_POSARG(int64_t, numiter);
     PYFI_POSARG(double, taper);
 
     Array<double> cmtx(mtxdim->size(), mtxdim->as_ULONG());
@@ -80,7 +80,7 @@ PYFI_FUNC(twod_sdc)
     PYFI_POSARG(Array<double>, crds);
     PYFI_POSARG(Array<double>, wates);
     PYFI_POSARG(Array<int64_t>, mtxdim);
-    PYFI_POSARG(long, numiter);
+    PYFI_POSARG(int64_t, numiter);
     PYFI_POSARG(double, taper);
 
     Array<double> cmtx(mtxdim->size(), mtxdim->as_ULONG());
@@ -103,7 +103,7 @@ PYFI_FUNC(threed_sdc)
     PYFI_POSARG(Array<double>, crds);
     PYFI_POSARG(Array<double>, wates);
     PYFI_POSARG(Array<int64_t>, mtxdim);
-    PYFI_POSARG(long, numiter);
+    PYFI_POSARG(int64_t, numiter);
     PYFI_POSARG(double, taper);
     PYFI_POSARG(double, kradscale);
 
@@ -125,7 +125,7 @@ PYFI_FUNC(twod_sdcsp)
 
     /* input */
     PYFI_POSARG(Array<double>, crds);
-    PYFI_POSARG(long, numiter);
+    PYFI_POSARG(int64_t, numiter);
     PYFI_POSARG(double, taper);
     PYFI_POSARG(double, mtx_xy);
 
@@ -145,7 +145,7 @@ PYFI_FUNC(threed_sdcsp)
 
     /* input */
     PYFI_POSARG(Array<double>, crds);
-    PYFI_POSARG(long, numiter);
+    PYFI_POSARG(int64_t, numiter);
     PYFI_POSARG(double, taper);
     PYFI_POSARG(double,mtx_xy);
     PYFI_POSARG(double,mtx_z);
