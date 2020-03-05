@@ -38,6 +38,8 @@
 import tempfile
 import scipy.io.wavfile as spio
 import numpy as np
+import os
+import time
 from gpi import QtMultimedia
 
 import gpi
@@ -93,7 +95,7 @@ class ExternalNode(gpi.NodeAPI):
         arr = self.getData('wave source')
         rate = self.getVal('Sample Rate (samp/sec)')
         loops = self.getVal('Loops')
-
+        
         # make sure the wave is maximized for int16 dyn-range
         arr = (arr.astype(np.float32) / np.abs(arr)
                .max() * (pow(2, 15) - 1)).astype(np.int16)
@@ -103,10 +105,13 @@ class ExternalNode(gpi.NodeAPI):
         try:
             s = QtMultimedia.QSound('')
             self.setAttr('Audio Info', val='Sound module is available.')
+            dur = len(arr)*loops / rate
             s.play(self._tmpfile)
         except:
             self.setAttr('Audio Info', val='Sound module failed to load!\n Please visit www.github.com/gpilab/core-nodes/issues for help.')
 
+        time.sleep(.01)
+        os.remove(self._tmpfile)
         if self.getVal('Write Now') or ('File Browser' in self.widgetEvents()):
 
             fname = self.URI(self.getVal('File Browser'))
