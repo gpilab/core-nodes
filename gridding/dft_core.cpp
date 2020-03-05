@@ -41,7 +41,7 @@
 // To Non-Cartesian (Degrid) with off-resonance
 //========================================================================
 
-int do_dft(Array<complex<double> > &image, Array<double> &offres, Array<double> &crds, Array<double> &time, Array<complex<double> > &data, long effmtx)
+int do_dft(Array<complex<double> > &image, Array<double> &offres, Array<double> &crds, Array<double> &time, Array<complex<double> > &data, int64_t effmtx)
 {
   int i,j,k;
   int i2, j2;
@@ -72,7 +72,7 @@ int do_dft(Array<complex<double> > &image, Array<double> &offres, Array<double> 
 
 /* To Cartesian (Grid)
  */
-void do_dft_grid(Array<complex<double> > &data, Array<double> &crds, Array<complex<double> > &image, long effmtx, Array<double> &wghts)
+void do_dft_grid(Array<complex<double> > &data, Array<double> &crds, Array<complex<double> > &image, int64_t effmtx, Array<double> &wghts)
 {
     int i,j,k;
     int i2, j2;

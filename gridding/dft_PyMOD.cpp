@@ -46,7 +46,7 @@
 #include "PyFI/PyFI.h"
 using namespace PyFI;
 
-#include "gpi_core/gridding/dft_core.cpp"
+#include "dft_core.cpp"
 
 PYFI_FUNC(dftgrid)
 {
@@ -58,7 +58,7 @@ PYFI_FUNC(dftgrid)
     PYFI_POSARG(Array<double>, crds);
     PYFI_POSARG(Array<double>, time);
     PYFI_POSARG(Array<int64_t>, outdim);
-    PYFI_POSARG(long, effmtx);
+    PYFI_POSARG(int64_t, effmtx);
 
     PYFI_SETOUTPUT_ALLOC(Array<complex<double> >, outdata, DA(*outdim));
 
@@ -76,7 +76,7 @@ PYFI_FUNC(dft_grid)
     PYFI_POSARG(Array<complex<double> >, data);
     PYFI_POSARG(Array<double>, crds);
     PYFI_POSARG(Array<int64_t>, outdim);
-    PYFI_POSARG(long, effmtx);
+    PYFI_POSARG(int64_t, effmtx);
     PYFI_POSARG(Array<double>, wghts);
 
     PYFI_SETOUTPUT_ALLOC(Array<complex<double> >, outdata, DA(*outdim));

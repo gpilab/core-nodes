@@ -101,13 +101,13 @@ class ExternalNode(gpi.NodeAPI):
             else:
                 self.inputs = 2
 
-        if self.inputs is 2:
-            if self.func is 0:
+        if self.inputs == 2:
+            if self.func == 0:
                 self.op_labels = ['Add', 'Subtract', 'Multiply', 'Divide',
                                  'Power']
                 self.op = [np.add, np.subtract, np.multiply, np.divide,
                            np.power]
-            elif self.func is 1:
+            elif self.func == 1:
                 self.op_labels = ['arcTan2']
                 self.op = [np.arctan2]
             else:
@@ -116,15 +116,15 @@ class ExternalNode(gpi.NodeAPI):
                 self.op = [np.maximum, np.minimum, np.greater, np.less,
                            np.equal, np.not_equal, np.greater_equal,
                            np.less_equal]
-        elif self.inputs is 1:
-            if self.func is 0:
+        elif self.inputs == 1:
+            if self.func == 0:
                 self.op_labels = ['Add', 'Subtract', 'Multiply', 'Divide',
                                  'Power', 'Exponential', 'LogN', 'Log10',
                                  'Reciprocal', 'Conjugate', 'Magnitude']
                 self.op = [np.add, np.subtract, np.multiply, np.divide, np.power,
                            np.exp, np.log, np.log10, np.reciprocal, np.conj,
                            np.abs]
-            elif self.func is 1:
+            elif self.func == 1:
                 self.op_labels = ['Sin', 'Cos', 'Tan', 'arcSin', 'arcCos',
                                  'arcTan']
                 self.op = [np.sin, np.cos, np.tan, np.arcsin, np.arccos,
@@ -139,7 +139,7 @@ class ExternalNode(gpi.NodeAPI):
         if self.getVal('Operation') > len(self.op):
             self.setAttr('Operation', val=0)
         operation = self.op[self.getVal('Operation')]
-        if (self.inputs is 1 and
+        if (self.inputs == 1 and
             operation in [np.add, np.subtract, np.multiply, np.divide,
                           np.power, np.greater, np.less, np.equal,
                           np.not_equal, np.greater_equal, np.less_equal]):
@@ -147,13 +147,13 @@ class ExternalNode(gpi.NodeAPI):
         else:
             self.setAttr('Scalar', visible=False)
 
-        if self.func is 1:
+        if self.func == 1:
             self.setAttr('Units', visible = True)
         else:
             self.setAttr('Units', visible = False)
 
         # set the detail label
-        if self.func is 1:
+        if self.func == 1:
             funcStr = '{} ({})'.format(self.op_labels[self.getVal('Operation')],
                             self.trig_labels[self.getVal('Units')])
         else:
@@ -181,16 +181,16 @@ class ExternalNode(gpi.NodeAPI):
 
         operation = self.op[self.getVal('Operation')]
 
-        if self.getVal('Mode') is 1:
+        if self.getVal('Mode') == 1:
             units = self.getVal('Units')
 
         if operation in [np.sin, np.cos, np.tan]:
-            if units is 0:
+            if units == 0:
                 if data1 is not None:
                     data1 = np.deg2rad(data1)
                 elif data2 is not None:
                     data2 = np.deg2rad(data2)
-            elif units is 2:
+            elif units == 2:
                 if data1 is not None:
                     data1 = np.deg2rad(data1*360)
                 elif data2 is not None:
@@ -205,7 +205,7 @@ class ExternalNode(gpi.NodeAPI):
                 scalar = None
 
             try:
-                if self.inputs is 2:
+                if self.inputs == 2:
                     out = operation(data1, data2)
                 elif data1 is not None:
                     out = operation(data1, scalar)
@@ -213,12 +213,12 @@ class ExternalNode(gpi.NodeAPI):
                     out = operation(data2, scalar)
 
                 if operation in [np.arcsin, np.arccos, np.arctan, np.arctan2]:
-                    if units is 0:
+                    if units == 0:
                         out = np.rad2deg(out)
-                    elif units is 2:
+                    elif units == 2:
                         out = np.rad2deg(out)/360
 
-                if self.inputs is not 0:
+                if self.inputs != 0:
                     self.setData('out', out)
             except:
                 return 1

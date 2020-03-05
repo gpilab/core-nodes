@@ -207,7 +207,7 @@ int griddat(Array<float> &crds, Array<complex<float> > &data, Array<float> &wate
 // ROLLOFFDAT
 //========================================================================
 
-int rolloffdat(Array<complex<float> > &data, Array<complex<float> > &outdata, long isofov)
+int rolloffdat(Array<complex<float> > &data, Array<complex<float> > &outdata, int64_t isofov)
 {
   int i, i0, i1, i2;
   int dmtx0, dmtx1, dmtx2, omtx0, omtx1, omtx2;

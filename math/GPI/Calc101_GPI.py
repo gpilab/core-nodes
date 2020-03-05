@@ -74,10 +74,10 @@ class ExternalNode(gpi.NodeAPI):
     def validate(self):
         data = self.getData('in')
 
-        if self.getVal('Operation') is 0:
+        if self.getVal('Operation') == 0:
             self.setAttr('Endpoint Treatment', visible = False)
             self.setAttr('Method', visible = True)
-        elif self.getVal('Operation') is 1:
+        elif self.getVal('Operation') == 1:
             self.setAttr('Endpoint Treatment', visible = True)
             self.setAttr('Method', visible = False)
         else:
@@ -95,13 +95,13 @@ class ExternalNode(gpi.NodeAPI):
 
         data = self.getData('in')
         if data is not None:
-            if self.getVal('Operation') is 0:
-                if self.getVal('Method') is 0:
+            if self.getVal('Operation') == 0:
+                if self.getVal('Method') == 0:
                     out = np.cumsum(data, axis=self.getVal('Dimension'))
                 else:
                     out = int.cumtrapz(data, axis=self.getVal('Dimension'),
                                         initial = 0)
-            elif self.getVal('Operation') is 1:
+            elif self.getVal('Operation') == 1:
                 order = self.getVal('Endpoint Treatment') + 1;
                 out = np.gradient(data, axis=self.getVal('Dimension'),
                                 edge_order=order)

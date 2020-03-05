@@ -74,9 +74,9 @@ class ExternalNode(gpi.NodeAPI):
         data = self.getData('in')
         dim = self.getVal('Dimension')
 
-        if self.getVal('Units') is 0: #degrees
+        if self.getVal('Units') == 0: #degrees
           out = np.rad2deg(np.unwrap(np.deg2rad(data), discont = np.pi, axis = dim))
-        elif self.getVal('Units') is 2: #cycles
+        elif self.getVal('Units') == 2: #cycles
           out = np.rad2deg(np.unwrap(np.deg2rad(data*360), discont = np.pi,
                             axis = dim)) / 360
         else: #radians
