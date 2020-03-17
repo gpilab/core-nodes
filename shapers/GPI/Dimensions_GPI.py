@@ -256,16 +256,16 @@ class ExternalNode(gpi.NodeAPI):
                 row_size = self.getVal('# Rows')
                 column_size = self.getVal('# Columns')
                 if '# Rows' in self.widgetEvents():
-                    column_size = np.ceil(float(data.shape[tile_dim - 3]) / row_size)
+                    column_size = np.ceil(float(data.shape[tile_dim - 3]) // row_size)
                     self.setAttr('# Columns', val=column_size)
                 if '# Columns' in self.widgetEvents():
-                    row_size = np.ceil(float(data.shape[tile_dim - 3]) / column_size)
+                    row_size = np.ceil(float(data.shape[tile_dim - 3]) // column_size)
                     self.setAttr('# Rows', val=row_size)
                 if (row_size * column_size < data.shape[tile_dim - 3] or 
                       self.reset == 1 or
                       'Tile Dimension' in self.widgetEvents()):
                     row_size = int(np.sqrt(data.shape[tile_dim - 3]))
-                    column_size = np.ceil(float(data.shape[tile_dim - 3]) / row_size)
+                    column_size = np.ceil(float(data.shape[tile_dim - 3]) // row_size)
                     self.setAttr('# Rows', val=row_size)
                     self.setAttr('# Columns', val=column_size)
 
@@ -498,7 +498,7 @@ class ExternalNode(gpi.NodeAPI):
                         elif new_val < old_val:
                             val = val - 1
                     self.shape[index] = val
-                    self.shape[linked_index] = dim_product / val
+                    self.shape[linked_index] = dim_product // val
                     self.setAttr(event, val=val)
                     self.setAttr(self.dim_base_name+str(linked_index)+']',
                                       val=self.shape[linked_index])
