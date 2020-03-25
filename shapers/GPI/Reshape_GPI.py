@@ -30,7 +30,6 @@ class RESHAPE_GROUP(gpi.GenericWidgetGroup):
         
         # at least one spin box
         self.boxes = []
-        # self.boxes.append(QtWidgets.QSpinBox())
         self.boxes.append(gpi.BasicSpinBox())
         self.vbox = QtWidgets.QVBoxLayout()
         self.vbox.setSpacing(0)
@@ -51,7 +50,6 @@ class RESHAPE_GROUP(gpi.GenericWidgetGroup):
             oldbox = None
 
         while len(inlist) > len(self.boxes):
-            # newbox = QtWidgets.QSpinBox()
             newbox = gpi.BasicSpinBox()
             self.boxes.insert(0, newbox) 
             newbox.valueChanged.connect(self.valueChanged)
@@ -80,7 +78,6 @@ class RESHAPE_GROUP(gpi.GenericWidgetGroup):
         self.valueChanged.emit()
 
     def addBox(self):
-        # newbox = QtWidgets.QSpinBox()
         newbox = gpi.BasicSpinBox()
         self.boxes.insert(0, newbox) 
         newbox.valueChanged.connect(self.valueChanged)
@@ -253,14 +250,23 @@ class COMBINE_SPLIT_GROUP(gpi.GenericWidgetGroup):
 class ExternalNode(gpi.NodeAPI):
     """This node can be used to reshape NumPy arrays using user entered 
     values, or by combining and splitting dimensions individually.
+    
+    The Reshape mode will create a set of editable boxes for users to manually
+    enter new dimensions. It also has +/- buttons to add and remove dimensions.
+    
+    The Combine/Split mode allows users to specify on a dimension by dimension
+    basis whether they want to combine with another dimension or split the 
+    current dimension into two dimensions.
 
     INPUT - NumPy array to be reshaped
     OUTPUT - Reshaped NumPy array
 
     WIDGETS:
-    Mode - Specify whether to reshape on user entered values or combine/split
-           operations.
-    compute - Reshape the data
+    Info: -  Provides info on input and output shape and size.
+    Mode - Specify whether to reshape using user entered values or using 
+            combine/split operations. 
+    Reset - Reset the dimensions and widgets to reflect the input data.
+    Apply Shape - Button to tell node to apply the new shape to the data.
     """
 
     def execType(self):
