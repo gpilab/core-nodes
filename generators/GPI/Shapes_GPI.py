@@ -166,7 +166,7 @@ class ExternalNode(gpi.NodeAPI):
                        buttons=['1D', '2D', '3D'],
                        val=1)
         self.addWidget('ExclusiveRadioButtons', 'Function',
-                       buttons=['Ellipse', 'Rectangle', 'Hanning',
+                       buttons=['Ellipse', 'Rectangle', 'Hanning','Hamming',
                                 'Gaussian', 'Sinc', 'Poly', 'Riesz', 'Noise'],
                        val=0)
         self.addWidget(
@@ -228,19 +228,19 @@ class ExternalNode(gpi.NodeAPI):
                     self.setAttr(self.dim_base_name+str(-i-1)+']',
                                       visible=False)
 
-            if function in [5, 7]:
+            if function in [6, 8]:
                 self.setAttr('Pass Value:', visible=False)
                 self.setAttr('Stop Value:', visible=False)
             else:
                 self.setAttr('Pass Value:', visible=True)
                 self.setAttr('Stop Value:', visible=True)
 
-            if function in [3, 5, 7]:
+            if function in [4, 6, 8]:
                 self.setAttr('Window:', visible=False)
             else:
                 self.setAttr('Window:', visible=True)
 
-            if function == 5:
+            if function == 6:
                 self.setAttr('Poly Const:', visible=True)
                 self.setAttr('Poly i:', visible=True)
                 self.setAttr('Poly i^2:', visible=True)
@@ -265,7 +265,7 @@ class ExternalNode(gpi.NodeAPI):
                 self.setAttr('Poly k:', visible=False)
                 self.setAttr('Poly k^2:', visible=False)
 
-            if function == 7:
+            if function == 8:
                 self.setAttr('Noise Std:', visible=True)
                 self.setAttr('Real/Complex', visible=True)
                 self.setAttr('Fixed Seed', visible=True)
@@ -302,17 +302,17 @@ class ExternalNode(gpi.NodeAPI):
             self.dims[i+1] = val['size']
             self.widths[i+1] = val['width']
 
-        if function in [5, 7]:
+        if function in [6, 8]:
             passVal = 1.0
             stopVal = 0.0
         else:
             passVal = self.getVal('Pass Value:')
             stopVal = self.getVal('Stop Value:')
 
-        if function not in [3, 5, 7]:
+        if function not in [4, 6, 8]:
             window = float(self.getVal('Window:')) / 100
 
-        if function == 5:
+        if function == 6:
             polyC = self.getVal('Poly Const:')
             polyi = self.getVal('Poly i:')
             polyi2 = self.getVal('Poly i^2:')
@@ -331,10 +331,10 @@ class ExternalNode(gpi.NodeAPI):
                 polyk = 0.0
                 polyk2 = 0.0
 
-        if function == 7:
+        if function == 8:
             std = self.getVal('Noise Std:')
 
-        if function == 7 and same_dim:
+        if function == 8 and same_dim:
             for i in range(self.ndim):
                 self.dims[i + 1] = self.dims[1]
 
@@ -370,7 +370,7 @@ class ExternalNode(gpi.NodeAPI):
             # JGP for sinc function windowing
             radnorm = float(self.widths[1])/float(dim1)
 
-            if function != 7:
+            if function != 8:
                 if ndim == 1:
                     cart = np.zeros([self.dims[1], 1])
                     cart[:, 0] = range1
@@ -431,11 +431,19 @@ class ExternalNode(gpi.NodeAPI):
                 out[windIdx] = stopVal + func * (passVal - stopVal)
                 out[passIdx] = passVal
 
-            elif function == 3:  # gaussian
+            elif function == 3:  # hamming
+                windIdx = radius <= 1.0
+                passIdx = radius <= (1.0 - window)
+                func = 0.54 - 0.46 * np.cos(np.pi * (1.0 - radius[windIdx]) /
+                                           window)
+                out[windIdx] = stopVal + func * (passVal - stopVal)
+                out[passIdx] = passVal
+ 
+            elif function == 4:  # gaussian
                 func = np.exp(-np.square(radius))
                 out[...] = stopVal + func * (passVal - stopVal)
 
-            elif function == 4:  # sinc
+            elif function == 5:  # sinc
                 windIdx = radius != 0.0
                 func = np.pi * radius[windIdx]
                 out[windIdx] = passVal * np.sin(func) / func
@@ -450,7 +458,7 @@ class ExternalNode(gpi.NodeAPI):
                 out2[passIdx] = 1.
                 out *= out2
 
-            elif function == 5:  # poly
+            elif function == 6:  # poly
                 if ndim == 1:
                     i = cart[:,0] * self.widths[1]
                     j = 0
@@ -468,7 +476,7 @@ class ExternalNode(gpi.NodeAPI):
                 kfunc = 0.5 * polyk * k + 0.25 * polyk2 * np.square(k)
                 out[...] = polyC + ifunc + jfunc + kfunc
 
-            elif function == 6:  # riesz
+            elif function == 7:  # riesz
                 if not same_dim:
                     windIdx = np.amax(abs(cart), -1) <= 1.0
                     passIdx = np.amax(abs(cart), -1) <= (1.0 - window)
