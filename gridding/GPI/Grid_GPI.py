@@ -98,7 +98,7 @@ class ExternalNode(gpi.NodeAPI):
     def initUI(self):
 
         # Widgets
-        self.addWidget('Slider','Dims per Set',min=1)
+        self.addWidget('Slider','Dims per Set',min=1,val=2)
         self.addWidget('SpinBox','Eff MTX XY', min=5, val=240)
         self.addWidget('SpinBox','Eff MTX Z',  min=5, val=240)
         self.addWidget('DoubleSpinBox','dx (pixels)', val=0.0)
