@@ -32,7 +32,7 @@
 
 
 /**
-	\file spiralgenmrtud_PyMOD.cpp
+	\file spiralgencf_PyMOD.cpp
 	\author Jim Pipe
 	\date 20 oct
 
@@ -45,14 +45,13 @@ using namespace PyFI;
 #include <iostream>
 using namespace std;
 
-#include "spiralgenmrtud_gen.c"
-#include "spiralgenmrtud_fill.cpp"
-#include "spiralgenmrtud_rot.cpp"
+#include "spiralgencf_gen.c"
+#include "spiralgencf_fill.cpp"
 
 /****
 extern "C"
 {
-    #include "gpi_core/spiral/spiralgenmrtud_gen.c"
+    #include "gpi_core/spiral/spiralgencf_gen.c"
 }
 ****/
 
@@ -187,37 +186,7 @@ PYFI_FUNC(coords)
     PYFI_END(); /* This must be the last line */
 } /* coords */
 
-PYFI_FUNC(crd_rot)
-{
-    PYFI_START(); /* This must be the first line */
-
-    /* input */
-    PYFI_POSARG(Array<float>, arm0);
-
-    PYFI_POSARG(double, dwell);
-    PYFI_POSARG(double, xdely);
-    PYFI_POSARG(double, ydely);
-
-    PYFI_POSARG(double, narms);
-
-    Array<uint64_t> k_dims(3);
-
-    k_dims(0) = 2; // x y
-    k_dims(1) = arm0->size(1);
-    k_dims(2) = *narms;
-
-    Array<double> ktmp(DA(k_dims));
-    Array<double> karray(DA(k_dims));
-
-    spiralrot(*arm0, ktmp, karray, *xdely,*ydely, *dwell);
-
-    PYFI_SETOUTPUT(&karray);
-
-    PYFI_END(); /* This must be the last line */
-} /* crd_rot */
-
 
 PYFI_LIST_START_
     PYFI_DESC(coords, "calculate spiral coordinates and gradients")
-    PYFI_DESC(crd_rot, "for arm rotation")
 PYFI_LIST_END_

@@ -38,7 +38,10 @@ import gpi
 class ExternalNode(gpi.NodeAPI):
 
     """Module to generate the gradient waveforms for a desired k-space
-    waveform.  Uses the core file spiralgenmrtud.c 
+    waveform. Uses the core files spiralgencf_gen.c and spiralgencf_fill.cpp
+    
+    INPUTS:
+    GIRF_in - (optional) gradient impulse response function for gradient preconditioning
 
     OUTPUTS:
     crds_out - output coordinates: the last dimension is 2 (kx/ky).
@@ -56,7 +59,7 @@ class ExternalNode(gpi.NodeAPI):
         the samples are collected at the R times the nyquist limit (1/FOV)
         prior to that
     Max G Freq - limits the maximum frequency of the gradient waveform during
-        the spiral readout.  If set to 0, there is no limit
+        the spiral readout. If set to 0, there is no limit (default minimum is 0.5 kHz)
     Start Window - time for rounding enforced when starting
     Corner Window - an angle determining the rounding enforced when
         transitioning between (freq, slew,grad) limits
@@ -202,8 +205,8 @@ class ExternalNode(gpi.NodeAPI):
             gtf = np.absolute(np.fft.fft(np.pad(girf,(0,gtf_len-girf.shape[0]))))
 
             # import in thread to save namespace
-            # spiralgenmrtud corresponds to spiralgenmrtud_PyMOD.cpp
-            import gpi_core.spiral.spiralgenmrtud as sp
+            # spiralgencf corresponds to spiralgencf_PyMOD.cpp
+            import gpi_core.spiral.spiralgencf as sp
 
             print("end win",end_win)
             grd_out, crds_out = sp.coords(

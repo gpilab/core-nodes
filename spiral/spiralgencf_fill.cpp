@@ -47,7 +47,7 @@
 /***
 extern "C"
 {
-    #include "spiralgenmrtud_gen.c"
+    #include "spiralgencf_gen.c"
 }
 ***/
 
