@@ -273,14 +273,9 @@ int spiralgen(double* spparams, int maxarray,  Array<double> &girf, Array<double
 
   double g_max, s_max;
   double max_g, max_s;
-  int    keep_going;
 
   g_max = gmax;
   s_max = slewmax;
-  keep_going = 1;
-
-  //**** THIS LOOPS OVER THE WHOLE ROUTINE UNTIL GMAX and SLEWMAX ARE SATISFIED ***
-  while (keep_going) {
 
   for (i=0;i<subrast*maxarray;i++) kx[i] = 0.;
   for (i=0;i<subrast*maxarray;i++) ky[i] = 0.;
@@ -886,24 +881,6 @@ int spiralgen(double* spparams, int maxarray,  Array<double> &girf, Array<double
     printf("after precompensation, max g and s are %f and %f\n",max_g, max_s);
 
     }
-
-//***********************
-//* Below is the end of an outer loop
-//* I did not indent all the text in between.  SoSueMe.
-//***********************
-    keep_going = 0;
-    if (max_g > gmax) {
-      g_max = g_max*0.99*(gmax/max_g);
-      keep_going = 1;
-      }
-    if (max_s > slewmax) {
-      s_max = s_max*0.99*(slewmax/max_s);
-      keep_going = 1;
-      }
-    // DELETE ME
-    keep_going = 0;
-
-    } // keep_going
 
   free(gx);
   free(gy);
