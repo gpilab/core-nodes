@@ -5,4 +5,5 @@
 *.so
 *.o
 *.DS_Store
+*.zip
 build/
