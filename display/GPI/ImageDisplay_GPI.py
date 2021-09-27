@@ -323,8 +323,8 @@ class ExternalNode(gpi.NodeAPI):
         # make a copy for changes
         data = self.getData('in').copy()
 
-        # passing 
-        self.setAttr('Viewport:', data=self.getData('in').copy())
+        # passing the data to viewport widget
+        self.setAttr('Viewport:', data=np.transpose(self.getData('in').copy()))
 
         # get extra dimension parameters and modify data
         dimfunc = self.getVal('Extra Dimension')
