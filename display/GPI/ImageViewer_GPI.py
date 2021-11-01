@@ -175,7 +175,7 @@ class ExternalNode(gpi.NodeAPI):
                        buttons=self.real_cmaps, val=0, collapsed=True)
         self.addWidget('SpinBox', 'Edge Pixels', min=0)
         self.addWidget('SpinBox', 'Black Pixels', min=0)
-        self.addWidget('ImageBox', 'Viewport:')
+        self.addWidget('ImageViewer', 'Viewport:')
         self.addWidget('Slider', 'Slice', min=1, val=1)
         self.addWidget('ExclusivePushButtons', 'Slice/Tile Dimension', buttons=['0', '1', '2'], val=0)
         self.addWidget('ExclusivePushButtons', 'Extra Dimension', buttons=['Slice', 'Tile', 'RGB(A)'], val=0)
@@ -194,7 +194,8 @@ class ExternalNode(gpi.NodeAPI):
         # IO Ports
         self.addInPort('in', 'NPYarray', drange=(2,3))
         self.addOutPort('out', 'NPYarray')
-        self.addOutPort('temp', 'NPYarray')
+        self.addOutPort('binary', 'NPYarray')
+        self.addOutPort('1D', 'NPYarray')
 
     def validate(self):
 
@@ -321,7 +322,7 @@ class ExternalNode(gpi.NodeAPI):
         from matplotlib import cm
 
         # make a copy for changes
-        data = np.transpose(self.getData('in').copy())
+        data = self.getData('in').copy()
 
         # passing the data to viewport widget
         self.setAttr('Viewport:', data=data.copy())
@@ -359,6 +360,7 @@ class ExternalNode(gpi.NodeAPI):
         gamma = self.getVal('Gamma')
         lval = self.getAttr('L W F C:', 'val')
         cval = self.getVal('Complex Display')
+        self.setAttr('Viewport:', cval=cval) 
 
         if 'Complex Display' in self.widgetEvents():
           if cval == 4:
@@ -375,11 +377,11 @@ class ExternalNode(gpi.NodeAPI):
                          val=0)
 
         cmap = self.getVal('Color Map')
-        sval = self.getVal('Scalar Display')
+        sval = self.getAttr('Viewport:', 'sval')
         zval = self.getVal('Zero Ref')
-        fval = self.getVal('Fix Range')
-        rmin = self.getVal('Range Min')
-        rmax = self.getVal('Range Max')
+        fval = self.getAttr('Viewport:', 'fix_range')
+        rmin = self.getAttr('Viewport:', 'range_min')
+        rmax = self.getAttr('Viewport:', 'range_max')
 
         flor = 0.01*lval['floor']
         ceil = 0.01*lval['ceiling']
@@ -391,8 +393,10 @@ class ExternalNode(gpi.NodeAPI):
 
         # SHOW COMPLEX DATA
         if np.iscomplexobj(data) and cval == 4:
+          self.setAttr('Viewport:', slice=data.copy())
           mag = np.abs(data)
           phase = np.angle(data, deg=True)
+        
 
           # normalize the mag
           data_min = 0.
@@ -436,11 +440,11 @@ class ExternalNode(gpi.NodeAPI):
             phase2[edgpix+blkpix:edgpix+blkpix+h,edgpix+blkpix:edgpix+blkpix+w] = phase
             xloc = np.tile(np.linspace(-1.,1.,w2),(h2,1))
             yloc = np.transpose(np.tile(np.linspace(1.,-1.,h2),(w2,1)))
-            phase2[frame] = np.degrees(np.arctan2(yloc[frame],xloc[frame]))
+            phase2[frame] = np.degrees(np.arctan2(xloc[frame], yloc[frame]))
 
             mag = mag2
             phase = phase2
-
+         
           # now colorize!
           if cmap == 0: # HSV
             phase_cmap = cm.hsv
@@ -522,6 +526,9 @@ class ExternalNode(gpi.NodeAPI):
             data_range = data_max
             self.setAttr('Range Min',val=-data_range)
             self.setAttr('Range Max',val=data_range)
+
+          # Make this fix range slice
+          self.setAttr('Viewport:', slice=data.copy())
 
           dmask = np.ones(data.shape)
           new_min = data_range*flor + data_min
@@ -717,7 +724,21 @@ class ExternalNode(gpi.NodeAPI):
         if image.isNull():
             self.log.warn("Image Viewer: cannot load image")
 
-        self.setAttr('Viewport:', val=imageTru)
+        self.setAttr('Viewport:', image=imageTru)
+        self.setAttr('Viewport:', parent=self)
         self.setData('out',imageTru)
+        if sval == 2: self.setAttr('Viewport:', sign=imageTru)
+        
+        #hide
+        self.setAttr('L W F C:',visible=False)
+        self.setAttr('Zero Ref',visible=False)
+        self.setAttr('Range Min',visible=False)
+        self.setAttr('Range Max',visible=False)
+        self.setAttr('Fix Range',visible=False)
+        self.setAttr('Scalar Display',visible=False)
+        self.setAttr('Color Map',visible=False)
+        self.setAttr('Gamma',visible=False)
+
+
 
         return 0
