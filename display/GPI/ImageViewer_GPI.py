@@ -1508,6 +1508,8 @@ class Image_Viewer(gpi.GenericWidgetGroup):
         # roi shortcuts
         elif event.key() == QtCore.Qt.Key_M:
             self.toggle_tool("Mouse")
+        elif event.key() == QtCore.Qt.Key_P:
+            self.toggle_tool("Point")
         elif event.key() == QtCore.Qt.Key_L:
             self.toggle_tool("Line")
         elif event.key() == QtCore.Qt.Key_R:
@@ -1516,6 +1518,8 @@ class Image_Viewer(gpi.GenericWidgetGroup):
             self.toggle_tool("Ellipse")
         elif event.key() == QtCore.Qt.Key_C:
             self.toggle_tool("Closed Polygon")
+        elif event.key() == QtCore.Qt.Key_F:
+            self.toggle_tool("Free Hand")
         
         else:
             return super().keyPressEvent(event)
