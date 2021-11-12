@@ -48,8 +48,7 @@ using namespace PyFI;
 
 #include <iostream>
 using namespace std;
-#include <math.h>   // for sqrt(), log(), and sin(), pow()
-#include "gpi_core/gridding/grid_123d.cpp"
+#include "grid_123d.cpp"
 
 PYFI_FUNC(grid)
 {
@@ -79,7 +78,7 @@ PYFI_FUNC(rolloff)
     /* input */
     PYFI_POSARG(Array<complex<float> >, data);
     PYFI_POSARG(Array<int64_t>, outdim);
-    PYFI_POSARG(long, isofov);
+    PYFI_POSARG(int64_t, isofov);
 
     PYFI_SETOUTPUT_ALLOC_DIMS(Array<complex<float> >, outdata, outdim->size(), outdim->as_ULONG());
 

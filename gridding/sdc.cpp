@@ -38,14 +38,14 @@
 /* 1D SDC */
 /*******************************/
 int onedsdc(Array<double> &crds_in, Array<double> &wates, Array<double> &sdc,
-            Array<double> &cmtx, long numiter, double taper0)
+            Array<double> &cmtx, int64_t numiter, double taper0)
 {
-  long i;
+  int64_t i;
   double c0,c1,c2,c3,c4,c5;
   double x, x2,x3,x4,x5;
-  long ii0,ii1,ii,ki;
+  int64_t ii0,ii1,ii,ki;
 
-  long npts = wates.size(0);
+  int64_t npts = wates.size(0);
   Array<double> taper(npts);
   Array<double> crds(crds_in); // make a copy
 
@@ -53,7 +53,7 @@ int onedsdc(Array<double> &crds_in, Array<double> &wates, Array<double> &sdc,
 // 1. make kernel
 /////////////////
 
-  long kernmax = 1000;
+  int64_t kernmax = 1000;
   Array<double> kernel(kernmax+1);
 
 // the kernel, convolved with itself, should be equivalent to FT of a circle convolved with itself
@@ -124,7 +124,7 @@ int onedsdc(Array<double> &crds_in, Array<double> &wates, Array<double> &sdc,
   double knorm = kernmax/krad;
   double sdcdenom;
   double dx;
-  long   count;
+  int64_t   count;
 
   // Initialize weights by input relative weights
   for (i = 0; i < npts; i++) {
@@ -171,20 +171,20 @@ int onedsdc(Array<double> &crds_in, Array<double> &wates, Array<double> &sdc,
 /* 2D SDC */
 /*******************************/
 int twodsdc(Array<double> &crds, Array<double> &wates, Array<double> &sdc,
-            Array<double> &cmtx, long numiter, double taper0)
+            Array<double> &cmtx, int64_t numiter, double taper0)
 {
-  long i;
+  int64_t i;
   double c0,c1,c2,c3,c4,c5;
   double x, x2,x3,x4,x5;
-  long ii0,ii1,jj0,jj1,ii,jj,ki;
+  int64_t ii0,ii1,jj0,jj1,ii,jj,ki;
 
-  long npts = wates.size(0);
+  int64_t npts = wates.size(0);
   Array<double> taper(npts);
 
 /////////////////
 // 1. make kernel
 /////////////////
-  long kernmax = 1000;
+  int64_t kernmax = 1000;
   Array<double> kernel(kernmax+1);
 
 // the kernel, convolved with itself, should be equivalent to FT of a circle convolved with itself
@@ -254,7 +254,7 @@ int twodsdc(Array<double> &crds, Array<double> &wates, Array<double> &sdc,
   double knorm = kernmax/krad;
   double sdcdenom;
   double dx,dx2,dy,rad2;
-  long   count;
+  int64_t   count;
 
   // Initialize weights by input relative weights
   for (i = 0; i < npts; i++) {
@@ -315,21 +315,21 @@ int twodsdc(Array<double> &crds, Array<double> &wates, Array<double> &sdc,
 /* 3D SDC */
 /*******************************/
 int threedsdc(Array<double> &crds, Array<double> &wates, Array<double> &sdc,
-            Array<double> &cmtx, long numiter, double taper0, double kradscale)
+            Array<double> &cmtx, int64_t numiter, double taper0, double kradscale)
 {
-  long i;
+  int64_t i;
   double c0,c1,c2,c3,c4,c5;
   double x, x2,x3,x4,x5;
-  long ii0,ii1,jj0,jj1,kk0,kk1,ii,jj,kk,ki;
+  int64_t ii0,ii1,jj0,jj1,kk0,kk1,ii,jj,kk,ki;
 
-  long npts = wates.size(0);
+  int64_t npts = wates.size(0);
   Array<double> taper(npts);
 
 /////////////////
 // 1. make kernel
 /////////////////
 
-  long kernmax = 1000;
+  int64_t kernmax = 1000;
   Array<double> kernel(kernmax+1);
 
 // the kernel, convolved with itself, should be equivalent to FT of a sphere convolved with itself
@@ -413,7 +413,7 @@ int threedsdc(Array<double> &crds, Array<double> &wates, Array<double> &sdc,
   double knorm = kernmax/krad;
   double sdcdenom;
   double dx,dy,dz,dxy2,rad2;
-  long   count;
+  int64_t   count;
   double dx2,dy2[20],dz2[20];
 
   // Initialize weights by input relative weights
@@ -514,9 +514,9 @@ int threedsdc(Array<double> &crds, Array<double> &wates, Array<double> &sdc,
 /* 2D SDC SPIRAL */
 /*******************************/
 int twodsdcsp(Array<double> &crds, Array<double> &sdc,
-              long numiter, double taper0, double mtxxy)
+              int64_t numiter, double taper0, double mtxxy)
 {
-  long i,j,ii,jj,i0,i1;
+  int64_t i,j,ii,jj,i0,i1;
   double c0,c1,c2,c3,c4,c5;
   double x, x2,x3,x4,x5;
 
@@ -526,14 +526,14 @@ int twodsdcsp(Array<double> &crds, Array<double> &sdc,
   Array<double> sdcden(crds.size(1));
   Array<double> xcrd(crds.size(1),crds.size(2));
   Array<double> ycrd(crds.size(1),crds.size(2));
-  Array<long> is(crds.size(1));
-  Array<long> ie(crds.size(1));
+  Array<int64_t> is(crds.size(1));
+  Array<int64_t> ie(crds.size(1));
 
 /////////////////
 // 1. make kernel
 /////////////////
 
-  long kernmax = 1000;
+  int64_t kernmax = 1000;
   Array<double> kernel(kernmax+1);
 
   // If you take a circle with diameter = FOV and convolve with itself, this represents the error contribution
@@ -615,7 +615,7 @@ int twodsdcsp(Array<double> &crds, Array<double> &sdc,
 
   double knorm = kernmax/krad;
   double dx,dy,dk;
-  long   count;
+  int64_t   count;
 
   // Initialize weights as ones (no pre-weighting for this scheme, it wouldn't work)
   sdcnum = 1.;
@@ -660,9 +660,9 @@ int twodsdcsp(Array<double> &crds, Array<double> &sdc,
 /* 3D SDC SPIRAL */
 /*******************************/
 int threedsdcsp(Array<double> &crds, Array<double> &sdc,
-                long numiter, double taper0, double mtxxy, double mtxz)
+                int64_t numiter, double taper0, double mtxxy, double mtxz)
 {
-  long i,j,ii,jj,i0,i1,j0,j1,jmid;
+  int64_t i,j,ii,jj,i0,i1,j0,j1,jmid;
   double c0,c1,c2,c3,c4,c5;
   double x, x2,x3,x4,x5;
   double mtxz_sign;
@@ -674,16 +674,16 @@ int threedsdcsp(Array<double> &crds, Array<double> &sdc,
   Array<double> xcrd(crds.size(1),crds.size(2));
   Array<double> ycrd(crds.size(1),crds.size(2));
   Array<double> zcrd(crds.size(1),crds.size(2));
-  Array<long> is(crds.size(1));
-  Array<long> ie(crds.size(1));
-  Array<long> js(crds.size(1));
-  Array<long> je(crds.size(1));
+  Array<int64_t> is(crds.size(1));
+  Array<int64_t> ie(crds.size(1));
+  Array<int64_t> js(crds.size(1));
+  Array<int64_t> je(crds.size(1));
 
 /////////////////
 // 1. make kernel
 /////////////////
 
-  long kernmax = 1000;
+  int64_t kernmax = 1000;
   Array<double> kernel(kernmax+1);
 
   // If you take a sphere with diameter = FOV and convolve with itself, this represents the error contribution
@@ -785,7 +785,7 @@ int threedsdcsp(Array<double> &crds, Array<double> &sdc,
 
   double knorm = kernmax/krad;
   double dx,dy,dz,dk;
-  long   count;
+  int64_t   count;
 
   // Initialize weights as ones (no pre-weighting for this scheme, it wouldn't work)
   sdcnum = 1.;

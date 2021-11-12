@@ -50,7 +50,7 @@
 extern "C"
 {
     /* for parameter definitions */
-    #include "gpi_core/spiral/bnispiralgen.c"
+    #include "bnispiralgen.c"
 }
 
 /* the base spiral sequence */
@@ -72,7 +72,7 @@ void bnispiralfill(double* spparams, int maxarray, float* gxarray, float* gyarra
                 )
   {
 
-  unsigned long i, j, k;
+  uint64_t i, j, k;
   double betastep, beta, cb, sb;
   double alphastep, alpha, ca, sa;
   double kx,ky,kz;
@@ -368,7 +368,7 @@ void bnispiralfill(double* spparams, int maxarray, float* gxarray, float* gyarra
 
 // for interpolating along ky and kz, do the same (but with iy1, iz1, etc.)
 
-  long M = ktmp.size(1); //DHW
+  int64_t M = ktmp.size(1); //DHW
   for(i=0;i<karray.size(1);i++) { // points
 // Note these times are in usec
     ix = (((double)(i)*spparams[spDWELL])-xdel+tread0)*dgrast;

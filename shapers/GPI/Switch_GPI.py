@@ -101,7 +101,7 @@ class ExternalNode(gpi.NodeAPI):
         data2 = self.getData('inRight')
         self.choice = self.getVal('Choice')
         try:
-            if self.choice is 0:
+            if self.choice == 0:
                 self.setData('out', data1)
             else:
                 self.setData('out', data2)

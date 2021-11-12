@@ -87,14 +87,14 @@ class ExternalNode(gpi.NodeAPI):
             else:
                 self.inputs = 2
 
-        if self.inputs is 2:
+        if self.inputs == 2:
                 self.setAttr('Operation', buttons=['Add', 'Subtract','Multiply', 'Divide', 'Mod', 'Power'])
 
-        elif self.inputs is 1:
+        elif self.inputs == 1:
                 self.setAttr('Operation', buttons=['Add', 'Subtract','Multiply', 'Divide', 'Mod', 'Power','Absolute', 'Exponential', 'Square Root'])
 
         operation = self.getVal('Operation')
-        if self.inputs is 1:
+        if self.inputs == 1:
             self.setAttr('Scalar', visible=True)
         else:
             self.setAttr('Scalar', visible=False)
@@ -109,13 +109,13 @@ class ExternalNode(gpi.NodeAPI):
         operation = self.getVal('Operation')
 
         if self.getVal('compute'):
-            if self.inputs is 1:
+            if self.inputs == 1:
                 if data2 is not None:
                     data1 = data2
                 data2 = self.getVal('Scalar')
 
             try:
-                if self.inputs is not 0:
+                if self.inputs != 0:
                     if operation == 0:
                         out = data1+data2
                     if operation == 1:

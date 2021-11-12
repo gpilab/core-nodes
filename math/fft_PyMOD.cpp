@@ -51,9 +51,6 @@
 using namespace PyFI; // provides FFTW namespace
 using namespace PyFI::FFTW;
 
-#define RED		"\e[31m"
-#define NOC		"\e[39m"
-
 #include <pthread.h>
 #include <math.h>   // for sqrt(), log(), and sin(), pow()
 #include <time.h>   // for getting sys time to the sec
@@ -67,15 +64,15 @@ void fft1_thread (int *num_threads, int *cur_thread, Array<complex<float> >& in,
 	assert (in.data() != NULL && out.data() != NULL);
 	assert (num_threads > 0);
 
-	unsigned long total_size = in.size();
-	unsigned long numreps = total_size / in.size(0);
-	unsigned long start = *cur_thread * numreps / *num_threads;
-	unsigned long stop = (*cur_thread+1) * numreps / *num_threads;
-    unsigned long stride = in.size(0);
+	uint64_t total_size = in.size();
+	uint64_t numreps = total_size / in.size(0);
+	uint64_t start = *cur_thread * numreps / *num_threads;
+	uint64_t stop = (*cur_thread+1) * numreps / *num_threads;
+    uint64_t stride = in.size(0);
 
 	Array<complex<float> > tmp(in.size(0));
 
-	for (unsigned long i=start; i<stop; i++)	
+	for (uint64_t i=start; i<stop; i++)	
     {
         memcpy(tmp.data(), in.data() + stride * i, stride * sizeof(complex<float> ));
 		fft1 (tmp, tmp, *fftDirection);
@@ -91,15 +88,15 @@ void fft2_thread (int *num_threads, int *cur_thread, Array<complex<float> >& in,
 	assert (in.data() != NULL && out.data() != NULL);
 	assert (num_threads > 0);
 
-	unsigned long total_size = in.size();
-	unsigned long numreps = total_size / (in.size(0) * in.size(1));
-	unsigned long start = *cur_thread * numreps / *num_threads;
-	unsigned long stop = (*cur_thread+1) * numreps / *num_threads;
-    unsigned long stride = in.size(0) * in.size(1);
+	uint64_t total_size = in.size();
+	uint64_t numreps = total_size / (in.size(0) * in.size(1));
+	uint64_t start = *cur_thread * numreps / *num_threads;
+	uint64_t stop = (*cur_thread+1) * numreps / *num_threads;
+    uint64_t stride = in.size(0) * in.size(1);
 
 	Array<complex<float> > tmp(in.size(0), in.size(1));
 
-	for (unsigned long i=start; i<stop; i++)	
+	for (uint64_t i=start; i<stop; i++)	
     {
         memcpy(tmp.data(), in.data() + stride * i, stride * sizeof(complex<float> ));
 		fft2 (tmp, tmp, *fftDirection);
@@ -115,15 +112,15 @@ void fft3_thread (int *num_threads, int *cur_thread, Array<complex<float> >& in,
 	assert (in.data() != NULL && out.data() != NULL);
 	assert (num_threads > 0);
 
-	unsigned long total_size = in.size();
-	unsigned long numreps = total_size / (in.size(0) * in.size(1) * in.size(2));
-	unsigned long start = *cur_thread * numreps / *num_threads;
-	unsigned long stop = (*cur_thread+1) * numreps / *num_threads;
-    unsigned long stride = in.size(0) * in.size(1) * in.size(2);
+	uint64_t total_size = in.size();
+	uint64_t numreps = total_size / (in.size(0) * in.size(1) * in.size(2));
+	uint64_t start = *cur_thread * numreps / *num_threads;
+	uint64_t stop = (*cur_thread+1) * numreps / *num_threads;
+    uint64_t stride = in.size(0) * in.size(1) * in.size(2);
 
 	Array<complex<float> > tmp(in.size(0), in.size(1), in.size(2));
 
-	for (unsigned long i=start; i<stop; i++)	
+	for (uint64_t i=start; i<stop; i++)	
     {
         memcpy(tmp.data(), in.data() + stride * i, stride * sizeof(complex<float> ));
 		fft3 (tmp, tmp, *fftDirection);
@@ -150,14 +147,18 @@ PYFI_FUNC(fftw)
     PYFI_POSARG(Array<int64_t>, outdim);
 
     /***** KEYWORD ARGS */
-    PYFI_KWARG(long, dir, 0);  //"fft direction for all transformed dims (0:FORWARD, 1:BACKWARD) (default:0)"
+    PYFI_KWARG(int64_t, dir, 0);  //"fft direction for all transformed dims (0:FORWARD, 1:BACKWARD) (default:0)"
     /* these are the dims to actually perform transform on */
-    PYFI_KWARG(long, dim1, 0);  //"toggle for fft perform"
-    PYFI_KWARG(long, dim2, 0);  //"toggle for fft perform"
-    PYFI_KWARG(long, dim3, 0);  //"toggle for fft perform"
-    PYFI_KWARG(long, dim4, 0);  //"toggle for fft perform"
-    PYFI_KWARG(long, dim5, 0);  //"toggle for fft perform"
-    PYFI_KWARG(long, dim6, 0);  //"toggle for fft perform"
+    PYFI_KWARG(int64_t, dim1, 0);  //"toggle for fft perform"
+    PYFI_KWARG(int64_t, dim2, 0);  //"toggle for fft perform"
+    PYFI_KWARG(int64_t, dim3, 0);  //"toggle for fft perform"
+    PYFI_KWARG(int64_t, dim4, 0);  //"toggle for fft perform"
+    PYFI_KWARG(int64_t, dim5, 0);  //"toggle for fft perform"
+    PYFI_KWARG(int64_t, dim6, 0);  //"toggle for fft perform"
+    PYFI_KWARG(int64_t, dim7, 0);  //"toggle for fft perform"
+    PYFI_KWARG(int64_t, dim8, 0);  //"toggle for fft perform"
+    PYFI_KWARG(int64_t, dim9, 0);  //"toggle for fft perform"
+    PYFI_KWARG(int64_t, dim10, 0);  //"toggle for fft perform"
 
     /***** ALLOCATE OUTPUT */
     PYFI_SETOUTPUT_ALLOC(Array<complex <float> >, out, DA(*outdim));
@@ -165,7 +166,7 @@ PYFI_FUNC(fftw)
     /***** PERFORM */
 	// set the clock timing
 	struct timespec ttime;
-	double c0 = ttime.tv_sec + 0.000000001 * (unsigned long) ttime.tv_nsec;
+	double c0 = ttime.tv_sec + 0.000000001 * (uint64_t) ttime.tv_nsec;
 
     /* fft measurement type */
     int fftMeasureType = 1;// "Measurements made before fft. 1:ESTIMATE, 2:MEASURE, 3:PATIENT, 4:EXHAUSTIVE (default:1)")
@@ -218,12 +219,12 @@ PYFI_FUNC(fftw)
 	    	global_fftFlags = FFTW_EXHAUSTIVE;
 	    	break;
 	    default:
-		printf(RED"fft.c: error, flag choice not found\n" NOC);
+		printf(_PYFI_RED "fft.c: error, flag choice not found\n" _PYFI_NOC);
 		exit(1);
 	}
 
 	// more timing stuff
-	double cprep = ttime.tv_sec + 0.000000001 * (unsigned long) ttime.tv_nsec;
+	double cprep = ttime.tv_sec + 0.000000001 * (uint64_t) ttime.tv_nsec;
 
 	// do the fft in every lower direction specified
 	if (*dim1 == 1 && *dim2 == 1 && *dim3 == 1)	
@@ -254,10 +255,18 @@ PYFI_FUNC(fftw)
 		fft1n (*out, *out, direction, 4);
 	if (*dim6 == 1)
 		fft1n (*out, *out, direction, 5);
+  if (*dim7 == 1)
+    fft1n (*out, *out, direction, 6);
+  if (*dim8 == 1)
+    fft1n (*out, *out, direction, 7);
+  if (*dim9 == 1)
+    fft1n (*out, *out, direction, 8);
+  if (*dim10 == 1)
+    fft1n (*out, *out, direction, 9);
 
 	// more timing stuff
 	//clock_gettime (CLOCK_MONOTONIC, &ttime);
-	double cpost = ttime.tv_sec + 0.000000001 * (unsigned long) ttime.tv_nsec;
+	double cpost = ttime.tv_sec + 0.000000001 * (uint64_t) ttime.tv_nsec;
 
 	// export wisdom to a file if specified
 	if (wisdom_file != NULL)	{
@@ -274,8 +283,8 @@ PYFI_FUNC(fftw)
 	}
 
 	// print the timing stuff if necessary
-	double ctime = ttime.tv_sec + 0.000000001 * (unsigned long) ttime.tv_nsec;
-	double ccpu = ttime.tv_sec + 0.000000001 * (unsigned long) ttime.tv_nsec;
+	double ctime = ttime.tv_sec + 0.000000001 * (uint64_t) ttime.tv_nsec;
+	double ccpu = ttime.tv_sec + 0.000000001 * (uint64_t) ttime.tv_nsec;
 	if (verbose)	
     {
 		printf("Elapsed %3.2f sec, CPU %3.2f sec, Prep %3.2f sec, FFT %3.2f sec, Post %3.2f sec\n", ctime-c0, ccpu, cprep-c0, cpost-cprep, ctime-cpost);

@@ -474,27 +474,27 @@ class ExternalNode(gpi.NodeAPI):
               mz = m_in[2,dim1wid,i,j,k]
 
               # This is some logic for shifting X, Y, and Z for velocities != 0
-              if aAxisText is 'X':
+              if aAxisText == 'X':
                 aPos = aPosbase + astag*(m_in[3,-1,i,j,k]-xref[i])*offxscale
-              elif aAxisText is 'Y':
+              elif aAxisText == 'Y':
                 aPos = aPosbase + astag*(m_in[4,-1,i,j,k]-yref[i])*offyscale
-              elif aAxisText is 'Z':
+              elif aAxisText == 'Z':
                 aPos = aPosbase + astag*(m_in[5,-1,i,j,k]-zref[i])*offzscale
               else:
                 aPos = aPosbase
-              if bAxisText is 'X':
+              if bAxisText == 'X':
                 bPos = bPosbase + bstag*(m_in[3,-1,i,j,k]-xref[j])*offxscale
-              elif bAxisText is 'Y':
+              elif bAxisText == 'Y':
                 bPos = bPosbase + bstag*(m_in[4,-1,i,j,k]-yref[j])*offyscale
-              elif bAxisText is 'Z':
+              elif bAxisText == 'Z':
                 bPos = bPosbase + bstag*(m_in[5,-1,i,j,k]-zref[j])*offzscale
               else:
                 bPos = bPosbase
-              if cAxisText is 'X':
+              if cAxisText == 'X':
                 cPos = cPosbase + cstag*(m_in[3,-1,i,j,k]-xref[k])*offxscale
-              elif cAxisText is 'Y':
+              elif cAxisText == 'Y':
                 cPos = cPosbase + cstag*(m_in[4,-1,i,j,k]-yref[k])*offyscale
-              elif cAxisText is 'Z':
+              elif cAxisText == 'Z':
                 cPos = cPosbase + cstag*(m_in[5,-1,i,j,k]-zref[k])*offzscale
               else:
                 cPos = cPosbase

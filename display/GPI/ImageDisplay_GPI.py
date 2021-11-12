@@ -689,7 +689,7 @@ class ExternalNode(gpi.NodeAPI):
             red   = data[:,:,0].astype(np.uint8)
             green = data[:,:,1].astype(np.uint8)
             blue  = data[:,:,2].astype(np.uint8)
-            if(data.ndim is 3 and data.shape[-1] is 4) :
+            if(data.ndim == 3 and data.shape[-1] == 4) :
                 alpha = data[:,:,3].astype(np.uint8)
             else:
                 alpha = 255.*np.ones(blue.shape)

@@ -184,10 +184,14 @@ class ExternalNode(gpi.NodeAPI):
                     self.setAttr('location', visible=True)
                     loc = self.getVal('location')
                     # these off-center values are already in pixels
-                    stype = inparam['SPIRAL_TYPE']
+                    if 'SPIRAL_TYPE' in inparam:
+                        stype = inparam['SPIRAL_TYPE']
+                    else:
+                        stype = 0
                     xoff = inparam['FOV_OFFC_PIXELS'][loc-1,0]
                     yoff = inparam['FOV_OFFC_PIXELS'][loc-1,1]
                     zoff = inparam['FOV_OFFC_PIXELS'][loc-1,2]
+
                     # consider oversample factor DHW
                     if 'OVER_SAMP' in inparam:
                         mtx_xy = int(1.25*inparam['FOV_CM'][0]*inparam['OVER_SAMP'][0] / inparam['RES_CM'][0]+0.5)
@@ -200,6 +204,7 @@ class ExternalNode(gpi.NodeAPI):
                             mtx_z *= 1.25
                             zoff *= 1.25
                         self.setAttr('Eff MTX Z', val=mtx_z)
+                        
                 else:
                     self.log.warn("wrong header type")
                     return 1
@@ -207,6 +212,7 @@ class ExternalNode(gpi.NodeAPI):
                 self.setAttr('Eff MTX XY', val = mtx_xy)
                 self.setAttr('dx (pixels)', val=xoff)
                 self.setAttr('dy (pixels)', val=yoff)
+
 
                 # shift half pixel when the number of slices is even with
                 # distributed spirals. ZQL
