@@ -56,12 +56,14 @@ conda install pyqtgraph
 <kbd>shift</kbd> + Mouse Move
 * Left & Right: Changes window
 * Up & Down: Changes Level
+
 Note: The min and max of the window represent range min adn max. Fix Range is on when you start window leveling
 
 ![ezgif com-gif-maker (5)](https://user-images.githubusercontent.com/12875975/139873173-08592b4f-901f-4e1b-9dc6-7d6fd4939467.gif)
 
 ## Color Map
 You can color map your image by right-clicking on the color bar on the righ hand side. You can choose a preset color map or create your own by double-clicking on the color bars to add new color ranges.
+
 Note: Color maps wont apply on complex data or sign images.
 
 ![ezgif com-gif-maker (6)](https://user-images.githubusercontent.com/12875975/139874564-324d274f-6727-4a07-8d53-65acde53f62c.gif)
@@ -96,6 +98,7 @@ To mask on all ROIs: Right-click on the image to show the image menu and choose 
 
 ### Copy & Paste ROI
 Right-click on the ROI you want to copy to show the ROI menu then choose copy ROI. Then right-click on the image at the position you want to paste the ROI to show the image menu then choose paste.
+
 Note: Only `Free Hand` & `Closed Polygon` ROIs can be copied at the moment.
 
 ![ezgif com-gif-maker (12)](https://user-images.githubusercontent.com/12875975/139881097-75e57e88-e180-4eea-9c63-cf794b495305.gif)
