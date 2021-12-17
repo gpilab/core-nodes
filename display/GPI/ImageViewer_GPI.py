@@ -288,6 +288,7 @@ class Image_Viewer(gpi.GenericWidgetGroup):
 
         # initializing pyqtgraph layout to get a viewbox to add image data and histogram
         pg.setConfigOption('imageAxisOrder', 'row-major')
+        self.set_background_color()
         self.pglayout = pg.GraphicsLayoutWidget()
         self.pglayout.setMinimumHeight(500)
 
@@ -506,7 +507,6 @@ class Image_Viewer(gpi.GenericWidgetGroup):
         return info
 
     # update ========================================
-
     def set_update(self, data=None):
         # get extra dimension parameters and modify data
         if data is None: data = self.data
@@ -521,7 +521,7 @@ class Image_Viewer(gpi.GenericWidgetGroup):
 
         cval = self.p.getVal('Complex Display')
         
-        if cval == 4: 
+        if np.iscomplexobj(data) and cval == 4: 
             self.sign.setVisible(False)
         else:
             self.sign.setVisible(True)
@@ -1672,6 +1672,15 @@ class Image_Viewer(gpi.GenericWidgetGroup):
     def reset_histogram(self):
         if self.fix_range: self.histogram.setLevels(self.fix_range_min, self.fix_range_max)
 
+    def set_background_color(self, color=(20, 30, 40)):
+        """Sets the background color of pyqtgraph widgets
+        
+        Parameters
+        ----------
+        color : tuple (r, g, b), (the default is (20, 30, 40))
+        """
+        pg.setConfigOption('background', color)
+
 
 # WIDGET
 class WindowLevel(gpi.GenericWidgetGroup):
@@ -1960,10 +1969,10 @@ class ExternalNode(gpi.NodeAPI):
         # make a copy for changes
         data = self.getData('in').copy()
         
-        if self.input_data is None: self.input_data = data
-        if self.input_data is not None and not np.array_equal(self.input_data, data): 
-            self.input_data = data
-            self.setAttr('Viewport:', refresh=data)
+        # if self.input_data is None: self.input_data = data
+        # if self.input_data is not None and not np.array_equal(self.input_data, data): 
+        #     self.input_data = data
+        #     self.setAttr('Viewport:', refresh=data)
 
         self.setAttr('Viewport:', update=data)
 
