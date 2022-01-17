@@ -665,7 +665,7 @@ class Image_Viewer(gpi.GenericWidgetGroup):
                 xloc = np.tile(np.linspace(-1., 1., w2), (h2, 1))
                 yloc = np.transpose(np.tile(np.linspace(1., -1., h2), (w2, 1)))
                 phase2[frame] = np.degrees(
-                    np.arctan2(yloc[frame], xloc[frame]))
+                    np.arctan2(xloc[frame], yloc[frame]))
 
                 mag = mag2
                 phase = phase2
