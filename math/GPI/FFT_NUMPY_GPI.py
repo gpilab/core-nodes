@@ -244,13 +244,13 @@ class ExternalNode(gpi.NodeAPI):
                         zpad_before = int(zpad_length / 2.0 - 0.5)
                         zpad_after = int(zpad_length / 2.0)
                     if zpad_after > 0:
-                        temp = np.insert(temp, data.shape[-i-1] *
-                                         np.ones(zpad_after), 0.0, (-i-1))
+                        temp = np.insert(temp, (data.shape[-i-1] *
+                                         np.ones(zpad_after, dtype=int)), 0.0, (-i-1))
                     elif zpad_after < 0:
                         temp = np.delete(temp, list(range(data.shape[-i-1] +
                                          zpad_after, data.shape[-i-1])), (-i-1))
                     if zpad_before > 0:
-                        temp = np.insert(temp, np.zeros(zpad_before), 0.0,
+                        temp = np.insert(temp, np.zeros(zpad_before, dtype=int), 0.0,
                                          (-i-1))
                     elif zpad_before < 0:
                         temp = np.delete(temp, list(range(-zpad_before)), (-i-1))
