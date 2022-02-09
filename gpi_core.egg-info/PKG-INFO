@@ -1,0 +1,24 @@
+Metadata-Version: 2.1
+Name: gpi-core
+Version: 2.4.0
+Summary: Graphical Programming Interface
+Home-page: https://github.com/gpilab/framework
+Author: AbdulRahman Alfayad
+Author-email: alfayad.abdulrahman@mayo.edu
+License: GNU
+Platform: UNKNOWN
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+License-File: COPYING
+License-File: COPYING.LESSER
+License-File: AUTHORS
+
+[![GPI Core Node Library](http://gpilab.com/images/corenode_b.jpg)](http://gpilab.com)
+======================================================================================
+
+The core nodes are a collection of basic data manipulation and visualization
+algorithms.  This node library is the "default library" packaged with the
+[GPI Stack](http://gpilab.com).
+
+

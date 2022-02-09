@@ -10,7 +10,7 @@ README = (HERE / "README.md").read_text()
 
 setup(
     name='gpi_core',
-    version='1.3.2',
+    version='2.4.0',
     description="Graphical Programming Interface",
     long_description=README,
     long_description_content_type="text/markdown",
