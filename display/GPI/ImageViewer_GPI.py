@@ -346,7 +346,7 @@ class Image_Viewer(gpi.GenericWidgetGroup):
         """
         if self.mask_image_data is None: self.image_data = data
         self.image.setImage(data)
-        self.viewbox.autoRange()
+        # self.viewbox.autoRange()
         self.image.setLevels((0, 255))
         if self.interpolate: self.interpolate_image(True)
         self.p.setData('out', data)
@@ -1667,6 +1667,7 @@ class Image_Viewer(gpi.GenericWidgetGroup):
 
     def reset_image(self):
         self.mask_image_data = None
+        self.viewbox.autoRange()
         self.set_update()
 
     def reset_histogram(self):
