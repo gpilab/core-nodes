@@ -1658,7 +1658,7 @@ class Image_Viewer(gpi.GenericWidgetGroup):
         else:
             self.image.setImage(self.image_data)
             self.interpolate = False
-        self.viewbox.autoRange()
+        # self.viewbox.autoRange()
 
     def copy_image(self):
         self.image_exporter.params['width'] = self.viewbox.screenGeometry().width()
