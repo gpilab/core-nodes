@@ -181,7 +181,7 @@ class ExternalNode(gpi.NodeAPI):
 #%% # WPGEN dual Tau
 def wpgen_dual_tau(params):
     
-    import core.spiral.whirledpeas as whirledpeas
+    import gpi_core.spiral.whirledpeas as whirledpeas
     
     fov = params['fov']
     res = params['res']
@@ -244,7 +244,7 @@ def wpgen_dual_tau(params):
 #%% # WPGEN single Tau
 def wpgen_single_tau(params):
     
-    import core.spiral.whirledpeas as whirledpeas
+    import gpi_core.spiral.whirledpeas as whirledpeas
     
     fov = params['fov']
     res = params['res']
@@ -304,7 +304,7 @@ def wpgen_single_tau(params):
 
 def gen_rotated_traj(ksp, sdc, grad, params):
     
-    import core.spiral.whirledpeas as whirledpeas
+    import gpi_core.spiral.whirledpeas as whirledpeas
     
     arm_ord = {
                 'Linear': whirledpeas.OrderType.LINEAR,
