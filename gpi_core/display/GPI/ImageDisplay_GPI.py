@@ -323,9 +323,6 @@ class ExternalNode(gpi.NodeAPI):
         # make a copy for changes
         data = self.getData('in').copy()
 
-        # passing the data to viewport widget
-        self.setAttr('Viewport:', data=np.transpose(self.getData('in').copy()))
-
         # get extra dimension parameters and modify data
         dimfunc = self.getVal('Extra Dimension')
         dimval = self.getVal('Slice/Tile Dimension')
@@ -681,6 +678,7 @@ class ExternalNode(gpi.NodeAPI):
             green = green.astype(np.uint8)
             blue = blue.astype(np.uint8)
             alpha = np.uint8(data)
+            alpha = np.uint(255)
 
         # DISPLAY RGB image
         else:
