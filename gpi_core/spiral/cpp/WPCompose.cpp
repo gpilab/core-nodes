@@ -212,18 +212,11 @@ void WPCompose::composeKSPnSDC(dVector& kspX, dVector& kspY,
     // Calculate base ksp and sdc
     mWPOut->ComputeKSPnSDC(mKspOutX, mKspOutY, mSdcOut);
 
-    if (cg_crds_sdc) {
-        mWPOut->ComputeKSPnSDCForCG(mKspOutX, mKspOutY, mSdcOut);
-    }
-
     kspLengths[2] = mKspOutX.size();
 
     if (mDualTau) {
         mWPIn->ComputeKSPnSDC(mKspInX, mKspInY, mSdcIn);
 
-        if (cg_crds_sdc) {
-            mWPIn->ComputeKSPnSDCForCG(mKspInX, mKspInY, mSdcIn);
-        } 
         kspLengths[0] = mKspInX.size();
 
         mKspInX = _negative(_flip(mKspInX));

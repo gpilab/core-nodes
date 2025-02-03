@@ -45,14 +45,10 @@ public:
 
     ~WPGen(); // Destructor
 
-    //void ComputeGradients(dVector& gradX, dVector& gradY);
-
     void ComputeBaseSpiral(dVector& gradX, dVector& gradY);
     void ComputeRampDown(dVector& rampX, dVector& rampY);
     bool ComputeM0M1Trapezoids(dVector& m0m1X, dVector& m0m1Y);
     void ComputeKSPnSDC(dVector& kspX,   dVector& kspY, dVector& sdc);
-    void ComputeKSPnSDCForCG(dVector& kspX, dVector& kspY, dVector& sdc);
-
     void ComputeTimeMap(std::vector<dVector >& timeMap);
 
     // Getter methods

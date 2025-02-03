@@ -198,13 +198,6 @@ void WPGen::_computeTimings()
   totalSpiralPts = spiralReadPts + spiralRampPts;
 
   kspacePts = static_cast<int>(readoutDur / mDwell);
-
-  // Constant Gradient crd variables (fast arc followed by constant gradient)
-  mDwellCG = 1.0 / (mGamma * gradMaxIn * mFov);
-  mArcDurCG = nyqNumberArms / (2.0 * mGamma * gradMaxIn * mFov);
-  mG0CG = mDelta / (2.0 * mGamma * gradMaxIn);
-  mCtaCG = 2.0 * M_PI * (mGamma * mGamma * gradMaxIn * gradMaxIn * mFov * mFov) / (nyqNumberArms * nyqNumberArms);
-  mTotalCGDur = mArcDurCG + (gradDur1 - mG0CG) + outRingDur;
 }
 
 void WPGen::ComputeBaseSpiral(dVector& gradX, dVector& gradY)
@@ -696,63 +689,6 @@ dVector& sdc)
   snrFactor = meanSDC / sqrt(meanSDC2);
 
   mKSPComputed = true;
-}
-
-void WPGen::ComputeKSPnSDCForCG(dVector& kspX, dVector& kspY, dVector& sdc)
-{
-  const double cgg = gradMaxSpiral;
-  const double csg = cgg / gradMaxSpiral;
-  int kpts_cg = static_cast<int>(mTotalCGDur / mDwellCG);
-
-  kspX.resize(kpts_cg, 0.0);
-  kspY.resize(kpts_cg, 0.0);
-  sdc.resize(kpts_cg, 0.0);
-
-  double ctg = sqrt(2.0 * mGamma * gradMax / mDelta);
-  double theta, phi = 0., arm2arm, krad = 0., phi0, alpha;
-
-  for (int i = 0; i < kpts_cg; i++) {
-    double t = static_cast<double>(i) * mDwellCG;
-
-    // ARC
-    if (t < mArcDurCG) {
-      theta = mCtaCG * t * t;
-      krad = mDelta * sqrt(2.0 * (1.0 - cos(theta)));
-      phi = atan2(1.0 - cos(theta), sin(theta)) + 1.0 - 0.5 * M_PI;
-      arm2arm = sin(theta);
-      sdc[i] = (t / mArcDurCG) * arm2arm;
-    } else {
-      t = t - mArcDurCG + mG0CG;
-
-      // GRAD
-      if (mAddOuterRing) {
-        if (t < mTotalCGDur) {
-          sdc[i] = 1.0;
-          theta = ctg * sqrt(t);
-          krad = mDelta * sqrt(theta * theta + 1.0);
-          phi = theta - acos(mDelta / krad);
-        } else {
-          // RING
-          phi0 = ctg * sqrt(outRingDur1);
-          if (t < outRingDur1) {
-            alpha = 0.5 * M_PI * (outRingDur1 - t) / outRingDur;
-            sdc[i] = csg * sin(alpha); // Sin() is ad-hoc for inter-arm distance
-            theta = thetaPrimeRing * (t - gradDur1);
-            krad = sqrt(rcLim * rcLim + mDelta * mDelta + 2.0 * rcLim * mDelta * sin(theta));
-            phi = phi0 - acos((rcLim * sin(theta) + mDelta) / krad);
-          }
-        }
-      } else {
-        sdc[i] = 1.0;
-        theta = ctg * sqrt(t);
-        krad = mDelta * sqrt(theta * theta + 1.0);
-        phi = theta - acos(mDelta / krad);
-      }
-    }
-
-    kspX[i] = krad * cos(phi) * mGridRes * mRes * coordsScaleFactor;
-    kspY[i] = krad * sin(phi) * mGridRes * mRes * coordsScaleFactor;
-  }
 }
 
 void WPGen::ComputeTimeMap(std::vector<dVector > & timeMap)
