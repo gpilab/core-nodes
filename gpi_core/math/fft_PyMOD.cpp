@@ -62,7 +62,7 @@ using namespace PyFI::FFTW;
 **/
 void fft1_thread (int *num_threads, int *cur_thread, Array<complex<float> >& in, Array<complex<float> >& out, int *fftDirection)	{
 	assert (in.data() != NULL && out.data() != NULL);
-	assert (num_threads > 0);
+	assert (*num_threads > 0);
 
 	uint64_t total_size = in.size();
 	uint64_t numreps = total_size / in.size(0);
@@ -86,7 +86,7 @@ void fft1_threaded (int num_threads, Array<complex<float> > *in, Array<complex<f
 void fft2_thread (int *num_threads, int *cur_thread, Array<complex<float> >& in, Array<complex<float> >& out, int *fftDirection)	
 {
 	assert (in.data() != NULL && out.data() != NULL);
-	assert (num_threads > 0);
+	assert (*num_threads > 0);
 
 	uint64_t total_size = in.size();
 	uint64_t numreps = total_size / (in.size(0) * in.size(1));
@@ -110,7 +110,7 @@ void fft2_threaded (int num_threads, Array<complex<float> > *in, Array<complex<f
 void fft3_thread (int *num_threads, int *cur_thread, Array<complex<float> >& in, Array<complex<float> >& out, int *fftDirection)	
 {
 	assert (in.data() != NULL && out.data() != NULL);
-	assert (num_threads > 0);
+	assert (*num_threads > 0);
 
 	uint64_t total_size = in.size();
 	uint64_t numreps = total_size / (in.size(0) * in.size(1) * in.size(2));
